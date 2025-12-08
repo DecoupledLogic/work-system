@@ -8,6 +8,9 @@ set -e
 
 CLAUDE_DIR="${HOME}/.claude"
 
+# Components to remove (must match install.sh)
+COMPONENTS=(agents commands templates docs work-managers session schema)
+
 echo "Uninstalling Claude Code Work System..."
 echo ""
 
@@ -34,16 +37,13 @@ remove_symlink() {
 
 echo "Removing symlinks..."
 
-# Directories
-remove_symlink "${CLAUDE_DIR}/agents"
-remove_symlink "${CLAUDE_DIR}/commands"
-remove_symlink "${CLAUDE_DIR}/templates"
-remove_symlink "${CLAUDE_DIR}/docs"
-remove_symlink "${CLAUDE_DIR}/work-managers"
-remove_symlink "${CLAUDE_DIR}/session"
+# Remove symlinks for all components
+for component in "${COMPONENTS[@]}"; do
+    remove_symlink "${CLAUDE_DIR}/${component}"
+done
 
 echo ""
 echo "Uninstallation complete!"
 echo ""
-echo "The repository at ~/projects/work-system is still intact."
-echo "To fully remove, run: rm -rf ~/projects/work-system"
+echo "The repository is still intact."
+echo "To fully remove, run: rm -rf $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

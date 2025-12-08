@@ -3,11 +3,79 @@
 #
 # This script creates symlinks from ~/.claude to the repository,
 # allowing Claude Code to read files while git tracks changes.
+#
+# Usage:
+#   ./install.sh          # Install (or update) work system
+#   ./install.sh --check  # Check if already installed
+#   ./install.sh --status # Same as --check
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="${HOME}/.claude"
+
+# Components to symlink
+COMPONENTS=(agents commands templates docs work-managers session schema)
+
+# Check if a component is correctly linked to this repo
+is_linked() {
+    local name="$1"
+    local target="${CLAUDE_DIR}/${name}"
+    local source="${SCRIPT_DIR}/${name}"
+
+    if [ -L "$target" ]; then
+        local actual=$(readlink -f "$target" 2>/dev/null || readlink "$target")
+        if [ "$actual" = "$source" ]; then
+            return 0  # Correctly linked
+        fi
+    fi
+    return 1  # Not linked or wrong target
+}
+
+# Check installation status
+check_installation() {
+    local installed=0
+    local total=${#COMPONENTS[@]}
+
+    echo "Work System Installation Status"
+    echo "================================"
+    echo "Repository: ${SCRIPT_DIR}"
+    echo "Target: ${CLAUDE_DIR}"
+    echo ""
+
+    for component in "${COMPONENTS[@]}"; do
+        if is_linked "$component"; then
+            echo "  ✓ $component"
+            installed=$((installed + 1))
+        elif [ -L "${CLAUDE_DIR}/${component}" ]; then
+            echo "  ✗ $component (symlink points elsewhere)"
+        elif [ -e "${CLAUDE_DIR}/${component}" ]; then
+            echo "  ✗ $component (exists but not a symlink)"
+        else
+            echo "  ✗ $component (not installed)"
+        fi
+    done
+
+    echo ""
+    if [ $installed -eq $total ]; then
+        echo "Status: Fully installed ($installed/$total components)"
+        return 0
+    elif [ $installed -gt 0 ]; then
+        echo "Status: Partially installed ($installed/$total components)"
+        echo "Run ./install.sh to complete installation"
+        return 1
+    else
+        echo "Status: Not installed"
+        echo "Run ./install.sh to install"
+        return 1
+    fi
+}
+
+# Handle --check or --status flag
+if [ "$1" = "--check" ] || [ "$1" = "--status" ]; then
+    check_installation
+    exit $?
+fi
 
 echo "Installing Claude Code Work System..."
 echo "Repository: ${SCRIPT_DIR}"
@@ -40,18 +108,15 @@ create_symlink() {
 
 echo "Creating symlinks..."
 
-# Directories
-create_symlink "${SCRIPT_DIR}/agents" "${CLAUDE_DIR}/agents"
-create_symlink "${SCRIPT_DIR}/commands" "${CLAUDE_DIR}/commands"
-create_symlink "${SCRIPT_DIR}/templates" "${CLAUDE_DIR}/templates"
-create_symlink "${SCRIPT_DIR}/docs" "${CLAUDE_DIR}/docs"
-create_symlink "${SCRIPT_DIR}/work-managers" "${CLAUDE_DIR}/work-managers"
-create_symlink "${SCRIPT_DIR}/session" "${CLAUDE_DIR}/session"
+# Create symlinks for all components
+for component in "${COMPONENTS[@]}"; do
+    create_symlink "${SCRIPT_DIR}/${component}" "${CLAUDE_DIR}/${component}"
+done
 
 echo ""
 echo "Installation complete!"
 echo ""
-echo "Verify with: ls -la ~/.claude/ | grep '^l'"
+echo "Verify with: ./install.sh --check"
 echo ""
 echo "Next steps:"
 echo "1. Configure work manager (if needed): vim ~/.claude/work-manager.yaml"
