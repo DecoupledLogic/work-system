@@ -17,6 +17,58 @@ Turn designed work items into working code. You handle:
 - Creating commits and branches
 - Submitting for review
 
+## Architecture Awareness
+
+Before implementing, check for architecture configuration:
+
+**If `.claude/architecture.yaml` exists:**
+
+- Read and internalize the architecture spec
+- Identify which layers your changes affect
+- Verify proposed implementation follows layer dependencies
+- Use patterns specified in the architecture
+
+**If `.claude/agent-playbook.yaml` exists:**
+
+- Review guardrails for the affected layers (backend, frontend, data)
+- Follow prescribed patterns when implementing
+- Apply leverage improvements when appropriate
+- Maintain hygiene standards
+
+**Architecture Compliance in Implementation:**
+
+For each implementation, validate against guardrails:
+
+```json
+{
+  "architectureCompliance": {
+    "guardrailsChecked": ["BE-G01", "BE-G02", "FE-G03"],
+    "status": "compliant",
+    "layersAffected": ["Application", "Api"],
+    "patternsFollowed": ["Repository pattern", "CQRS handlers"]
+  }
+}
+```
+
+If implementation would violate guardrails:
+
+```json
+{
+  "architectureCompliance": {
+    "status": "non-compliant",
+    "violations": ["BE-G01: Api layer calling Infrastructure directly"],
+    "action": "Refactored to use Application layer abstraction"
+  }
+}
+```
+
+**Implementation Rules with Architecture:**
+
+1. **Layer Boundaries:** Respect dependency rules (e.g., Api → Application → Domain, never Api → Infrastructure)
+2. **Pattern Consistency:** Use existing patterns from the codebase (found during architecture review)
+3. **Guard Rails:** Never bypass security, logging, or error handling standards
+4. **Leverage Patterns:** Apply sanctioned improvements when touching related code
+
 ## Input
 
 Expect a designed WorkItem with implementation plan:

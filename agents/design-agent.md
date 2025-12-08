@@ -16,6 +16,46 @@ Move from what we are doing (Plan) to how we will do it (Design). You bridge the
 - Creating architecture decision records
 - Generating implementation and test plans
 
+## Architecture Awareness
+
+Before designing, check for architecture configuration:
+
+**If `.claude/architecture.yaml` exists:**
+- Read and internalize the architecture spec
+- Validate all options against defined guardrails
+- Follow patterns specified in the architecture
+- Note which layers and modules will be affected
+- Ensure design fits within architectural boundaries
+
+**If `.claude/agent-playbook.yaml` exists:**
+- Review guardrails for the affected layers (backend, frontend, data)
+- Follow prescribed patterns when generating implementation plans
+- Note any leverage or hygiene improvements that apply
+
+**Architecture Validation in Options:**
+
+For each solution option, include:
+```json
+{
+  "architectureCompliance": {
+    "guardrailsChecked": ["BE-G01", "BE-G02", "FE-G03"],
+    "status": "compliant",
+    "notes": "Follows existing Application layer patterns per architecture.yaml"
+  }
+}
+```
+
+If an option would violate guardrails, mark it:
+```json
+{
+  "architectureCompliance": {
+    "status": "non-compliant",
+    "violations": ["BE-G01: Would require Api to reference Infrastructure directly"],
+    "mitigation": "Recommend Option 2 which uses Application layer abstraction"
+  }
+}
+```
+
 ## Input
 
 Expect a planned WorkItem (Feature or Story):

@@ -98,7 +98,35 @@ Work item TW-12345 needs design before delivery.
 Run `/design TW-12345` first.
 ```
 
-### Step 3: Create/Switch to Branch
+### Step 3: Load Architecture Context
+
+Check for and load architecture configuration:
+
+```bash
+# Check for architecture files
+if [ -f ".claude/architecture.yaml" ]; then
+  # Load architecture spec
+  ARCHITECTURE=$(cat .claude/architecture.yaml)
+fi
+
+if [ -f ".claude/agent-playbook.yaml" ]; then
+  # Load playbook rules
+  PLAYBOOK=$(cat .claude/agent-playbook.yaml)
+fi
+```
+
+**If architecture files exist:**
+
+- Include architecture context in all agent prompts
+- Agents will validate changes against guardrails
+- Compliance status will be reported in delivery summary
+
+**If no architecture files:**
+
+- Proceed without architecture constraints
+- Consider running `/work-init` to generate architecture config
+
+### Step 4: Create/Switch to Branch
 
 Ensure correct branch:
 
@@ -113,7 +141,7 @@ git checkout feature/TW-{id}-{slug} || git checkout -b feature/TW-{id}-{slug}
 git pull origin main --rebase
 ```
 
-### Step 4: Development Phase
+### Step 5: Development Phase
 
 Call dev-agent for implementation:
 
@@ -128,6 +156,7 @@ Return the full devResult JSON including:
 - Test results
 - Files changed
 - Implementation notes
+- Architecture compliance
 - Next step routing
 
 Input WorkItem:
@@ -140,6 +169,11 @@ Context:
 - Repo path: [path]
 - Branch: [branch name]
 - Test framework: [framework]
+
+Architecture Context (if available):
+- Architecture: [contents of .claude/architecture.yaml]
+- Playbook: [contents of .claude/agent-playbook.yaml]
+- Guardrails to follow: [relevant guardrails for affected layers]
 ```
 
 **Development Checkpoints:**
@@ -147,7 +181,7 @@ Context:
 2. Check for linting errors
 3. Ensure no security issues introduced
 
-### Step 5: QA Phase
+### Step 6: QA Phase
 
 Call qa-agent for validation:
 
@@ -189,7 +223,7 @@ Returning to development to fix.
 
 Route back to dev phase.
 
-### Step 6: Evaluation Phase
+### Step 7: Evaluation Phase
 
 Call eval-agent for final evaluation:
 
@@ -220,7 +254,7 @@ Delivery Context:
 - Lines changed: [added/removed]
 ```
 
-### Step 7: Create Pull Request
+### Step 8: Create Pull Request
 
 If not already created:
 
@@ -237,7 +271,7 @@ The `/gh-create-pr` command automatically generates a PR body with:
 - Test plan checklist
 - Proper attribution
 
-### Step 8: Update Work Item (via Aggregate)
+### Step 9: Update Work Item (via Aggregate)
 
 Post completion summary using aggregate commands:
 
@@ -285,7 +319,7 @@ Post completion summary using aggregate commands:
 
 The aggregate commands automatically sync to the external system (Teamwork, GitHub, etc.).
 
-### Step 9: Update Session State
+### Step 10: Update Session State
 
 Update active work context:
 
@@ -313,7 +347,7 @@ Update active work context:
 | Tests | 45 passed |
 ```
 
-### Step 10: Complete or Route (via Aggregate)
+### Step 11: Complete or Route (via Aggregate)
 
 Based on evaluation results, transition using the aggregate:
 
@@ -397,6 +431,14 @@ After delivery phase completes:
 | Tests Failed | 0 | 0 | ✓ |
 | Coverage | 94% | 80% | ✓ |
 | Quality Score | 92 | 80 | ✓ |
+
+### Architecture Compliance
+| Check | Status |
+|-------|--------|
+| Guardrails Checked | BE-G01, BE-G02, FE-G03 |
+| Compliance Status | ✓ Compliant |
+| Layers Affected | Application, Api |
+| Patterns Followed | Repository, CQRS |
 
 ### Plan vs Actual
 | Aspect | Planned | Actual | Variance |
