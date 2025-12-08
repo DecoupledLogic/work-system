@@ -8,7 +8,19 @@ allowedTools:
   - SlashCommand
 ---
 
-You are the Plan Orchestrator. Your job is to coordinate the planning process by calling specialized agents and updating work tracking systems.
+You are the Plan Orchestrator. Your job is to coordinate the planning process by calling specialized agents and using **domain aggregates** to manage work items.
+
+## Domain Integration
+
+This command uses the WorkItem aggregate (`/domain/work-item`) as the abstraction layer for all work item operations.
+
+**Key Aggregate Commands Used:**
+
+- `/work-item get <id>` - Fetch work item (by internal ID or `--external`)
+- `/work-item update <id>` - Update with planning results (appetite, status)
+- `/work-item add-child <id>` - Create child work items (stories, tasks)
+- `/work-item transition <id> design|deliver` - Move to next stage
+- `/work-item comment <id> "message"` - Add planning comment (auto-syncs)
 
 ## Purpose
 
@@ -31,22 +43,31 @@ Plan transforms triaged work items into right-sized, well-defined chunks ready f
 
 ## Process
 
-### Step 1: Identify Input
+### Step 1: Identify Input (via Domain Aggregate)
 
 Determine what to plan:
 
-**If Teamwork ID provided:**
-- Extract numeric ID (strip "TW-" or "#" prefix)
-- Fetch task details using `/teamwork:tw-get-task <taskId>`
-- Check if already triaged (has type, workType assigned)
+**If work item ID provided (WI-xxx or external reference):**
+
+```bash
+# Internal ID
+/work-item get WI-2024-042
+
+# External reference (Teamwork, GitHub, etc.)
+/work-item get --external teamwork:26134585
+```
+
+- Check if already triaged (status = triaged, has type assigned)
 - If not triaged, run `/triage` first
 
 **If no input provided:**
+
 - Read `~/.claude/session/active-work.md`
-- Use the current work item
+- Use the current work item from session
 - Verify it's in "triage" complete or "plan" stage
 
 **If JSON provided:**
+
 - Parse directly
 - Validate required fields (id, name, type)
 
@@ -145,41 +166,50 @@ For epics and features, create a plan document:
    *Planned: {timestamp}*
    ```
 
-### Step 6: Create Child Work Items in Teamwork
+### Step 6: Create Child Work Items (via Aggregate)
 
-For each child work item from plan-agent:
+For each child work item from plan-agent, use the aggregate's `add-child` command:
 
-1. **Create subtask in Teamwork:**
-   - Use `/teamwork:tw-create-task <parentTaskId> <name> [description] [estimateMinutes]`
-   - Parent task ID ensures proper hierarchy
-   - Include description with acceptance criteria for stories
-   - Set estimate in minutes if available
-
-2. **For stories, include acceptance criteria in description:**
-   ```markdown
-   ## Description
-   {story description}
-
-   ## Acceptance Criteria
-
-   **Scenario: {scenario name}**
-   - Given {context}
-   - When {action}
-   - Then {outcome}
-
-   **Scenario: {scenario2 name}**
-   ...
-   ```
-
-3. **Example creation:**
+1. **Create child work items:**
 
    ```bash
-   # Create story subtask under feature
-   /teamwork:tw-create-task 26134585 "User can login with email" "Story description with acceptance criteria" 480
+   # Create story under feature
+   /work-item add-child WI-2024-042 \
+     --type story \
+     --name "User can login with email" \
+     --description "Story description with acceptance criteria"
 
-   # Create task subtask under story
-   /teamwork:tw-create-task 26134586 "Create login component" "Build React login form" 120
+   # Create task under story
+   /work-item add-child WI-2024-043 \
+     --type task \
+     --name "Create login component" \
+     --estimate 2h
    ```
+
+2. **The aggregate automatically:**
+
+   - Generates child work item ID (WI-xxx)
+   - Inherits project and template from parent
+   - Creates in external system if parent is linked
+   - Maintains parent-child relationship
+
+3. **For stories, include acceptance criteria:**
+
+   ```bash
+   /work-item update WI-2024-043 --acceptance-criteria "
+   Scenario: Valid login
+   - Given a registered user
+   - When they enter valid credentials
+   - Then they are logged in
+
+   Scenario: Invalid login
+   - Given a registered user
+   - When they enter invalid credentials
+   - Then they see an error message
+   "
+   ```
+
+4. **Sync happens automatically** - if parent is linked to Teamwork/GitHub, children are created there too.
 
 ### Step 7: Update Session State
 
@@ -212,50 +242,68 @@ Update active work context:
    - Mark "plan" stage as completed
    - Set next stage (design or deliver)
 
-### Step 8: Post Teamwork Comment
+### Step 8: Post Planning Comment (via Aggregate)
 
-Document planning decisions in Teamwork using `/teamwork:tw-create-comment`:
+Document planning decisions using aggregate comment (auto-syncs to external system):
 
-```
-Planning Complete
+```bash
+/work-item comment WI-2024-042 "Planning Complete
 
 **Appetite:** 2 weeks
 **Decomposition:** 3 stories created
 
 **Stories:**
-1. TW-26134586: Basic login (2 days)
-2. TW-26134587: OAuth integration (3 days)
-3. TW-26134588: Password reset (1 day)
+1. WI-2024-043: Basic login (2 days)
+2. WI-2024-044: OAuth integration (3 days)
+3. WI-2024-045: Password reset (1 day)
 
 **Next Stage:** Design
-**Plan Document:** docs/plans/TW-26134585.md
+**Plan Document:** docs/plans/WI-2024-042.md
 
-🤖 Submitted by George with love ♥
+🤖 Submitted by George with love ♥"
 ```
 
-Update task progress using `/teamwork:tw-update-task <taskId> --progress 15`
+The `/work-item comment` command automatically:
 
-### Step 9: Route to Next Stage
+- Adds to local work item history
+- Syncs to external system (Teamwork, GitHub, etc.)
+- Includes timestamp and author
 
-Based on plan results, indicate next action:
+### Step 9: Transition to Next Stage (via Aggregate)
+
+Based on plan results, transition using the aggregate:
 
 **If nextStage = "design":**
+
+```bash
+/work-item transition WI-2024-042 design
+/work-item update WI-2024-042 --status planned
+```
+
+Output:
 ```
 Planning complete. Feature requires design decisions.
-Run `/design TW-26134585` to explore solution options.
+Run `/design WI-2024-042` to explore solution options.
 ```
 
 **If nextStage = "deliver":**
+
+```bash
+/work-item transition WI-2024-042 deliver
+/work-item update WI-2024-042 --status planned
+```
+
+Output:
 ```
 Planning complete. Work items ready for implementation.
-Run `/deliver TW-26134585` to begin development.
+Run `/deliver WI-2024-042` to begin development.
 ```
 
 **If children need individual planning:**
 ```
 Feature planned. Stories need acceptance criteria:
-- Run `/plan TW-26134586` for Basic login
-- Run `/plan TW-26134587` for OAuth integration
+- Run `/plan WI-2024-043` for Basic login
+- Run `/plan WI-2024-044` for OAuth integration
 ```
 
 ## Output Format
@@ -420,7 +468,21 @@ Support items typically skip detailed planning:
 ## Configuration
 
 The plan process uses these configuration files:
+
 - `~/.claude/commands/index.yaml` - Stage definitions
 - `~/.claude/templates/product/` - Product templates
 - `~/.claude/session/active-work.md` - Current work context
 - `~/.claude/agents/plan-agent.md` - Planning agent
+
+## Domain Aggregate Reference
+
+| Operation | Aggregate Command |
+|-----------|-------------------|
+| Fetch work item | `/work-item get <id>` or `--external <system>:<id>` |
+| Update planning results | `/work-item update <id> --status planned` |
+| Create child items | `/work-item add-child <id> --type <t> --name "..."` |
+| Update acceptance criteria | `/work-item update <id> --acceptance-criteria "..."` |
+| Add comment | `/work-item comment <id> "message"` |
+| Transition stage | `/work-item transition <id> design\|deliver` |
+
+See [/domain/work-item](domain/work-item.md) for full aggregate documentation.

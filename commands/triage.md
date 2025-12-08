@@ -6,13 +6,22 @@ allowedTools:
   - Edit
   - Task
   - SlashCommand
-  - mcp__Teamwork__twprojects-get_task
-  - mcp__Teamwork__twprojects-update_task
-  - mcp__Teamwork__twprojects-create_comment
-  - mcp__Teamwork__twprojects-create_task
 ---
 
-You are the Triage Orchestrator. Your job is to coordinate the triage process by calling specialized agents and updating work tracking systems.
+You are the Triage Orchestrator. Your job is to coordinate the triage process by calling specialized agents and using **domain aggregates** to manage work items.
+
+## Domain Integration
+
+This command uses the WorkItem aggregate (`/domain/work-item`) as the abstraction layer for all work item operations. External systems (Teamwork, GitHub, etc.) are accessed through the aggregate's sync capabilities.
+
+**Key Aggregate Commands Used:**
+
+- `/work-item get --external teamwork:<id>` - Fetch and normalize external task
+- `/work-item create` - Create new work item from raw context
+- `/work-item update` - Update work item with triage results
+- `/work-item transition <id> plan|design|deliver` - Move to next stage
+- `/work-item route <id> <queue>` - Route to urgency queue
+- `/work-item comment <id> "message"` - Add triage comment (auto-syncs to external)
 
 ## Purpose
 
@@ -53,27 +62,37 @@ If Teamwork ID detected, extract numeric ID:
 - Object with `id` and `name` fields
 - Already structured work item
 
-### Step 2: Fetch and Normalize (if Teamwork ID)
+### Step 2: Fetch and Normalize (via Domain Aggregate)
 
 If input is a Teamwork task ID:
 
-1. **Fetch task details:**
-   - Use `mcp__Teamwork__twprojects-get_task` with the numeric task ID
-   - Extract: name, description, status, priority, dueDate, tags, parent task, project info
+1. **Fetch and normalize via WorkItem aggregate:**
 
-2. **Call work-item-mapper agent:**
-   - Use Task tool with `subagent_type: "work-item-mapper"` (note: not yet registered, use general-purpose)
-   - Pass the Teamwork task JSON
-   - Receive normalized WorkItem
-
+   ```bash
+   /work-item get --external teamwork:<id>
    ```
-   Prompt for work-item-mapper:
-   Map this Teamwork task to the WorkItem schema. Read ~/.claude/agents/work-item-mapper.md
-   for mapping rules. Return the normalized WorkItem JSON.
 
-   Task data:
-   [Teamwork task JSON]
+   This command:
+   - Fetches task details from Teamwork
+   - Normalizes to WorkItem schema (via work-item-mapper)
+   - Returns a unified work item regardless of source system
+
+2. **If work item doesn't exist locally, create it:**
+
+   ```bash
+   /work-item create --type <inferred> --name "<name>" --external teamwork:<id>
    ```
+
+   The aggregate handles:
+   - ID generation (WI-xxx format)
+   - External system linking
+   - Initial status (draft)
+
+**Note:** The aggregate abstracts the external system. The same flow works for:
+
+- Teamwork: `--external teamwork:26134585`
+- GitHub: `--external github:owner/repo#123`
+- Linear: `--external linear:LIN-123`
 
 ### Step 3: Check for Project-Specific Triage
 
@@ -129,89 +148,114 @@ If triage-agent assigned a processTemplate:
    - `requiredSections` for later validation
    - `outputs` for expected deliverables
 
-### Step 6: Update Session State
+### Step 6: Update Work Item via Aggregate
 
-Update the active work context:
+Apply triage results using domain aggregate commands:
 
-1. **Write to active-work.md:**
-   - Read `~/.claude/session/active-work.md`
-   - Update with triaged work item details
-   - Set stage to "triage" with status "completed"
+1. **Update work item with triage results:**
 
-2. **Format for session state:**
+   ```bash
+   /work-item update <id> \
+     --type story \
+     --priority medium \
+     --status triaged \
+     --template support/generic
+   ```
+
+2. **Route to appropriate queue:**
+
+   ```bash
+   /work-item route <id> standard "Triaged: support request, medium impact"
+   ```
+
+   Queue mapping from urgency:
+   - `critical` → `immediate`
+   - `now` → `urgent`
+   - `next` → `standard`
+   - `future` → `deferred`
+
+3. **Update session state:**
+
+   The aggregate automatically updates `~/.claude/session/active-work.md` with:
+
    ```markdown
    ## Current Work Item
 
-   **Work Item ID:** TW-26134585
+   **Work Item ID:** WI-2024-042
+   **External:** teamwork:26134585
    **Name:** Update database schema
    **Type:** story
-   **WorkType:** support
+   **Status:** triaged
    **Template:** support/generic
    **Stage:** triage
-   **Urgency:** now
-   **Impact:** medium
+   **Queue:** standard
 
-   ### Source
+   ### External Link
    - **System:** Teamwork
-   - **Project:** Link Production Support
    - **URL:** https://discovertec.teamwork.com/app/tasks/26134585
-
-   ### Triage Results
-   - **Queue:** todo
-   - **Next Stage:** plan
-   - **Template:** support/generic
    ```
 
-### Step 7: Update Teamwork (if applicable)
+### Step 7: Post Triage Comment (via Aggregate)
 
-If the work item came from Teamwork:
+Add comment through the aggregate (auto-syncs to external system):
 
-1. **Post triage comment:**
-   - Use `mcp__Teamwork__twprojects-create_comment`
-   - Document triage decisions
+```bash
+/work-item comment <id> "Triage Complete
 
-   ```
-   Triage Complete
+**Type:** story
+**Priority:** medium
+**Template:** support/generic
+**Queue:** standard
+**Next Stage:** plan
 
-   **Type:** story
-   **WorkType:** support
-   **Urgency:** now
-   **Impact:** medium
-   **Template:** support/generic
-   **Queue:** todo
-   **Next Stage:** plan
+Rationale:
+- [Brief explanation of categorization]
 
-   Rationale:
-   - [Brief explanation of categorization]
+🤖 Submitted by George with love ♥"
+```
 
-   Submitted by George with love
-   ```
+The `/work-item comment` command automatically:
 
-2. **Update task tags (optional):**
-   - Add urgency tag: "Now", "Next", etc.
-   - Add template tag if applicable
+- Adds comment to local work item history
+- Syncs to external system (Teamwork, GitHub, etc.)
+- Includes timestamp and author
 
-3. **Update task progress:**
-   - Set progress to 5-10% to indicate triage complete
+### Step 8: Transition to Next Stage
 
-### Step 8: Route to Next Stage
-
-Based on triage results, indicate next action:
+Based on triage results, transition using the aggregate:
 
 **If nextStage = "plan":**
+
+```bash
+/work-item transition <id> plan
 ```
-Ready for planning. Run `/plan TW-26134585` to decompose and size.
+
+Output:
+```
+Ready for planning. Run `/plan WI-2024-042` to decompose and size.
 ```
 
 **If nextStage = "design":**
+
+```bash
+/work-item transition <id> design
 ```
-Ready for design. Run `/design TW-26134585` to create solution options.
+
+Output:
+```
+Ready for design. Run `/design WI-2024-042` to create solution options.
 ```
 
 **If nextStage = "deliver" (skipToDeliver = true):**
+
+```bash
+/work-item transition <id> deliver
+```
+
+Output:
 ```
 Ready for delivery. Simple task with known solution.
-Run `/deliver TW-26134585` to implement.
+Run `/deliver WI-2024-042` to implement.
 ```
 
 **If needs more information:**
@@ -222,35 +266,43 @@ Triage incomplete. Missing:
 Please provide additional context or run triage again with more details.
 ```
 
+**Note:** Use the internal work item ID (WI-xxx) for subsequent commands. The aggregate maintains the external system link internally.
+
 ## Output Format
 
 After triage completes, provide summary:
 
 ```
-## Triage Complete: TW-26134585
+## Triage Complete: WI-2024-042
+
+### Work Item
+| Field | Value |
+|-------|-------|
+| Internal ID | WI-2024-042 |
+| External | teamwork:26134585 |
+| Name | Update database schema |
 
 ### Classification
 | Field | Value | Rationale |
 |-------|-------|-----------|
 | Type | story | Has parent, deliverable scope |
-| WorkType | support | Customer request from Production Support |
-| Urgency | now | Due within 7 days |
-| Impact | medium | Single customer, non-critical |
+| Priority | medium | Single customer, non-critical |
+| Status | triaged | Ready for planning |
 
 ### Template & Routing
 - **Template:** support/generic
-- **Queue:** todo
+- **Queue:** standard
 - **Next Stage:** plan
 
 ### Triage Notes
 [Key observations and decisions]
 
 ### Next Steps
-Run `/plan TW-26134585` to decompose into tasks.
+Run `/plan WI-2024-042` to decompose into tasks.
 
 ---
-*Session: ~/.claude/session/active-work.md updated*
-*Teamwork: Comment posted, progress updated*
+*Domain: WorkItem WI-2024-042 updated via aggregate*
+*Synced: teamwork (comment posted)*
 ```
 
 ## Error Handling
@@ -314,8 +366,22 @@ Example flow for domain-specific triage:
 ## Configuration
 
 The triage process uses these configuration files:
+
 - `~/.claude/commands/index.yaml` - Stage and agent definitions
 - `~/.claude/templates/` - Process templates
 - `~/.claude/session/active-work.md` - Current work context
 - `~/.claude/agents/work-item-mapper.md` - Normalization agent
 - `~/.claude/agents/triage-agent.md` - Categorization agent
+
+## Domain Aggregate Reference
+
+| Operation | Aggregate Command |
+|-----------|-------------------|
+| Fetch external task | `/work-item get --external <system>:<id>` |
+| Create work item | `/work-item create --type <t> --name "..."` |
+| Update triage results | `/work-item update <id> --type --priority --status --template` |
+| Route to queue | `/work-item route <id> <queue> [reason]` |
+| Add comment | `/work-item comment <id> "message"` |
+| Transition stage | `/work-item transition <id> <stage>` |
+
+See [/domain/work-item](domain/work-item.md) for full aggregate documentation.

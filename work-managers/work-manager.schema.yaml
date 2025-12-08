@@ -16,13 +16,14 @@ properties:
   # Primary work manager for this project
   manager:
     type: string
-    enum: [teamwork, github, linear, jira, local]
+    enum: [teamwork, github, linear, jira, azuredevops, local]
     description: |
       The work management system used for this project.
       - teamwork: Teamwork.com projects and tasks
       - github: GitHub Issues
       - linear: Linear issues
       - jira: Jira issues
+      - azuredevops: Azure DevOps Server (on-premise or cloud)
       - local: Local-only work items (no external system)
 
   # Teamwork-specific configuration
@@ -106,6 +107,37 @@ properties:
         additionalProperties:
           type: string
     required: [projectKey]
+
+  # Azure DevOps-specific configuration
+  azuredevops:
+    type: object
+    properties:
+      profile:
+        type: string
+        description: |
+          Name of the credentials profile to use from ~/.azuredevops/credentials.json.
+          Defaults to "default" if not specified.
+        default: default
+      project:
+        type: string
+        description: Azure DevOps project name
+      repository:
+        type: string
+        description: |
+          Repository name for PR operations. Optional for multi-repo projects -
+          PR commands will auto-detect from git remote if not specified.
+      areaPath:
+        type: string
+        description: Default area path for new work items
+      iterationPath:
+        type: string
+        description: Default iteration path for new work items
+      workItemTypes:
+        type: object
+        description: Map work item types to Azure DevOps types
+        additionalProperties:
+          type: string
+    required: [project]
 
   # Local-specific configuration
   local:
@@ -199,6 +231,33 @@ examples:
       manager: local
       local:
         storagePath: ~/.claude/session/my-project-items.json
+      queues:
+        storage: local
+
+  - name: Azure DevOps project (default profile)
+    config:
+      manager: azuredevops
+      azuredevops:
+        profile: default
+        project: MyProject
+        repository: my-repo
+        areaPath: MyProject\Team
+        iterationPath: MyProject\Sprint 1
+        workItemTypes:
+          bug: Bug
+          story: User Story
+          task: Task
+          feature: Feature
+      queues:
+        storage: local
+
+  - name: Azure DevOps project (custom profile)
+    config:
+      manager: azuredevops
+      azuredevops:
+        profile: client-b
+        project: ClientProject
+        repository: client-app
       queues:
         storage: local
 

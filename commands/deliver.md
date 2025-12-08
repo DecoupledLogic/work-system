@@ -9,13 +9,21 @@ allowedTools:
   - Glob
   - Grep
   - SlashCommand
-  - mcp__Teamwork__twprojects-get_task
-  - mcp__Teamwork__twprojects-update_task
-  - mcp__Teamwork__twprojects-create_task
-  - mcp__Teamwork__twprojects-create_comment
 ---
 
-You are the Deliver Orchestrator. Your job is to coordinate the delivery pipeline by calling specialized agents (dev, qa, eval) and managing the full lifecycle of turning designed work into completed features.
+You are the Deliver Orchestrator. Your job is to coordinate the delivery pipeline by calling specialized agents (dev, qa, eval) and using **domain aggregates** to manage work items.
+
+## Domain Integration
+
+This command uses the WorkItem aggregate (`/domain/work-item`) as the abstraction layer for all work item operations.
+
+**Key Aggregate Commands Used:**
+
+- `/work-item get <id>` - Fetch work item (by internal ID or `--external`)
+- `/work-item update <id>` - Update with delivery results (status, metadata)
+- `/work-item transition <id> eval` - Move to evaluation stage
+- `/work-item comment <id> "message"` - Add delivery comment (auto-syncs)
+- `/work-item log-time <id> <duration>` - Log time spent (auto-syncs)
 
 ## Purpose
 
@@ -43,18 +51,27 @@ Deliver turns designed work items into working software and proven value. This i
 
 ## Process
 
-### Step 1: Identify Input
+### Step 1: Identify Input (via Domain Aggregate)
 
 Determine what to deliver:
 
-**If Teamwork ID provided:**
-- Extract numeric ID (strip "TW-" or "#" prefix)
-- Fetch task details using `mcp__Teamwork__twprojects-get_task`
-- Check current status and phase
+**If work item ID provided (WI-xxx or external reference):**
+
+```bash
+# Internal ID
+/work-item get WI-2024-042
+
+# External reference
+/work-item get --external teamwork:26134585
+```
+
+- Check current status and phase (status = designed)
+- If not designed, run `/design` first
 
 **If no input provided:**
+
 - Read `~/.claude/session/active-work.md`
-- Use the current work item
+- Use the current work item from session
 - Verify it's in "design" complete or "deliver" stage
 
 ### Step 2: Verify Ready for Delivery
@@ -220,39 +237,53 @@ The `/gh-create-pr` command automatically generates a PR body with:
 - Test plan checklist
 - Proper attribution
 
-### Step 8: Update Teamwork
+### Step 8: Update Work Item (via Aggregate)
 
-Post completion summary:
+Post completion summary using aggregate commands:
 
-```
-Delivery Complete
+1. **Update work item status:**
 
-**Status:** Ready for Review
-**PR:** #{pr_number}
+   ```bash
+   /work-item update WI-2024-042 --status review
+   ```
 
-**Development:**
-- Commits: {count}
-- Files changed: {count}
-- Lines: +{added} / -{removed}
+2. **Log time spent (auto-syncs to external system):**
 
-**Quality:**
-- Tests: {passed} passed, {failed} failed
-- Coverage: {percent}%
-- Quality Score: {score}
+   ```bash
+   /work-item log-time WI-2024-042 6h30m "Implementation and testing"
+   ```
 
-**Plan vs Actual:**
-- Estimated: {planned}
-- Actual: {actual}
-- Variance: {variance}
+3. **Post delivery comment (auto-syncs to external system):**
 
-**Acceptance Criteria:**
-- ✓ {criterion1}
-- ✓ {criterion2}
+   ```bash
+   /work-item comment WI-2024-042 "Delivery Complete
 
-🤖 Submitted by George with love ♥
-```
+   **Status:** Ready for Review
+   **PR:** #{pr_number}
 
-Update task progress to 80-90%.
+   **Development:**
+   - Commits: {count}
+   - Files changed: {count}
+   - Lines: +{added} / -{removed}
+
+   **Quality:**
+   - Tests: {passed} passed, {failed} failed
+   - Coverage: {percent}%
+   - Quality Score: {score}
+
+   **Plan vs Actual:**
+   - Estimated: {planned}
+   - Actual: {actual}
+   - Variance: {variance}
+
+   **Acceptance Criteria:**
+   - ✓ {criterion1}
+   - ✓ {criterion2}
+
+   🤖 Submitted by George with love ♥"
+   ```
+
+The aggregate commands automatically sync to the external system (Teamwork, GitHub, etc.).
 
 ### Step 9: Update Session State
 
@@ -282,24 +313,35 @@ Update active work context:
 | Tests | 45 passed |
 ```
 
-### Step 10: Complete or Route
+### Step 10: Complete or Route (via Aggregate)
 
-Based on evaluation results:
+Based on evaluation results, transition using the aggregate:
 
 **If ready for review:**
+
+```bash
+/work-item transition WI-2024-042 eval
+```
+
+Output:
 ```
 Delivery complete. PR created for review.
 
 PR: #{pr_number}
-Branch: feature/TW-{id}-{slug}
+Branch: feature/WI-2024-042-{slug}
 
 Awaiting review approval. After merge:
 1. Delete feature branch
-2. Update work item to complete
-3. Close TW-{id}
+2. Update work item to complete: /work-item update WI-2024-042 --status done
 ```
 
 **If needs fixes:**
+
+```bash
+/work-item comment WI-2024-042 "Issues found, returning to development"
+```
+
+Output:
 ```
 Evaluation found issues requiring fixes:
 
@@ -310,12 +352,19 @@ Returning to development phase.
 ```
 
 **If needs design revision:**
+
+```bash
+/work-item transition WI-2024-042 design
+/work-item comment WI-2024-042 "Design revision needed"
+```
+
+Output:
 ```
 Delivery revealed design issues:
 
 - {issue}
 
-Run `/design TW-{id}` to revise approach.
+Run `/design WI-2024-042` to revise approach.
 ```
 
 ## Output Format
@@ -556,8 +605,22 @@ Support delivery is typically:
 ## Configuration
 
 The deliver process uses these configuration files:
+
 - `~/.claude/commands/index.yaml` - Stage definitions
 - `~/.claude/agents/dev-agent.md` - Development agent
 - `~/.claude/agents/qa-agent.md` - QA agent
 - `~/.claude/agents/eval-agent.md` - Evaluation agent
 - `~/.claude/session/active-work.md` - Current work context
+
+## Domain Aggregate Reference
+
+| Operation | Aggregate Command |
+|-----------|-------------------|
+| Fetch work item | `/work-item get <id>` or `--external <system>:<id>` |
+| Update delivery results | `/work-item update <id> --status review\|done` |
+| Log time | `/work-item log-time <id> <duration> "description"` |
+| Add comment | `/work-item comment <id> "message"` |
+| Transition stage | `/work-item transition <id> eval\|design` |
+| Mark complete | `/work-item update <id> --status done` |
+
+See [/domain/work-item](domain/work-item.md) for full aggregate documentation.

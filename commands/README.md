@@ -1,6 +1,21 @@
-# Global Teamwork Task Management Commands
+# Work System Commands
 
-This directory contains global Claude Code commands for managing Teamwork tasks across all your projects.
+This directory contains global Claude Code commands for managing work items across multiple platforms.
+
+## Command Categories
+
+| Category | Description | Documentation |
+|----------|-------------|---------------|
+| **Task Selection** | Select and resume work | This file |
+| **Teamwork** | Teamwork API commands | [teamwork/README.md](teamwork/README.md) |
+| **Azure DevOps** | Azure DevOps Server commands | [azuredevops/README.md](azuredevops/README.md) |
+| **GitHub** | GitHub CLI helpers | [github/README.md](github/README.md) |
+
+---
+
+## Teamwork Task Management Commands
+
+Commands for managing Teamwork tasks across all your projects.
 
 ## Available Commands
 

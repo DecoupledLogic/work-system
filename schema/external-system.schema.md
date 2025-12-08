@@ -250,6 +250,88 @@ metadata:
   installationId: "67890"
 ```
 
+### Azure DevOps Server Integration
+
+```yaml
+id: "azuredevops"
+name: "Azure DevOps Server"
+type: "combined"
+baseUrl: "https://azuredevops.discovertec.net"
+authType: "pat"
+status: "connected"
+
+capabilities:
+  - read_workitems
+  - write_workitems
+  - read_comments
+  - write_comments
+  - read_projects
+  - read_users
+  - webhooks
+
+syncDirection: "bidirectional"
+
+fieldMappings:
+  - workSystemField: "name"
+    externalField: "System.Title"
+    direction: "bidirectional"
+
+  - workSystemField: "description"
+    externalField: "System.Description"
+    direction: "bidirectional"
+
+  - workSystemField: "status"
+    externalField: "System.State"
+    direction: "bidirectional"
+    transform: "ado_state_to_workitem_status"
+
+  - workSystemField: "priority"
+    externalField: "Microsoft.VSTS.Common.Priority"
+    direction: "bidirectional"
+    transform: "ado_priority_to_workitem_priority"
+
+  - workSystemField: "assigneeId"
+    externalField: "System.AssignedTo"
+    direction: "bidirectional"
+    transform: "ado_user_to_agent"
+
+  - workSystemField: "dueDate"
+    externalField: "Microsoft.VSTS.Scheduling.DueDate"
+    direction: "bidirectional"
+
+  - workSystemField: "tags"
+    externalField: "System.Tags"
+    direction: "bidirectional"
+    transform: "ado_tags_to_array"
+
+typeMappings:
+  - workSystemType: "epic"
+    externalType: "Epic"
+  - workSystemType: "feature"
+    externalType: "Feature"
+  - workSystemType: "story"
+    externalType: "User Story"
+  - workSystemType: "task"
+    externalType: "Task"
+  - workSystemType: "bug"
+    externalType: "Bug"
+  - workSystemType: "spike"
+    externalType: "Task"
+
+syncConfig:
+  enabled: true
+  interval: "PT5M"
+  lastSyncAt: "2024-12-08T14:30:00Z"
+  filters:
+    projectNames: ["MyProject"]
+    excludeCompleted: false
+    modifiedSince: "2024-12-01T00:00:00Z"
+
+metadata:
+  collection: "Link"
+  apiVersion: "6.0"
+```
+
 ### Linear Integration
 
 ```yaml

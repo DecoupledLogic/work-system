@@ -9,13 +9,20 @@ allowedTools:
   - Glob
   - Grep
   - SlashCommand
-  - mcp__Teamwork__twprojects-get_task
-  - mcp__Teamwork__twprojects-update_task
-  - mcp__Teamwork__twprojects-create_task
-  - mcp__Teamwork__twprojects-create_comment
 ---
 
-You are the Design Orchestrator. Your job is to coordinate the design process by calling specialized agents and managing design artifacts.
+You are the Design Orchestrator. Your job is to coordinate the design process by calling specialized agents and using **domain aggregates** to manage work items.
+
+## Domain Integration
+
+This command uses the WorkItem aggregate (`/domain/work-item`) as the abstraction layer for all work item operations.
+
+**Key Aggregate Commands Used:**
+
+- `/work-item get <id>` - Fetch work item (by internal ID or `--external`)
+- `/work-item update <id>` - Update with design results (status, metadata)
+- `/work-item transition <id> deliver` - Move to delivery stage
+- `/work-item comment <id> "message"` - Add design comment (auto-syncs)
 
 ## Purpose
 
@@ -39,22 +46,31 @@ Design moves work items from "what we are doing" (planned) to "how we will do it
 
 ## Process
 
-### Step 1: Identify Input
+### Step 1: Identify Input (via Domain Aggregate)
 
 Determine what to design:
 
-**If Teamwork ID provided:**
-- Extract numeric ID (strip "TW-" or "#" prefix)
-- Fetch task details using `mcp__Teamwork__twprojects-get_task`
-- Check if already planned (has appetite, children if applicable)
+**If work item ID provided (WI-xxx or external reference):**
+
+```bash
+# Internal ID
+/work-item get WI-2024-042
+
+# External reference
+/work-item get --external teamwork:26134585
+```
+
+- Check if already planned (status = planned, has appetite)
 - If not planned, run `/plan` first
 
 **If no input provided:**
+
 - Read `~/.claude/session/active-work.md`
-- Use the current work item
+- Use the current work item from session
 - Verify it's in "plan" complete or "design" stage
 
 **If JSON provided:**
+
 - Parse directly
 - Validate required fields (id, name, type, appetite)
 
@@ -207,17 +223,20 @@ Generate test plan document:
    - **Expected:** {expected outcome}
    ```
 
-### Step 9: Update Teamwork
+### Step 9: Update Work Item (via Aggregate)
 
-Post design summary and create/update tasks:
+Post design summary using aggregate commands:
 
-1. **Update child tasks with detailed acceptance criteria:**
-   - Use `mcp__Teamwork__twprojects-update_task` for existing tasks
-   - Add acceptance criteria from implementation plan
+1. **Update work item with design results:**
 
-2. **Post design comment:**
+   ```bash
+   /work-item update WI-2024-042 --status designed
    ```
-   Design Complete
+
+2. **Post design comment (auto-syncs to external system):**
+
+   ```bash
+   /work-item comment WI-2024-042 "Design Complete
 
    **Selected Approach:** {selectedOption.name}
    **ADR:** ADR-{number} - {adr.title}
@@ -234,12 +253,12 @@ Post design summary and create/update tasks:
    - Integration: {integration approach}
    - E2E: {e2e approach}
 
-   **Design Branch:** design/TW-{id}-{slug}
+   **Design Branch:** design/WI-2024-042-{slug}
 
-   🤖 Submitted by George with love
+   🤖 Submitted by George with love ♥"
    ```
 
-3. **Update task progress:** 25-35%
+The `/work-item comment` command automatically syncs to the external system (Teamwork, GitHub, etc.).
 
 ### Step 10: Update Session State
 
@@ -266,17 +285,30 @@ Update active work context:
    - Test Plan: docs/plans/TW-26134585-test-plan.md
    ```
 
-### Step 11: Route to Next Stage
+### Step 11: Transition to Next Stage (via Aggregate)
 
-Based on design results:
+Based on design results, transition using the aggregate:
 
 **If design complete:**
+
+```bash
+/work-item transition WI-2024-042 deliver
+```
+
+Output:
 ```
 Design complete. Ready for implementation.
-Run `/deliver TW-26134585` to begin development.
+Run `/deliver WI-2024-042` to begin development.
 ```
 
 **If design reveals scope issue:**
+
+```bash
+/work-item transition WI-2024-042 plan
+/work-item comment WI-2024-042 "Design reveals scope exceeds appetite. Re-planning required."
+```
+
+Output:
 ```
 Design reveals scope larger than appetite.
 
@@ -287,7 +319,7 @@ Recommendation: Split into:
 1. Core Auth (MVP) - 2 weeks
 2. Advanced Auth Features - 2 weeks
 
-Run `/plan TW-26134585` to re-plan with split.
+Run `/plan WI-2024-042` to re-plan with split.
 ```
 
 **If awaiting stakeholder input:**
@@ -449,8 +481,20 @@ Some work items don't need design:
 ## Configuration
 
 The design process uses these configuration files:
+
 - `~/.claude/commands/index.yaml` - Stage definitions
 - `~/.claude/templates/delivery/adr.md` - ADR template
 - `~/.claude/templates/delivery/implementation-plan.json` - Plan template
 - `~/.claude/session/active-work.md` - Current work context
 - `~/.claude/agents/design-agent.md` - Design agent
+
+## Domain Aggregate Reference
+
+| Operation | Aggregate Command |
+|-----------|-------------------|
+| Fetch work item | `/work-item get <id>` or `--external <system>:<id>` |
+| Update design results | `/work-item update <id> --status designed` |
+| Add comment | `/work-item comment <id> "message"` |
+| Transition stage | `/work-item transition <id> deliver\|plan` |
+
+See [/domain/work-item](domain/work-item.md) for full aggregate documentation.
