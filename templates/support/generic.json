@@ -1,0 +1,141 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "support/generic",
+  "name": "Generic Support Request",
+  "description": "Standard process for handling customer support requests that don't match a more specific template. Provides a flexible framework for investigation and resolution.",
+  "version": "1.0.0",
+  "appliesTo": ["story", "task"],
+  "workType": "support",
+  "requiredSections": [
+    "problem",
+    "customer",
+    "investigation",
+    "resolution"
+  ],
+  "recommendedSections": [
+    "root_cause",
+    "prevention",
+    "follow_up"
+  ],
+  "outputs": [
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    },
+    {
+      "type": "document",
+      "location": "session",
+      "format": "markdown",
+      "path": "~/.claude/session/active-work.md"
+    }
+  ],
+  "validationRules": [
+    "customer information must be provided (email or account identifier)",
+    "problem description must be clear and actionable",
+    "resolution must include verification steps",
+    "investigation findings must be documented before resolution"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["categorized work item", "urgency assessment"],
+      "agents": ["work-item-mapper", "triage-agent"]
+    },
+    "plan": {
+      "required": false,
+      "skip_if": "Simple request with known resolution pattern",
+      "outputs": ["investigation approach"]
+    },
+    "design": {
+      "required": false,
+      "skip_if": "No technical changes required"
+    },
+    "deliver": {
+      "required": true,
+      "outputs": ["resolution comment", "status update", "verification result"],
+      "agents": ["dev-agent", "eval-agent"]
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "deliver"],
+    "complex_path": ["triage", "plan", "deliver"],
+    "estimated_duration": {
+      "simple": "30 minutes",
+      "typical": "1-2 hours",
+      "complex": "4-8 hours"
+    }
+  },
+  "sections": {
+    "problem": {
+      "description": "Clear description of the customer's issue or request",
+      "prompts": [
+        "What is the customer experiencing?",
+        "What did they expect to happen?",
+        "When did the issue start?"
+      ],
+      "example": "Customer cannot access their subscription after renewal. Expected: Active subscription. Actual: Shows as expired."
+    },
+    "customer": {
+      "description": "Customer identification and contact information",
+      "fields": ["email", "account_id", "name", "company"],
+      "example": {
+        "email": "customer@example.com",
+        "account_id": "ACC-12345",
+        "name": "John Smith",
+        "company": "Acme Corp"
+      }
+    },
+    "investigation": {
+      "description": "Findings from system investigation",
+      "prompts": [
+        "What did you find in the system?",
+        "What is the current state of affected entities?",
+        "Are there related issues or patterns?"
+      ],
+      "example": "Database shows subscription.status = 'expired' but chargify_subscription_state = 'active'. State mismatch indicates sync failure."
+    },
+    "resolution": {
+      "description": "Steps taken to resolve the issue",
+      "prompts": [
+        "What changes were made?",
+        "How was the fix verified?",
+        "Is any follow-up needed?"
+      ],
+      "example": "Updated subscription.status to 'active' to match Chargify state. Verified customer can now access features. No follow-up needed."
+    },
+    "root_cause": {
+      "description": "Underlying cause of the issue (if identified)",
+      "optional": true,
+      "prompts": [
+        "Why did this happen?",
+        "Is this a one-time issue or systemic?",
+        "Are other customers affected?"
+      ]
+    },
+    "prevention": {
+      "description": "Steps to prevent recurrence",
+      "optional": true,
+      "prompts": [
+        "How can we prevent this in the future?",
+        "Should we create a bug ticket?",
+        "Is monitoring needed?"
+      ]
+    },
+    "follow_up": {
+      "description": "Any required follow-up actions",
+      "optional": true,
+      "prompts": [
+        "Does the customer need to be contacted?",
+        "Are there dependent issues to address?",
+        "Is documentation needed?"
+      ]
+    }
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["support", "customer", "generic", "investigation", "resolution"]
+  }
+}

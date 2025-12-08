@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "description": "Registry of all process templates available in the work system",
+  "templates": {
+    "support/generic": {
+      "version": "1.0.0",
+      "path": "support/generic.json",
+      "status": "active",
+      "description": "Standard process for handling customer support requests",
+      "appliesTo": ["story", "task"],
+      "workType": "support",
+      "complexity": "low",
+      "deprecated": false
+    },
+    "support/remove-profile": {
+      "version": "1.0.0",
+      "path": "support/remove-profile.json",
+      "status": "active",
+      "description": "Account and profile deletion requests with compliance tracking",
+      "appliesTo": ["story"],
+      "workType": "support",
+      "complexity": "medium",
+      "deprecated": false
+    },
+    "support/subscription-change": {
+      "version": "1.0.0",
+      "path": "support/subscription-change.json",
+      "status": "active",
+      "description": "Plan changes, billing adjustments, and subscription management",
+      "appliesTo": ["story", "task"],
+      "workType": "support",
+      "complexity": "medium",
+      "deprecated": false
+    },
+    "product/prd": {
+      "version": "1.0.0",
+      "path": "product/prd.json",
+      "status": "active",
+      "description": "Product Requirements Document for major initiatives",
+      "appliesTo": ["epic"],
+      "workType": "product_delivery",
+      "complexity": "high",
+      "deprecated": false
+    },
+    "product/feature": {
+      "version": "1.0.0",
+      "path": "product/feature.json",
+      "status": "active",
+      "description": "Feature specification with user value and technical approach",
+      "appliesTo": ["feature"],
+      "workType": "product_delivery",
+      "complexity": "medium",
+      "deprecated": false
+    },
+    "product/story": {
+      "version": "1.0.0",
+      "path": "product/story/v1.0.0.json",
+      "latestPath": "product/story/latest.json",
+      "status": "active",
+      "description": "User story with Gherkin acceptance criteria",
+      "appliesTo": ["story"],
+      "workType": "product_delivery",
+      "complexity": "low",
+      "deprecated": false,
+      "versioned": true,
+      "availableVersions": ["1.0.0"]
+    },
+    "delivery/adr": {
+      "version": "1.0.0",
+      "path": "delivery/adr.json",
+      "status": "active",
+      "description": "Architecture Decision Record for technical decisions",
+      "appliesTo": ["story", "feature"],
+      "workType": "product_delivery",
+      "complexity": "medium",
+      "deprecated": false
+    },
+    "delivery/bug-fix": {
+      "version": "1.0.0",
+      "path": "delivery/bug-fix.json",
+      "status": "active",
+      "description": "Bug investigation, root cause analysis, and fix process",
+      "appliesTo": ["story", "task"],
+      "workType": "bug_fix",
+      "complexity": "medium",
+      "deprecated": false
+    },
+    "delivery/implementation-plan": {
+      "version": "1.0.0",
+      "path": "delivery/implementation-plan.json",
+      "status": "active",
+      "description": "Technical implementation breakdown with dependencies",
+      "appliesTo": ["feature", "story"],
+      "workType": "product_delivery",
+      "complexity": "medium",
+      "deprecated": false
+    }
+  },
+  "categories": {
+    "support": {
+      "description": "Templates for customer-facing support work",
+      "templates": ["support/generic", "support/remove-profile", "support/subscription-change"]
+    },
+    "product": {
+      "description": "Templates for product development work",
+      "templates": ["product/prd", "product/feature", "product/story"]
+    },
+    "delivery": {
+      "description": "Templates for technical implementation work",
+      "templates": ["delivery/adr", "delivery/bug-fix", "delivery/implementation-plan"]
+    }
+  },
+  "defaults": {
+    "support": "support/generic",
+    "product_delivery": "product/story",
+    "bug_fix": "delivery/bug-fix",
+    "maintenance": "delivery/implementation-plan",
+    "research": "product/prd"
+  },
+  "matching": {
+    "priority": [
+      "exact_pattern",
+      "work_type_category",
+      "item_type",
+      "default"
+    ],
+    "patterns": {
+      "remove.*profile|delete.*account|gdpr.*request": "support/remove-profile",
+      "subscription|billing|plan.*change": "support/subscription-change",
+      "bug|defect|issue|error|fix": "delivery/bug-fix",
+      "adr|architecture.*decision": "delivery/adr"
+    }
+  },
+  "metadata": {
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "totalTemplates": 9
+  }
+}

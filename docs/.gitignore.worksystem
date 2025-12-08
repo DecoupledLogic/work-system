@@ -1,0 +1,69 @@
+# Work System .gitignore
+# This file defines what to exclude when creating a git repo from the work system
+
+# ===== Claude Code Core Files (EXCLUDE from work system repo) =====
+
+# Credentials and settings
+.credentials.json
+settings.json
+teamwork.json
+*.key
+*.pem
+
+# User-specific configuration
+CLAUDE.md
+
+# Claude Code internal directories
+debug/
+file-history/
+history.jsonl
+ide/
+plans/
+plugins/
+projects/
+session-env/
+shell-snapshots/
+statsig/
+todos/
+
+# ===== Session State (EXCLUDE - ephemeral per-user) =====
+session/active-work.md
+session/session-log.md
+session/queues.json
+session/local-work-items.json
+
+# ===== Work System Files (INCLUDE in repo) =====
+# These are NOT ignored:
+# - agents/
+# - commands/
+# - templates/
+# - docs/
+# - work-managers/
+# - *.md (documentation)
+# - session/.gitignore
+# - session/LOGGING-GUIDE.md
+
+# ===== Standard Ignores =====
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

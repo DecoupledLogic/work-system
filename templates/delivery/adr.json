@@ -1,0 +1,236 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "delivery/adr",
+  "name": "Architecture Decision Record",
+  "description": "Template for documenting significant architectural decisions. ADRs capture context, decision, alternatives, and consequences for future reference.",
+  "version": "1.0.0",
+  "appliesTo": ["story", "feature"],
+  "workType": "product_delivery",
+  "requiredSections": [
+    "title",
+    "status",
+    "context",
+    "decision",
+    "consequences"
+  ],
+  "recommendedSections": [
+    "alternatives_considered",
+    "related_decisions",
+    "references"
+  ],
+  "outputs": [
+    {
+      "type": "decision_record",
+      "location": "repo",
+      "format": "markdown",
+      "path": "docs/adr/ADR-{number}-{slug}.md"
+    },
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    }
+  ],
+  "validationRules": [
+    "title must be descriptive and concise",
+    "status must be one of: proposed, accepted, deprecated, superseded",
+    "context must explain the problem or need",
+    "decision must clearly state what was decided",
+    "consequences must include both positive and negative effects",
+    "at least 2 alternatives must be considered"
+  ],
+  "stages": {
+    "triage": {
+      "required": false,
+      "skip_if": "ADRs are typically created during design stage"
+    },
+    "plan": {
+      "required": false,
+      "skip_if": "ADRs are typically created during design stage"
+    },
+    "design": {
+      "required": true,
+      "outputs": ["ADR document", "implementation guidance"],
+      "agents": ["design-agent"]
+    },
+    "deliver": {
+      "required": false,
+      "skip_if": "ADR is documentation, implementation handled by feature/story"
+    }
+  },
+  "workflow": {
+    "typical_path": ["design"],
+    "estimated_duration": {
+      "simple": "1-2 hours",
+      "typical": "2-4 hours",
+      "complex": "1-2 days"
+    }
+  },
+  "sections": {
+    "title": {
+      "description": "Short, descriptive title for the decision",
+      "format": "ADR-{number}: {title}",
+      "prompts": [
+        "What decision is being made?",
+        "What is being chosen or defined?"
+      ],
+      "example": "ADR-0001: Use WebSocket for Real-time Communication"
+    },
+    "status": {
+      "description": "Current status of the decision",
+      "values": ["proposed", "accepted", "deprecated", "superseded"],
+      "prompts": [
+        "Is this decision still valid?",
+        "Has it been approved?",
+        "Has it been replaced?"
+      ],
+      "transitions": {
+        "proposed": ["accepted", "rejected"],
+        "accepted": ["deprecated", "superseded"],
+        "deprecated": [],
+        "superseded": []
+      },
+      "example": "Accepted"
+    },
+    "context": {
+      "description": "The problem or need driving this decision",
+      "prompts": [
+        "What is the issue we're addressing?",
+        "What forces are at play?",
+        "What constraints exist?",
+        "Why is a decision needed now?"
+      ],
+      "example": "Our application needs real-time updates for collaborative features. Users should see changes from other users immediately without refreshing. We need to decide on the communication protocol for real-time data synchronization."
+    },
+    "decision": {
+      "description": "What was decided and why",
+      "prompts": [
+        "What did we decide to do?",
+        "Why was this option chosen?",
+        "What is the technical approach?"
+      ],
+      "example": "We will use WebSocket for real-time bidirectional communication between clients and server.\n\nRationale:\n- Provides low-latency, full-duplex communication\n- Native browser support without polyfills\n- Established infrastructure patterns available\n- Better performance than long-polling for our use case"
+    },
+    "consequences": {
+      "description": "Effects of this decision",
+      "prompts": [
+        "What are the positive effects?",
+        "What are the negative effects?",
+        "What trade-offs are we accepting?",
+        "What new constraints does this create?"
+      ],
+      "example": {
+        "positive": [
+          "Low latency updates (typically <100ms)",
+          "Reduced server load compared to polling",
+          "Simpler client code for real-time features",
+          "Well-documented patterns and libraries available"
+        ],
+        "negative": [
+          "More complex server infrastructure (connection management)",
+          "Need sticky sessions or pub/sub for horizontal scaling",
+          "Firewall/proxy compatibility issues in some corporate environments",
+          "Additional monitoring and debugging complexity"
+        ],
+        "neutral": [
+          "Team needs to learn WebSocket patterns",
+          "Existing HTTP-based tests need updates"
+        ]
+      }
+    },
+    "alternatives_considered": {
+      "description": "Other options that were evaluated",
+      "optional": true,
+      "prompts": [
+        "What other approaches were considered?",
+        "Why were they rejected?",
+        "What were their trade-offs?"
+      ],
+      "example": [
+        {
+          "name": "Long Polling",
+          "description": "Server holds connection open until data available",
+          "rejected_because": "Higher latency, more server resources per client"
+        },
+        {
+          "name": "Server-Sent Events (SSE)",
+          "description": "Server push only, HTTP-based",
+          "rejected_because": "Need bidirectional communication for cursor tracking"
+        },
+        {
+          "name": "WebRTC Data Channels",
+          "description": "Peer-to-peer communication",
+          "rejected_because": "Overkill for our needs, complex NAT traversal"
+        }
+      ]
+    },
+    "related_decisions": {
+      "description": "Links to related ADRs",
+      "optional": true,
+      "prompts": [
+        "What decisions does this depend on?",
+        "What decisions does this enable?",
+        "What decisions might this supersede?"
+      ],
+      "example": [
+        {
+          "adr": "ADR-0002",
+          "relationship": "depends_on",
+          "title": "Conflict Resolution Strategy"
+        },
+        {
+          "adr": "ADR-0003",
+          "relationship": "enables",
+          "title": "Presence System Architecture"
+        }
+      ]
+    },
+    "references": {
+      "description": "External resources and implementation files",
+      "optional": true,
+      "prompts": [
+        "What documentation was consulted?",
+        "What implementation files are affected?",
+        "What external resources informed this?"
+      ],
+      "example": {
+        "external": [
+          "https://tools.ietf.org/html/rfc6455 (WebSocket Protocol)",
+          "https://socket.io/docs/ (Socket.IO documentation)"
+        ],
+        "internal": [
+          "src/services/websocket.ts",
+          "docs/architecture/realtime.md"
+        ]
+      }
+    }
+  },
+  "adr_format": {
+    "file_naming": "ADR-{NNNN}-{kebab-case-title}.md",
+    "number_sequence": "sequential, zero-padded to 4 digits",
+    "location": "docs/adr/ or docs/adrs/",
+    "template_reference": "~/.claude/templates/delivery/adr.md"
+  },
+  "when_to_write": {
+    "write_adr": [
+      "Significant architectural decision",
+      "Technology or framework choice",
+      "Integration approach with external systems",
+      "Data storage or schema decisions",
+      "Security or compliance decisions",
+      "Performance trade-offs"
+    ],
+    "skip_adr": [
+      "Implementation details that can easily change",
+      "Bug fixes",
+      "Minor refactoring",
+      "Temporary workarounds"
+    ]
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["delivery", "adr", "architecture", "decisions", "documentation"]
+  }
+}

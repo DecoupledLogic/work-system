@@ -1,0 +1,285 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "product/feature",
+  "name": "Feature Specification",
+  "description": "Detailed specification for a product feature. Features deliver meaningful user value and typically span 1-3 weeks of work, decomposing into multiple user stories.",
+  "version": "1.0.0",
+  "appliesTo": ["feature"],
+  "workType": "product_delivery",
+  "requiredSections": [
+    "feature_summary",
+    "user_value",
+    "functional_requirements",
+    "acceptance_criteria",
+    "story_breakdown"
+  ],
+  "recommendedSections": [
+    "technical_approach",
+    "ux_considerations",
+    "dependencies",
+    "risks",
+    "testing_strategy",
+    "rollout_plan"
+  ],
+  "outputs": [
+    {
+      "type": "document",
+      "location": "repo",
+      "format": "markdown",
+      "path": "docs/features/{workItemId}.md"
+    },
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    }
+  ],
+  "validationRules": [
+    "feature must have clear user value statement",
+    "at least 3 functional requirements must be defined",
+    "acceptance criteria must be testable",
+    "story breakdown must have at least 2 stories",
+    "total story estimates must not exceed 2 weeks"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["categorized work item", "parent epic linked"],
+      "agents": ["work-item-mapper", "triage-agent"]
+    },
+    "plan": {
+      "required": true,
+      "outputs": ["story breakdown", "estimates", "dependencies"],
+      "agents": ["plan-agent"]
+    },
+    "design": {
+      "required": true,
+      "outputs": ["technical design", "ADR if needed", "implementation plan"],
+      "agents": ["design-agent"]
+    },
+    "deliver": {
+      "required": false,
+      "skip_if": "Feature only defines scope, stories handle delivery"
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "plan", "design"],
+    "estimated_duration": {
+      "simple": "1 week",
+      "typical": "1-2 weeks",
+      "complex": "2-3 weeks"
+    }
+  },
+  "sections": {
+    "feature_summary": {
+      "description": "Concise description of the feature",
+      "prompts": [
+        "What is this feature?",
+        "What problem does it solve?",
+        "How does it fit into the product?"
+      ],
+      "example": {
+        "name": "Real-time Cursor Tracking",
+        "description": "Show colored cursors with user names for all active editors in a document",
+        "parent_epic": "Real-time Collaboration Features",
+        "priority": "P0"
+      }
+    },
+    "user_value": {
+      "description": "Clear articulation of value to users",
+      "prompts": [
+        "Who benefits from this feature?",
+        "What problem does it solve for them?",
+        "How will they use it?",
+        "What is the expected impact?"
+      ],
+      "example": {
+        "primary_persona": "Team collaborators",
+        "problem_solved": "Users don't know where others are working in the document",
+        "use_case": "See other editors' positions to avoid conflicts and coordinate work",
+        "impact": "Reduce accidental overwrites by 90%, improve coordination"
+      }
+    },
+    "functional_requirements": {
+      "description": "Detailed requirements for the feature",
+      "prompts": [
+        "What must the feature do?",
+        "What are the inputs and outputs?",
+        "What are the edge cases?",
+        "What are the error states?"
+      ],
+      "example": [
+        {
+          "id": "FR-001",
+          "description": "Display colored cursor for each active editor",
+          "details": "Each user gets a unique color, cursor shows at their text position",
+          "priority": "P0"
+        },
+        {
+          "id": "FR-002",
+          "description": "Show user name label near cursor",
+          "details": "Name appears on hover or always visible based on preference",
+          "priority": "P0"
+        },
+        {
+          "id": "FR-003",
+          "description": "Update cursor positions in real-time",
+          "details": "Position updates visible within 50ms of movement",
+          "priority": "P0"
+        },
+        {
+          "id": "FR-004",
+          "description": "Handle user leave gracefully",
+          "details": "Cursor fades out when user disconnects or becomes inactive",
+          "priority": "P1"
+        }
+      ]
+    },
+    "acceptance_criteria": {
+      "description": "Testable criteria for feature completion",
+      "prompts": [
+        "How do we know this feature is complete?",
+        "What are the success criteria?",
+        "What edge cases must be handled?"
+      ],
+      "format": "Given/When/Then (Gherkin)",
+      "example": [
+        {
+          "scenario": "Cursor visible to other users",
+          "given": "Two users have the same document open",
+          "when": "User A moves their cursor",
+          "then": "User B sees User A's cursor move within 100ms"
+        },
+        {
+          "scenario": "User identification",
+          "given": "A user's cursor is visible",
+          "when": "Another user hovers over the cursor",
+          "then": "The editing user's name is displayed"
+        },
+        {
+          "scenario": "User disconnect handling",
+          "given": "A user's cursor is visible",
+          "when": "That user closes their tab",
+          "then": "Their cursor fades out within 5 seconds"
+        }
+      ]
+    },
+    "story_breakdown": {
+      "description": "User stories that implement this feature",
+      "prompts": [
+        "What are the logical units of work?",
+        "What is the implementation order?",
+        "What can be done in parallel?"
+      ],
+      "example": [
+        {
+          "id": "STORY-001",
+          "title": "Cursor position tracking backend",
+          "description": "As the system, I can track and broadcast cursor positions for all active users",
+          "estimate": "2 days",
+          "dependencies": []
+        },
+        {
+          "id": "STORY-002",
+          "title": "Cursor rendering frontend",
+          "description": "As a user, I can see other users' cursors in the document editor",
+          "estimate": "2 days",
+          "dependencies": ["STORY-001"]
+        },
+        {
+          "id": "STORY-003",
+          "title": "User presence indicators",
+          "description": "As a user, I can see a list of who is currently editing",
+          "estimate": "1 day",
+          "dependencies": ["STORY-001"]
+        },
+        {
+          "id": "STORY-004",
+          "title": "Disconnect handling",
+          "description": "As a user, I see cursors disappear when users leave",
+          "estimate": "1 day",
+          "dependencies": ["STORY-002"]
+        }
+      ]
+    },
+    "technical_approach": {
+      "description": "High-level technical design",
+      "optional": true,
+      "prompts": [
+        "What is the architecture?",
+        "What technologies will be used?",
+        "What are the performance considerations?",
+        "What are the security considerations?"
+      ]
+    },
+    "ux_considerations": {
+      "description": "User experience and design notes",
+      "optional": true,
+      "prompts": [
+        "What are the interaction patterns?",
+        "What are the visual design requirements?",
+        "What accessibility considerations exist?"
+      ]
+    },
+    "dependencies": {
+      "description": "External dependencies and blockers",
+      "optional": true,
+      "prompts": [
+        "What other features does this depend on?",
+        "What external systems are involved?",
+        "What team dependencies exist?"
+      ]
+    },
+    "risks": {
+      "description": "Identified risks and mitigations",
+      "optional": true,
+      "prompts": [
+        "What could go wrong?",
+        "What is the impact?",
+        "How can we mitigate?"
+      ]
+    },
+    "testing_strategy": {
+      "description": "Testing approach for the feature",
+      "optional": true,
+      "prompts": [
+        "What unit tests are needed?",
+        "What integration tests?",
+        "What manual testing?",
+        "What performance tests?"
+      ]
+    },
+    "rollout_plan": {
+      "description": "How the feature will be released",
+      "optional": true,
+      "prompts": [
+        "Will this be feature flagged?",
+        "What is the rollout sequence?",
+        "What is the rollback plan?"
+      ]
+    }
+  },
+  "sizing": {
+    "unit": "weeks",
+    "maximum": 3,
+    "typical": "1-2",
+    "minimum": 0.5,
+    "guidance": {
+      "small": "1 week - 2-3 stories, single focus area",
+      "medium": "1-2 weeks - 4-6 stories, multiple components",
+      "large": "2-3 weeks - 7+ stories, cross-cutting"
+    },
+    "split_triggers": [
+      "Estimate exceeds 3 weeks",
+      "More than 10 stories",
+      "Multiple independent user values",
+      "Spans more than 2 system components"
+    ]
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["product", "feature", "specification", "planning", "stories"]
+  }
+}

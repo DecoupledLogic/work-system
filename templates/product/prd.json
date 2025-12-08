@@ -1,0 +1,332 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "product/prd",
+  "name": "Product Requirements Document",
+  "description": "Comprehensive product requirements document for major initiatives and epics. Defines vision, scope, success metrics, and high-level requirements.",
+  "version": "1.0.0",
+  "appliesTo": ["epic"],
+  "workType": "product_delivery",
+  "requiredSections": [
+    "overview",
+    "problem_statement",
+    "goals_and_success_metrics",
+    "scope",
+    "requirements",
+    "user_stories",
+    "constraints"
+  ],
+  "recommendedSections": [
+    "assumptions",
+    "dependencies",
+    "risks",
+    "timeline",
+    "stakeholders",
+    "appendix"
+  ],
+  "outputs": [
+    {
+      "type": "document",
+      "location": "repo",
+      "format": "markdown",
+      "path": "docs/prd/{workItemId}.md"
+    },
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    }
+  ],
+  "validationRules": [
+    "problem statement must define the user need",
+    "at least 3 success metrics must be defined",
+    "scope must include in-scope and out-of-scope sections",
+    "requirements must be categorized (functional, non-functional)",
+    "at least 5 user stories must be defined"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["categorized work item", "stakeholders identified"],
+      "agents": ["work-item-mapper", "triage-agent"]
+    },
+    "plan": {
+      "required": true,
+      "outputs": ["feature breakdown", "high-level estimates", "priority ranking"],
+      "agents": ["plan-agent"]
+    },
+    "design": {
+      "required": true,
+      "outputs": ["technical approach", "architecture decisions", "integration plan"],
+      "agents": ["design-agent"]
+    },
+    "deliver": {
+      "required": false,
+      "skip_if": "PRD only defines requirements, features handle delivery"
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "plan", "design"],
+    "estimated_duration": {
+      "simple": "1-2 weeks",
+      "typical": "2-4 weeks",
+      "complex": "1-2 months"
+    }
+  },
+  "sections": {
+    "overview": {
+      "description": "Executive summary of the initiative",
+      "prompts": [
+        "What is this initiative about?",
+        "Why are we doing this now?",
+        "Who is the target audience?",
+        "What is the expected outcome?"
+      ],
+      "example": {
+        "title": "Real-time Collaboration Features",
+        "summary": "Enable multiple users to work on documents simultaneously with live updates and conflict resolution",
+        "target_audience": "Teams of 5+ members who collaborate on documents frequently",
+        "expected_outcome": "50% reduction in document merge conflicts, 30% increase in team collaboration"
+      }
+    },
+    "problem_statement": {
+      "description": "Clear articulation of the problem being solved",
+      "prompts": [
+        "What problem are users experiencing?",
+        "How are they currently solving it?",
+        "What is the impact of this problem?",
+        "Why is the current solution inadequate?"
+      ],
+      "example": {
+        "problem": "Users working on shared documents experience conflicts when multiple people edit simultaneously",
+        "current_workaround": "Manual coordination via chat, locking documents, or sequential editing",
+        "impact": "2+ hours per week lost to conflict resolution per team",
+        "pain_points": [
+          "Lost work due to overwrites",
+          "Communication overhead for coordination",
+          "Reduced collaboration frequency"
+        ]
+      }
+    },
+    "goals_and_success_metrics": {
+      "description": "Measurable outcomes that define success",
+      "prompts": [
+        "What are the primary goals?",
+        "How will we measure success?",
+        "What are the target metrics?",
+        "What is the timeline for achieving these?"
+      ],
+      "example": {
+        "goals": [
+          "Enable real-time collaborative editing",
+          "Eliminate document conflicts",
+          "Increase active collaboration sessions"
+        ],
+        "metrics": [
+          {
+            "name": "Document conflicts",
+            "current": "15 per team/week",
+            "target": "0 per team/week",
+            "timeline": "Q1 2025"
+          },
+          {
+            "name": "Simultaneous editors",
+            "current": "1 (sequential)",
+            "target": "5+ concurrent",
+            "timeline": "Q1 2025"
+          },
+          {
+            "name": "Team collaboration sessions",
+            "current": "10 per week",
+            "target": "25 per week",
+            "timeline": "Q2 2025"
+          }
+        ]
+      }
+    },
+    "scope": {
+      "description": "What is and is not included in this initiative",
+      "prompts": [
+        "What features are in scope?",
+        "What is explicitly out of scope?",
+        "What are the boundaries?",
+        "What might be added later?"
+      ],
+      "example": {
+        "in_scope": [
+          "Real-time cursor tracking",
+          "Live text synchronization",
+          "Presence indicators",
+          "Basic conflict resolution"
+        ],
+        "out_of_scope": [
+          "Video/audio collaboration",
+          "Comments and annotations (Phase 2)",
+          "Mobile app support",
+          "Offline editing with sync"
+        ],
+        "future_phases": [
+          "Phase 2: Comments and annotations",
+          "Phase 3: Mobile support",
+          "Phase 4: Offline mode"
+        ]
+      }
+    },
+    "requirements": {
+      "description": "Detailed functional and non-functional requirements",
+      "prompts": [
+        "What must the system do?",
+        "What are the performance requirements?",
+        "What are the security requirements?",
+        "What are the usability requirements?"
+      ],
+      "example": {
+        "functional": [
+          {
+            "id": "FR-001",
+            "description": "System shall sync document changes within 100ms",
+            "priority": "P0",
+            "acceptance": "Changes visible to other users within 100ms"
+          },
+          {
+            "id": "FR-002",
+            "description": "System shall show cursor position of all active editors",
+            "priority": "P0",
+            "acceptance": "Colored cursors with user names visible in real-time"
+          }
+        ],
+        "non_functional": [
+          {
+            "id": "NFR-001",
+            "category": "Performance",
+            "description": "Support 50 concurrent editors per document",
+            "target": "50 users, <500ms latency"
+          },
+          {
+            "id": "NFR-002",
+            "category": "Security",
+            "description": "All collaboration data encrypted in transit",
+            "target": "TLS 1.3 minimum"
+          }
+        ]
+      }
+    },
+    "user_stories": {
+      "description": "High-level user stories for decomposition",
+      "prompts": [
+        "What are the key user scenarios?",
+        "What are the different user personas?",
+        "What are the edge cases?"
+      ],
+      "example": [
+        {
+          "id": "US-001",
+          "persona": "Team Member",
+          "story": "As a team member, I want to see who else is editing the document, so that I can coordinate my work",
+          "priority": "P0",
+          "estimate": "Feature"
+        },
+        {
+          "id": "US-002",
+          "persona": "Team Member",
+          "story": "As a team member, I want my changes to appear instantly for others, so that collaboration feels seamless",
+          "priority": "P0",
+          "estimate": "Feature"
+        }
+      ]
+    },
+    "constraints": {
+      "description": "Technical, business, or regulatory constraints",
+      "prompts": [
+        "What are the technical constraints?",
+        "What are the budget constraints?",
+        "What regulatory requirements apply?",
+        "What team constraints exist?"
+      ],
+      "example": {
+        "technical": [
+          "Must integrate with existing document storage",
+          "Must support current browser matrix (Chrome, Firefox, Safari, Edge)",
+          "Must not increase document load time by more than 200ms"
+        ],
+        "business": [
+          "Launch before Q2 planning cycle",
+          "Budget: $50k for infrastructure",
+          "Team: 2 FE + 2 BE engineers"
+        ],
+        "regulatory": [
+          "GDPR compliance for EU users",
+          "SOC 2 audit trail requirements"
+        ]
+      }
+    },
+    "assumptions": {
+      "description": "Assumptions that underpin this initiative",
+      "optional": true,
+      "prompts": [
+        "What are we assuming about users?",
+        "What are we assuming about technology?",
+        "What are we assuming about the market?"
+      ]
+    },
+    "dependencies": {
+      "description": "External dependencies and integrations",
+      "optional": true,
+      "prompts": [
+        "What other teams or systems do we depend on?",
+        "What third-party services are needed?",
+        "What blockers might arise?"
+      ]
+    },
+    "risks": {
+      "description": "Identified risks and mitigations",
+      "optional": true,
+      "prompts": [
+        "What could go wrong?",
+        "What is the impact if it does?",
+        "How can we mitigate?"
+      ]
+    },
+    "timeline": {
+      "description": "High-level timeline and milestones",
+      "optional": true,
+      "prompts": [
+        "What are the key milestones?",
+        "What is the release schedule?",
+        "What are the dependencies?"
+      ]
+    },
+    "stakeholders": {
+      "description": "Key stakeholders and their roles",
+      "optional": true,
+      "prompts": [
+        "Who owns this initiative?",
+        "Who needs to approve?",
+        "Who should be informed?"
+      ]
+    },
+    "appendix": {
+      "description": "Supporting materials and references",
+      "optional": true,
+      "prompts": [
+        "What research supports this?",
+        "What competitive analysis exists?",
+        "What technical spikes have been done?"
+      ]
+    }
+  },
+  "sizing": {
+    "unit": "weeks",
+    "typical_range": "4-12 weeks",
+    "decomposition": {
+      "features": "3-8 features per PRD",
+      "stories_per_feature": "5-15 stories",
+      "tasks_per_story": "2-8 tasks"
+    }
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["product", "prd", "epic", "requirements", "planning", "strategy"]
+  }
+}

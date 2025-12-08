@@ -1,0 +1,217 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "product/story",
+  "name": "User Story",
+  "description": "Template for user stories with Gherkin acceptance criteria. Stories represent user-facing value that can be delivered in 1-3 days.",
+  "version": "1.0.0",
+  "appliesTo": ["story"],
+  "workType": "product_delivery",
+  "requiredSections": [
+    "user_story",
+    "acceptance_criteria",
+    "tasks"
+  ],
+  "recommendedSections": [
+    "technical_notes",
+    "dependencies",
+    "test_approach",
+    "documentation"
+  ],
+  "outputs": [
+    {
+      "type": "document",
+      "location": "teamwork",
+      "format": "markdown"
+    },
+    {
+      "type": "code",
+      "location": "repo",
+      "path": "src/**/*"
+    },
+    {
+      "type": "pr",
+      "location": "github"
+    }
+  ],
+  "validationRules": [
+    "user story must follow 'As a [user], I want [goal], so that [benefit]' format",
+    "acceptance criteria must use Gherkin Given/When/Then format",
+    "at least 2 acceptance criteria scenarios required",
+    "story must have at least one task",
+    "appetite must not exceed 3 days"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["categorized work item", "parent alignment"],
+      "agents": ["triage-agent"]
+    },
+    "plan": {
+      "required": true,
+      "outputs": ["acceptance criteria", "task breakdown", "estimate"],
+      "agents": ["plan-agent"]
+    },
+    "design": {
+      "required": false,
+      "skip_if": "Implementation approach is obvious and follows existing patterns",
+      "outputs": ["technical approach notes"],
+      "agents": ["design-agent"]
+    },
+    "deliver": {
+      "required": true,
+      "outputs": ["code changes", "tests", "pull request"],
+      "agents": ["dev-agent", "qa-agent"]
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "plan", "deliver"],
+    "complex_path": ["triage", "plan", "design", "deliver"],
+    "estimated_duration": {
+      "simple": "1 day",
+      "typical": "2 days",
+      "complex": "3 days"
+    }
+  },
+  "sections": {
+    "user_story": {
+      "description": "The user story in standard format",
+      "format": "As a [type of user], I want [goal/desire], so that [benefit/reason]",
+      "prompts": [
+        "Who is the user or persona?",
+        "What do they want to accomplish?",
+        "Why is this valuable to them?"
+      ],
+      "example": "As a registered user, I want to reset my password via email, so that I can regain access to my account if I forget my credentials."
+    },
+    "acceptance_criteria": {
+      "description": "Testable scenarios in Gherkin format",
+      "format": "Given [context], When [action], Then [outcome]",
+      "minimum_count": 2,
+      "prompts": [
+        "What is the happy path scenario?",
+        "What error cases need to be handled?",
+        "What edge cases exist?"
+      ],
+      "example": [
+        {
+          "scenario": "Successful password reset request",
+          "given": "a registered user with email 'user@example.com'",
+          "when": "they request a password reset",
+          "then": "they receive an email with a reset link"
+        },
+        {
+          "scenario": "Password reset with invalid email",
+          "given": "an unregistered email 'unknown@example.com'",
+          "when": "a password reset is requested",
+          "then": "no email is sent and no error is revealed (security)"
+        },
+        {
+          "scenario": "Expired reset link",
+          "given": "a reset link older than 24 hours",
+          "when": "the user clicks the link",
+          "then": "they see an 'expired link' message with option to request new"
+        }
+      ]
+    },
+    "tasks": {
+      "description": "Breakdown of implementation tasks",
+      "prompts": [
+        "What backend work is needed?",
+        "What frontend work is needed?",
+        "What tests are needed?",
+        "Is documentation needed?"
+      ],
+      "example": [
+        {
+          "name": "Create password reset API endpoint",
+          "estimate_hours": 2,
+          "type": "backend"
+        },
+        {
+          "name": "Create reset email template",
+          "estimate_hours": 1,
+          "type": "backend"
+        },
+        {
+          "name": "Build reset password form",
+          "estimate_hours": 2,
+          "type": "frontend"
+        },
+        {
+          "name": "Write integration tests",
+          "estimate_hours": 1,
+          "type": "testing"
+        }
+      ]
+    },
+    "technical_notes": {
+      "description": "Implementation guidance and considerations",
+      "optional": true,
+      "prompts": [
+        "Are there existing patterns to follow?",
+        "What libraries or frameworks to use?",
+        "Any performance considerations?",
+        "Security considerations?"
+      ]
+    },
+    "dependencies": {
+      "description": "Other work items or systems this depends on",
+      "optional": true,
+      "prompts": [
+        "What must be complete before this story?",
+        "What external services are involved?",
+        "Are there blocking issues?"
+      ]
+    },
+    "test_approach": {
+      "description": "Testing strategy for this story",
+      "optional": true,
+      "prompts": [
+        "What unit tests are needed?",
+        "What integration tests?",
+        "Any manual testing required?",
+        "Performance testing needed?"
+      ]
+    },
+    "documentation": {
+      "description": "Documentation updates needed",
+      "optional": true,
+      "prompts": [
+        "User-facing docs to update?",
+        "API documentation?",
+        "Internal runbook updates?"
+      ]
+    }
+  },
+  "sizing": {
+    "unit": "days",
+    "maximum": 3,
+    "typical": 2,
+    "minimum": 0.5,
+    "guidance": {
+      "simple": "1 day - Single component, clear implementation, existing patterns",
+      "medium": "2 days - Multiple components, some decisions needed",
+      "complex": "3 days - Cross-cutting, new patterns, integration work"
+    },
+    "split_triggers": [
+      "Estimate exceeds 3 days",
+      "More than 5 acceptance criteria",
+      "Multiple distinct user personas",
+      "Requires both major frontend and backend work"
+    ]
+  },
+  "invest_criteria": {
+    "independent": "Can be developed and delivered separately from other stories",
+    "negotiable": "Details can be discussed and adjusted during development",
+    "valuable": "Delivers clear value to the user",
+    "estimable": "Team can estimate the effort required",
+    "small": "Fits within the 3-day maximum",
+    "testable": "Has clear acceptance criteria that can be verified"
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["product", "story", "user-story", "gherkin", "acceptance-criteria"]
+  }
+}

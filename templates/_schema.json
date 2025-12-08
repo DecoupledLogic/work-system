@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://claude.ai/work-system/template-schema",
+  "title": "Process Template Schema",
+  "description": "Schema for validating process templates in the work system",
+  "type": "object",
+  "required": ["templateId", "name", "description", "version", "appliesTo", "requiredSections", "outputs"],
+  "properties": {
+    "templateId": {
+      "type": "string",
+      "pattern": "^[a-z]+/[a-z][a-z0-9-]*$",
+      "description": "Unique identifier in category/name format (e.g., support/generic)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Human-readable template name"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Purpose and when to use this template"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (major.minor.patch)"
+    },
+    "appliesTo": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["epic", "feature", "story", "task", "client_request"]
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Work item types this template applies to"
+    },
+    "workType": {
+      "type": "string",
+      "enum": ["product_delivery", "support", "maintenance", "bug_fix", "research", "other"],
+      "description": "Expected work type for this template"
+    },
+    "requiredSections": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Sections that must be completed"
+    },
+    "recommendedSections": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Optional but helpful sections"
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "location"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["document", "comment", "code", "pr", "branch", "decision_record", "test_plan", "implementation_plan"],
+            "description": "Type of output artifact"
+          },
+          "location": {
+            "type": "string",
+            "description": "Where the output is created (e.g., teamwork, repo://path, github)"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["markdown", "json", "html", "text"],
+            "description": "Output format"
+          },
+          "path": {
+            "type": "string",
+            "description": "File path pattern with placeholders (e.g., docs/adr/{workItemId}.md)"
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "Expected deliverables from this template"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Rules for template validator to check"
+    },
+    "stages": {
+      "type": "object",
+      "properties": {
+        "triage": {
+          "$ref": "#/definitions/stageConfig"
+        },
+        "plan": {
+          "$ref": "#/definitions/stageConfig"
+        },
+        "design": {
+          "$ref": "#/definitions/stageConfig"
+        },
+        "deliver": {
+          "$ref": "#/definitions/stageConfig"
+        }
+      },
+      "description": "Stage-specific configuration"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "type": "string",
+          "description": "Template author"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for template discovery"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "stageConfig": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "Whether this stage is required for this template"
+        },
+        "skip_if": {
+          "type": "string",
+          "description": "Condition under which this stage can be skipped"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Expected outputs from this stage"
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Agents to invoke for this stage"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "templateId": "support/generic",
+      "name": "Generic Support Request",
+      "description": "Standard process for handling customer support requests",
+      "version": "1.0.0",
+      "appliesTo": ["story"],
+      "workType": "support",
+      "requiredSections": ["problem", "customer", "investigation", "resolution"],
+      "recommendedSections": ["root_cause", "prevention"],
+      "outputs": [
+        {
+          "type": "comment",
+          "location": "teamwork",
+          "format": "markdown"
+        }
+      ],
+      "validationRules": [
+        "customer email must be provided",
+        "resolution must include verification steps"
+      ],
+      "stages": {
+        "triage": {
+          "required": true,
+          "outputs": ["categorized work item"]
+        },
+        "deliver": {
+          "required": true,
+          "outputs": ["resolution comment", "status update"]
+        }
+      }
+    }
+  ]
+}

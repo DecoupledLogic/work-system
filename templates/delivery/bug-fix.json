@@ -1,0 +1,286 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "delivery/bug-fix",
+  "name": "Bug Fix",
+  "description": "Process for investigating, fixing, and verifying bug fixes. Includes root cause analysis, fix implementation, and regression prevention.",
+  "version": "1.0.0",
+  "appliesTo": ["story", "task"],
+  "workType": "bug_fix",
+  "requiredSections": [
+    "bug_report",
+    "reproduction",
+    "investigation",
+    "root_cause",
+    "fix",
+    "verification"
+  ],
+  "recommendedSections": [
+    "impact_analysis",
+    "regression_prevention",
+    "related_issues",
+    "follow_up"
+  ],
+  "outputs": [
+    {
+      "type": "code",
+      "location": "repo",
+      "path": "src/**/*"
+    },
+    {
+      "type": "pr",
+      "location": "github"
+    },
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    }
+  ],
+  "validationRules": [
+    "bug must be reproducible before fix",
+    "root cause must be identified",
+    "fix must include test to prevent regression",
+    "verification must confirm bug no longer occurs",
+    "PR must reference the bug ticket"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["severity assessment", "urgency classification"],
+      "agents": ["work-item-mapper", "triage-agent"]
+    },
+    "plan": {
+      "required": false,
+      "skip_if": "Bug is clearly defined and scoped",
+      "outputs": ["investigation plan"]
+    },
+    "design": {
+      "required": false,
+      "skip_if": "Fix is straightforward code change",
+      "outputs": ["fix approach", "impact assessment"]
+    },
+    "deliver": {
+      "required": true,
+      "outputs": ["code fix", "tests", "pull request", "verification"],
+      "agents": ["dev-agent", "qa-agent"]
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "deliver"],
+    "complex_path": ["triage", "plan", "design", "deliver"],
+    "estimated_duration": {
+      "simple": "1-2 hours",
+      "typical": "2-4 hours",
+      "complex": "1-2 days"
+    }
+  },
+  "sections": {
+    "bug_report": {
+      "description": "Original bug report details",
+      "prompts": [
+        "What is the bug?",
+        "What is the expected behavior?",
+        "What is the actual behavior?",
+        "When was it reported?"
+      ],
+      "fields": ["summary", "expected", "actual", "reporter", "reported_date"],
+      "example": {
+        "summary": "Login button unresponsive after form validation error",
+        "expected": "Button should remain clickable after validation error",
+        "actual": "Button becomes permanently disabled after first validation error",
+        "reporter": "user@example.com",
+        "reported_date": "2024-12-07",
+        "severity": "high",
+        "affected_users": "All users with typos in email field"
+      }
+    },
+    "reproduction": {
+      "description": "Steps to reproduce the bug",
+      "prompts": [
+        "What are the exact steps to reproduce?",
+        "What environment is required?",
+        "Is it consistently reproducible?",
+        "What is the reproduction rate?"
+      ],
+      "example": {
+        "steps": [
+          "Go to /login page",
+          "Enter invalid email format (e.g., 'test')",
+          "Click Login button",
+          "See validation error appear",
+          "Correct email to valid format",
+          "Try to click Login button - button is disabled"
+        ],
+        "environment": {
+          "browser": "Chrome 120",
+          "os": "macOS 14.1",
+          "version": "v2.5.3"
+        },
+        "reproducible": "100% consistent",
+        "first_known_occurrence": "v2.5.0 release"
+      }
+    },
+    "investigation": {
+      "description": "Findings from debugging and analysis",
+      "prompts": [
+        "What did you find in the code?",
+        "What logs or errors are relevant?",
+        "What component is affected?",
+        "What commits might have introduced this?"
+      ],
+      "example": {
+        "component": "src/components/LoginForm.tsx",
+        "findings": [
+          "Button disabled state set to true on validation error",
+          "disabled state never reset when error is cleared",
+          "Bug introduced in commit abc123 when adding loading state"
+        ],
+        "relevant_code": "const [disabled, setDisabled] = useState(false); // line 42",
+        "logs": "No error logs - silent failure"
+      }
+    },
+    "root_cause": {
+      "description": "Underlying cause of the bug",
+      "prompts": [
+        "Why did this happen?",
+        "What was the root cause?",
+        "Was this a coding error, design flaw, or edge case?",
+        "Could this affect other areas?"
+      ],
+      "example": {
+        "cause": "State management issue - disabled flag set on error but never cleared",
+        "type": "coding_error",
+        "introduced_in": "PR #234 - Add loading state to login form",
+        "missed_because": "No test for re-enabling after error, edge case not considered",
+        "other_affected": "Signup form may have same issue (same pattern used)"
+      }
+    },
+    "fix": {
+      "description": "The implemented fix",
+      "prompts": [
+        "What was changed?",
+        "What files were modified?",
+        "What is the fix approach?",
+        "Are there any side effects?"
+      ],
+      "example": {
+        "approach": "Reset disabled state when validation errors are cleared",
+        "changes": [
+          {
+            "file": "src/components/LoginForm.tsx",
+            "description": "Add useEffect to reset disabled when errors clear"
+          },
+          {
+            "file": "src/components/LoginForm.test.tsx",
+            "description": "Add test for button re-enabling after error"
+          }
+        ],
+        "commit": "def456 - Fix: Reset login button disabled state after error",
+        "pr": "#567"
+      }
+    },
+    "verification": {
+      "description": "Confirmation that the fix works",
+      "prompts": [
+        "How was the fix verified?",
+        "Do the reproduction steps now work correctly?",
+        "Were regression tests added?",
+        "Was it tested in staging?"
+      ],
+      "example": {
+        "reproduction_verified": true,
+        "new_behavior": "Button correctly enables after validation error is fixed",
+        "tests_added": [
+          "test: button enabled after fixing validation error",
+          "test: button disabled during form submission"
+        ],
+        "staging_tested": true,
+        "staging_result": "Verified fix works in staging environment"
+      }
+    },
+    "impact_analysis": {
+      "description": "Impact of the bug and fix",
+      "optional": true,
+      "prompts": [
+        "How many users were affected?",
+        "What was the business impact?",
+        "Are there downstream effects?"
+      ]
+    },
+    "regression_prevention": {
+      "description": "Steps to prevent similar bugs",
+      "optional": true,
+      "prompts": [
+        "What tests were added?",
+        "Should coding guidelines be updated?",
+        "Is similar code elsewhere that needs checking?"
+      ]
+    },
+    "related_issues": {
+      "description": "Related bugs or issues discovered",
+      "optional": true,
+      "prompts": [
+        "Were other bugs discovered during investigation?",
+        "Are there related areas that need review?",
+        "Should tech debt be addressed?"
+      ]
+    },
+    "follow_up": {
+      "description": "Any required follow-up actions",
+      "optional": true,
+      "prompts": [
+        "Does documentation need updating?",
+        "Should customers be notified?",
+        "Are there monitoring improvements needed?"
+      ]
+    }
+  },
+  "severity_levels": {
+    "critical": {
+      "description": "System unusable, data loss, security issue",
+      "response_time": "Immediate",
+      "examples": ["Data corruption", "Security vulnerability", "Complete outage"]
+    },
+    "high": {
+      "description": "Major feature broken, significant user impact",
+      "response_time": "Same day",
+      "examples": ["Login broken", "Payments failing", "Core workflow blocked"]
+    },
+    "medium": {
+      "description": "Feature impaired, workaround available",
+      "response_time": "Within sprint",
+      "examples": ["UI glitch", "Performance degradation", "Non-critical error"]
+    },
+    "low": {
+      "description": "Minor issue, minimal impact",
+      "response_time": "Backlog",
+      "examples": ["Cosmetic issue", "Edge case", "Minor inconvenience"]
+    }
+  },
+  "checklists": {
+    "investigation": [
+      "Bug reproduced locally",
+      "Root cause identified",
+      "Affected code located",
+      "Impact assessed"
+    ],
+    "fix": [
+      "Fix implemented",
+      "Unit tests added",
+      "Integration tests updated if needed",
+      "Code reviewed"
+    ],
+    "verification": [
+      "Original reproduction steps verified fixed",
+      "No new issues introduced",
+      "Tests passing",
+      "Deployed to staging"
+    ]
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["delivery", "bug", "fix", "debugging", "qa", "regression"]
+  }
+}

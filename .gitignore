@@ -1,0 +1,12 @@
+# Session ephemeral state (user-specific)
+session/active-work.md
+session/session-log.md
+session/queues.json
+session/local-work-items.json
+
+# Backup files
+*.backup
+
+# OS files
+.DS_Store
+Thumbs.db

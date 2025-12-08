@@ -1,0 +1,230 @@
+# Work System Command Index
+#
+# Defines stages, their commands, agents, and transitions.
+# Based on work-system.md lifecycle model.
+
+version: "1.0.0"
+description: "Work system stage definitions and command routing"
+
+# Stage definitions
+stages:
+  # Work Selection - Entry point for new work
+  - name: select
+    description: Select work from queue
+    commands:
+      - /select-task
+      - /resume
+    agents:
+      - task-fetcher
+      - task-selector
+    transitions:
+      - triage
+    context_files:
+      - ~/.claude/teamwork.json
+      - .claude/settings.json
+
+  # Triage Stage - Categorize and route work
+  - name: triage
+    description: Categorize work item, assign template, route to queue
+    commands:
+      - /triage
+    agents:
+      - work-item-mapper
+      - triage-agent
+    transitions:
+      - plan
+      - deliver  # For simple work that skips plan/design
+    context_files:
+      - ~/.claude/templates/
+      - ~/.claude/work-system.md
+    outputs:
+      - categorized_work_item
+      - template_assignment
+      - queue_placement
+
+  # Plan Stage - Decompose and size work
+  - name: plan
+    description: Break down work items, set estimates, create children
+    commands:
+      - /plan
+    agents:
+      - plan-agent
+    transitions:
+      - design
+      - deliver  # For work that doesn't need design
+    context_files:
+      - ~/.claude/templates/product/
+      - ~/.claude/session/active-work.md
+    outputs:
+      - decomposed_work_items
+      - plan_document
+      - sized_estimates
+
+  # Design Stage - Solution architecture
+  - name: design
+    description: Create solution options, make decisions, produce ADRs
+    commands:
+      - /design
+    agents:
+      - design-agent
+    transitions:
+      - deliver
+      - plan  # If design reveals need for re-planning
+    context_files:
+      - ~/.claude/templates/delivery/
+      - ~/.claude/session/active-work.md
+    outputs:
+      - adr
+      - implementation_plan
+      - test_plan
+
+  # Deliver Stage - Implement, test, deploy
+  - name: deliver
+    description: Implement solution, run tests, evaluate results
+    commands:
+      - /deliver
+      - /dev
+      - /qa
+      - /verify
+    agents:
+      - dev-agent
+      - qa-agent
+      - eval-agent
+    transitions:
+      - select  # Complete, pick next work
+      - design  # If issues found, return to design
+    context_files:
+      - ~/.claude/session/active-work.md
+    outputs:
+      - code_changes
+      - test_results
+      - implementation_document
+      - pr
+
+# Queue definitions (maps to urgency)
+queues:
+  - name: immediate
+    urgency: critical
+    description: Must handle today, interrupts other work
+    teamwork_tag: "Critical"
+
+  - name: todo
+    urgency: now
+    description: Current cycle work
+    teamwork_tag: "Now"
+
+  - name: backlog
+    urgency: next
+    description: Next cycle work
+    teamwork_tag: "Next"
+
+  - name: icebox
+    urgency: future
+    description: Future consideration
+    teamwork_tag: "Future"
+
+# Agent registry
+agents:
+  # Data transformation
+  - name: work-item-mapper
+    path: ~/.claude/agents/work-item-mapper.md
+    model: haiku
+    purpose: Transform external task data to WorkItem schema
+
+  - name: task-fetcher
+    path: ~/.claude/agents/task-fetcher.md
+    model: haiku
+    purpose: Fetch and paginate tasks from Teamwork
+
+  - name: task-selector
+    path: ~/.claude/agents/task-selector.md
+    model: haiku
+    purpose: Display and facilitate task selection
+
+  # Stage agents (to be created)
+  - name: triage-agent
+    path: ~/.claude/agents/triage-agent.md
+    model: sonnet
+    purpose: Categorize work items and assign templates
+    status: planned
+
+  - name: plan-agent
+    path: ~/.claude/agents/plan-agent.md
+    model: sonnet
+    purpose: Decompose and size work items
+    status: planned
+
+  - name: design-agent
+    path: ~/.claude/agents/design-agent.md
+    model: sonnet
+    purpose: Create solution designs and ADRs
+    status: planned
+
+  - name: dev-agent
+    path: ~/.claude/agents/dev-agent.md
+    model: sonnet
+    purpose: Implement code changes
+    status: planned
+
+  - name: qa-agent
+    path: ~/.claude/agents/qa-agent.md
+    model: haiku
+    purpose: Execute tests and validate quality
+    status: planned
+
+  - name: eval-agent
+    path: ~/.claude/agents/eval-agent.md
+    model: sonnet
+    purpose: Evaluate outcomes against plan
+    status: planned
+
+  - name: session-logger
+    path: ~/.claude/agents/session-logger.md
+    model: haiku
+    purpose: Log runs and actions
+    status: planned
+
+  - name: template-validator
+    path: ~/.claude/agents/template-validator.md
+    model: haiku
+    purpose: Validate outputs against templates
+    status: planned
+
+# Template categories
+template_categories:
+  - name: support
+    path: ~/.claude/templates/support/
+    description: Customer support workflows
+
+  - name: product
+    path: ~/.claude/templates/product/
+    description: Product development workflows
+
+  - name: delivery
+    path: ~/.claude/templates/delivery/
+    description: Technical delivery workflows
+
+# Session management
+session:
+  active_work_file: ~/.claude/session/active-work.md
+  session_log_file: ~/.claude/session/session-log.md
+
+# Transition rules
+transition_rules:
+  # When to skip stages
+  - from: triage
+    to: deliver
+    condition: "Simple work with known resolution (e.g., support/remove-profile)"
+
+  - from: plan
+    to: deliver
+    condition: "Single-task work item, no decomposition needed"
+
+  # When to go back
+  - from: deliver
+    to: design
+    condition: "Implementation reveals need for different approach"
+
+  - from: design
+    to: plan
+    condition: "Design reveals scope larger than estimated"

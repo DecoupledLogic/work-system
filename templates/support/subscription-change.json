@@ -1,0 +1,277 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "support/subscription-change",
+  "name": "Subscription Change Request",
+  "description": "Process for handling plan upgrades, downgrades, billing adjustments, and subscription management requests.",
+  "version": "1.0.0",
+  "appliesTo": ["story", "task"],
+  "workType": "support",
+  "requiredSections": [
+    "request",
+    "customer",
+    "current_state",
+    "change_details",
+    "execution",
+    "verification"
+  ],
+  "recommendedSections": [
+    "billing_impact",
+    "proration",
+    "follow_up"
+  ],
+  "outputs": [
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    },
+    {
+      "type": "document",
+      "location": "session",
+      "format": "markdown",
+      "path": "~/.claude/session/active-work.md"
+    }
+  ],
+  "validationRules": [
+    "customer subscription must be identified",
+    "change type must be specified (upgrade, downgrade, cancel, modify)",
+    "current state must be documented before changes",
+    "execution steps must include billing system updates",
+    "verification must confirm new state matches expected"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["categorized request", "change type identified"],
+      "agents": ["work-item-mapper", "triage-agent"]
+    },
+    "plan": {
+      "required": false,
+      "skip_if": "Simple plan change with standard proration",
+      "outputs": ["impact analysis", "change checklist"]
+    },
+    "design": {
+      "required": false,
+      "skip_if": "No custom terms or complex billing logic"
+    },
+    "deliver": {
+      "required": true,
+      "outputs": ["subscription updated", "confirmation sent"],
+      "agents": ["dev-agent", "eval-agent"]
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "deliver"],
+    "complex_path": ["triage", "plan", "deliver"],
+    "estimated_duration": {
+      "simple": "15-30 minutes",
+      "typical": "1-2 hours",
+      "complex": "4-8 hours"
+    }
+  },
+  "sections": {
+    "request": {
+      "description": "Details of the subscription change request",
+      "prompts": [
+        "What type of change is requested?",
+        "What is the reason for the change?",
+        "When should the change take effect?",
+        "Are there any special conditions?"
+      ],
+      "fields": ["type", "reason", "effective_date", "special_conditions"],
+      "example": {
+        "type": "upgrade",
+        "reason": "Customer needs more seats for growing team",
+        "effective_date": "immediate",
+        "special_conditions": "Prorate current period"
+      }
+    },
+    "customer": {
+      "description": "Customer and subscription identification",
+      "fields": ["email", "account_id", "subscription_id", "organization"],
+      "prompts": [
+        "What is the customer's email?",
+        "What is the subscription/account ID?",
+        "What billing system is this in?"
+      ],
+      "example": {
+        "email": "billing@acme.com",
+        "account_id": "ACC-12345",
+        "subscription_id": "SUB-67890",
+        "organization": "Acme Corp",
+        "billing_system": "Stripe"
+      }
+    },
+    "current_state": {
+      "description": "Current subscription state before changes",
+      "prompts": [
+        "What is the current plan?",
+        "What is the current billing cycle?",
+        "What is the current price/quantity?",
+        "When did the subscription start?"
+      ],
+      "example": {
+        "plan": "Professional",
+        "price": "$49/month",
+        "quantity": 5,
+        "billing_cycle": "monthly",
+        "next_billing_date": "2024-12-15",
+        "subscription_start": "2024-01-01",
+        "status": "active"
+      }
+    },
+    "change_details": {
+      "description": "Specific changes to be made",
+      "prompts": [
+        "What is the target plan?",
+        "What is the new price/quantity?",
+        "How should proration be handled?",
+        "Any credits or adjustments needed?"
+      ],
+      "example": {
+        "target_plan": "Enterprise",
+        "target_price": "$149/month",
+        "target_quantity": 20,
+        "proration": "credit_remaining",
+        "credits_applied": "$25 (remaining from current period)",
+        "effective_date": "2024-12-07"
+      }
+    },
+    "execution": {
+      "description": "Steps taken to execute the change",
+      "prompts": [
+        "What actions were taken in the billing system?",
+        "What database updates were made?",
+        "Were any manual steps required?",
+        "Were there any errors?"
+      ],
+      "example": [
+        {
+          "system": "Stripe",
+          "action": "Update subscription plan to price_enterprise",
+          "result": "Subscription updated, proration applied",
+          "timestamp": "2024-12-07T10:30:00Z"
+        },
+        {
+          "system": "production_db",
+          "action": "UPDATE subscriptions SET plan = 'enterprise' WHERE id = 67890",
+          "result": "1 row updated",
+          "timestamp": "2024-12-07T10:30:05Z"
+        }
+      ]
+    },
+    "verification": {
+      "description": "Confirmation that changes were applied correctly",
+      "prompts": [
+        "What is the new subscription state?",
+        "Does it match expected changes?",
+        "Was the customer notified?",
+        "Is billing system in sync?"
+      ],
+      "example": {
+        "new_state": {
+          "plan": "Enterprise",
+          "price": "$149/month",
+          "quantity": 20,
+          "status": "active"
+        },
+        "matches_expected": true,
+        "customer_notified": true,
+        "notification_method": "Stripe auto-email + manual follow-up",
+        "systems_in_sync": true
+      }
+    },
+    "billing_impact": {
+      "description": "Financial impact of the change",
+      "optional": true,
+      "prompts": [
+        "What is the price difference?",
+        "What credits were applied?",
+        "What is the next invoice amount?",
+        "Any refunds needed?"
+      ]
+    },
+    "proration": {
+      "description": "Proration calculation details",
+      "optional": true,
+      "prompts": [
+        "How was proration calculated?",
+        "What period was prorated?",
+        "What was the credit/charge amount?"
+      ]
+    },
+    "follow_up": {
+      "description": "Any required follow-up actions",
+      "optional": true,
+      "prompts": [
+        "Does the customer need onboarding for new features?",
+        "Are there billing questions to address?",
+        "Should success team be notified?"
+      ]
+    }
+  },
+  "change_types": {
+    "upgrade": {
+      "description": "Moving to a higher tier plan",
+      "typical_proration": "immediate_credit",
+      "notifications": ["confirmation_email", "invoice_email"]
+    },
+    "downgrade": {
+      "description": "Moving to a lower tier plan",
+      "typical_proration": "end_of_period",
+      "notifications": ["confirmation_email", "feature_removal_notice"]
+    },
+    "quantity_change": {
+      "description": "Adding or removing seats/units",
+      "typical_proration": "immediate_prorate",
+      "notifications": ["confirmation_email"]
+    },
+    "billing_cycle_change": {
+      "description": "Switching between monthly/annual",
+      "typical_proration": "credit_remaining",
+      "notifications": ["confirmation_email", "invoice_email"]
+    },
+    "cancel": {
+      "description": "Cancelling subscription",
+      "typical_proration": "none",
+      "notifications": ["cancellation_confirmation", "offboarding_email"]
+    },
+    "pause": {
+      "description": "Temporarily pausing subscription",
+      "typical_proration": "none",
+      "notifications": ["pause_confirmation"]
+    },
+    "billing_adjustment": {
+      "description": "Credits, refunds, or invoice modifications",
+      "typical_proration": "none",
+      "notifications": ["adjustment_confirmation"]
+    }
+  },
+  "checklists": {
+    "pre_change": [
+      "Customer identity verified",
+      "Current subscription state documented",
+      "Change type identified",
+      "Impact understood (proration, features)",
+      "Authorization confirmed"
+    ],
+    "execution": [
+      "Billing system updated",
+      "Database synchronized",
+      "Feature access adjusted",
+      "Proration applied correctly"
+    ],
+    "post_change": [
+      "New state verified",
+      "Customer notified",
+      "Systems in sync confirmed",
+      "Ticket documented and closed"
+    ]
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["support", "subscription", "billing", "upgrade", "downgrade", "stripe", "chargify"]
+  }
+}

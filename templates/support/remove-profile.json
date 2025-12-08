@@ -1,0 +1,261 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "support/remove-profile",
+  "name": "Profile/Account Removal Request",
+  "description": "Process for handling account deletion, profile removal, and GDPR-related data erasure requests. Includes compliance tracking and verification steps.",
+  "version": "1.0.0",
+  "appliesTo": ["story"],
+  "workType": "support",
+  "requiredSections": [
+    "request",
+    "customer",
+    "verification",
+    "data_inventory",
+    "removal_steps",
+    "confirmation"
+  ],
+  "recommendedSections": [
+    "compliance_notes",
+    "retention_exceptions",
+    "follow_up"
+  ],
+  "outputs": [
+    {
+      "type": "comment",
+      "location": "teamwork",
+      "format": "markdown"
+    },
+    {
+      "type": "document",
+      "location": "session",
+      "format": "markdown",
+      "path": "~/.claude/session/active-work.md"
+    }
+  ],
+  "validationRules": [
+    "customer identity must be verified before removal",
+    "data inventory must list all affected systems",
+    "removal steps must include database and external systems",
+    "confirmation must include verification of removal",
+    "compliance type must be specified (GDPR, CCPA, or standard)"
+  ],
+  "stages": {
+    "triage": {
+      "required": true,
+      "outputs": ["categorized request", "compliance type identified"],
+      "agents": ["work-item-mapper", "triage-agent"]
+    },
+    "plan": {
+      "required": true,
+      "outputs": ["data inventory", "removal checklist"],
+      "agents": ["plan-agent"]
+    },
+    "design": {
+      "required": false,
+      "skip_if": "Standard removal using existing scripts"
+    },
+    "deliver": {
+      "required": true,
+      "outputs": ["removal executed", "confirmation sent", "audit log updated"],
+      "agents": ["dev-agent", "eval-agent"]
+    }
+  },
+  "workflow": {
+    "typical_path": ["triage", "plan", "deliver"],
+    "complex_path": ["triage", "plan", "design", "deliver"],
+    "estimated_duration": {
+      "simple": "1-2 hours",
+      "typical": "4 hours",
+      "complex": "1-2 days"
+    }
+  },
+  "sections": {
+    "request": {
+      "description": "Details of the removal request",
+      "prompts": [
+        "What type of removal is requested? (account, profile, specific data)",
+        "What is the reason for removal?",
+        "Is this a regulatory request (GDPR, CCPA)?",
+        "What is the requested timeline?"
+      ],
+      "fields": ["type", "reason", "compliance_type", "deadline"],
+      "example": {
+        "type": "full_account_deletion",
+        "reason": "User exercising right to erasure",
+        "compliance_type": "GDPR",
+        "deadline": "30 days from request"
+      }
+    },
+    "customer": {
+      "description": "Customer identification and contact information",
+      "fields": ["email", "account_id", "name", "organization"],
+      "prompts": [
+        "What is the customer's email?",
+        "What is the account/profile ID?",
+        "How should we confirm completion?"
+      ],
+      "example": {
+        "email": "user@example.com",
+        "account_id": "ACC-12345",
+        "name": "John Smith",
+        "organization": "Acme Corp"
+      }
+    },
+    "verification": {
+      "description": "Steps taken to verify the request is legitimate",
+      "prompts": [
+        "How was the customer's identity verified?",
+        "Was the request authenticated (logged in, email verification)?",
+        "Is this request from an authorized representative?"
+      ],
+      "example": {
+        "method": "Email verification from registered account email",
+        "authenticated": true,
+        "timestamp": "2024-12-07T10:00:00Z",
+        "verified_by": "support@company.com"
+      }
+    },
+    "data_inventory": {
+      "description": "Inventory of all data and systems affected",
+      "prompts": [
+        "What databases contain this user's data?",
+        "What external services have this user's data?",
+        "Are there backup systems to consider?",
+        "What data has legal retention requirements?"
+      ],
+      "example": {
+        "databases": [
+          { "name": "production_db", "tables": ["users", "profiles", "subscriptions"] },
+          { "name": "analytics_db", "tables": ["events", "sessions"] }
+        ],
+        "external_services": [
+          { "name": "Stripe", "data_type": "payment_info" },
+          { "name": "Intercom", "data_type": "chat_history" }
+        ],
+        "retention_required": [
+          { "data": "invoices", "reason": "Tax records", "period": "7 years" }
+        ]
+      }
+    },
+    "removal_steps": {
+      "description": "Detailed steps taken to remove data",
+      "prompts": [
+        "What database queries were executed?",
+        "What API calls were made to external services?",
+        "What manual steps were required?",
+        "Were there any errors or exceptions?"
+      ],
+      "example": [
+        {
+          "system": "production_db",
+          "action": "DELETE FROM users WHERE id = 12345",
+          "result": "1 row deleted",
+          "timestamp": "2024-12-07T14:30:00Z"
+        },
+        {
+          "system": "Stripe",
+          "action": "Customer deletion via API",
+          "result": "Customer deleted",
+          "timestamp": "2024-12-07T14:31:00Z"
+        }
+      ]
+    },
+    "confirmation": {
+      "description": "Verification that removal was complete",
+      "prompts": [
+        "How was removal verified?",
+        "What queries confirm data is gone?",
+        "Was confirmation sent to customer?",
+        "What is the audit trail?"
+      ],
+      "example": {
+        "verification_queries": [
+          "SELECT * FROM users WHERE id = 12345 → 0 rows",
+          "SELECT * FROM profiles WHERE user_id = 12345 → 0 rows"
+        ],
+        "customer_notified": true,
+        "notification_method": "Email to user@example.com",
+        "notification_sent": "2024-12-07T14:45:00Z",
+        "audit_log_entry": "REMOVAL-2024-12-07-001"
+      }
+    },
+    "compliance_notes": {
+      "description": "Regulatory compliance documentation",
+      "optional": true,
+      "prompts": [
+        "What regulation does this fulfill (GDPR Art. 17, CCPA)?",
+        "Were there any exceptions applied?",
+        "Is documentation required for audit?"
+      ]
+    },
+    "retention_exceptions": {
+      "description": "Data retained for legal or business reasons",
+      "optional": true,
+      "prompts": [
+        "What data was retained and why?",
+        "What is the retention period?",
+        "Was customer informed of retained data?"
+      ]
+    },
+    "follow_up": {
+      "description": "Any required follow-up actions",
+      "optional": true,
+      "prompts": [
+        "Are there downstream systems that need manual cleanup?",
+        "Should this trigger any process improvements?",
+        "Are there related accounts to address?"
+      ]
+    }
+  },
+  "compliance": {
+    "gdpr": {
+      "article": "Article 17 - Right to Erasure",
+      "deadline": "30 days from verified request",
+      "documentation_required": true,
+      "exceptions": [
+        "Legal obligation to retain",
+        "Public interest in public health",
+        "Archiving for public interest",
+        "Legal claims"
+      ]
+    },
+    "ccpa": {
+      "section": "Section 1798.105",
+      "deadline": "45 days, extendable to 90",
+      "documentation_required": true,
+      "exceptions": [
+        "Legal obligation",
+        "Detect security incidents",
+        "Protect against fraud"
+      ]
+    }
+  },
+  "checklists": {
+    "pre_removal": [
+      "Customer identity verified",
+      "Request type identified (GDPR/CCPA/standard)",
+      "Data inventory completed",
+      "Retention exceptions documented",
+      "Removal scripts prepared"
+    ],
+    "removal": [
+      "Primary database records deleted",
+      "Secondary databases cleaned",
+      "External services notified",
+      "Backups scheduled for rotation",
+      "Cache invalidation triggered"
+    ],
+    "post_removal": [
+      "Removal verified via queries",
+      "Audit log entry created",
+      "Customer confirmation sent",
+      "Ticket closed with documentation"
+    ]
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["support", "gdpr", "ccpa", "deletion", "privacy", "compliance", "profile"]
+  }
+}

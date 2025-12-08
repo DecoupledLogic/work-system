@@ -1,0 +1,16 @@
+# Session state files should not be versioned
+# They contain ephemeral data specific to each user's active session
+
+# Active work context
+active-work.md
+
+# Session logs
+session-log.md
+
+# Any backup files
+*.backup
+*.bak
+
+# Temporary files
+*.tmp
+.DS_Store

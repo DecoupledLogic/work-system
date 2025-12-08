@@ -1,0 +1,218 @@
+# Work Manager Configuration Schema
+#
+# This file defines the schema for .claude/work-manager.yaml
+# Each project can have its own work manager configuration.
+#
+# Location: <project>/.claude/work-manager.yaml
+
+# Schema definition
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Work Manager Configuration
+description: Configuration for project work item management
+
+type: object
+
+properties:
+  # Primary work manager for this project
+  manager:
+    type: string
+    enum: [teamwork, github, linear, jira, local]
+    description: |
+      The work management system used for this project.
+      - teamwork: Teamwork.com projects and tasks
+      - github: GitHub Issues
+      - linear: Linear issues
+      - jira: Jira issues
+      - local: Local-only work items (no external system)
+
+  # Teamwork-specific configuration
+  teamwork:
+    type: object
+    properties:
+      projectId:
+        type: integer
+        description: Teamwork project ID
+      tasklistId:
+        type: integer
+        description: Default tasklist ID for new tasks
+      defaultAssignee:
+        type: integer
+        description: Default user ID for task assignment
+    required: [projectId]
+
+  # GitHub-specific configuration
+  github:
+    type: object
+    properties:
+      owner:
+        type: string
+        description: GitHub organization or user
+      repo:
+        type: string
+        description: Repository name
+      labels:
+        type: object
+        description: Label mappings for work system fields
+        properties:
+          type:
+            type: object
+            description: Map work item types to labels
+            additionalProperties:
+              type: string
+          urgency:
+            type: object
+            description: Map urgency levels to labels
+            additionalProperties:
+              type: string
+          impact:
+            type: object
+            description: Map impact levels to labels
+            additionalProperties:
+              type: string
+    required: [owner, repo]
+
+  # Linear-specific configuration
+  linear:
+    type: object
+    properties:
+      teamId:
+        type: string
+        description: Linear team identifier
+      projectId:
+        type: string
+        description: Linear project ID (optional)
+      states:
+        type: object
+        description: Map work system stages to Linear states
+        additionalProperties:
+          type: string
+    required: [teamId]
+
+  # Jira-specific configuration
+  jira:
+    type: object
+    properties:
+      projectKey:
+        type: string
+        description: Jira project key (e.g., PROJ)
+      issueTypes:
+        type: object
+        description: Map work item types to Jira issue types
+        additionalProperties:
+          type: string
+      customFields:
+        type: object
+        description: Custom field mappings
+        additionalProperties:
+          type: string
+    required: [projectKey]
+
+  # Local-specific configuration
+  local:
+    type: object
+    properties:
+      storagePath:
+        type: string
+        description: Path to store local work items
+        default: "~/.claude/session/local-work-items.json"
+
+  # Queue configuration (applies to all managers)
+  queues:
+    type: object
+    properties:
+      storage:
+        type: string
+        enum: [local, native]
+        default: local
+        description: |
+          Where to store queue assignments.
+          - local: Store in ~/.claude/session/queues.json (default)
+          - native: Use manager's native mechanism (labels, tags, etc.)
+      sync:
+        type: object
+        description: Sync queue changes to external system
+        properties:
+          enabled:
+            type: boolean
+            default: false
+          mapping:
+            type: object
+            description: Map queues to external labels/tags
+            properties:
+              immediate:
+                type: string
+              todo:
+                type: string
+              backlog:
+                type: string
+              icebox:
+                type: string
+
+  # ID prefix for this project's work items
+  idPrefix:
+    type: string
+    description: |
+      Override the default ID prefix for work items.
+      Defaults based on manager (TW-, GH-, LIN-, JIRA-, LOCAL-)
+
+# Examples
+examples:
+  - name: Teamwork project
+    config:
+      manager: teamwork
+      teamwork:
+        projectId: 123456
+        tasklistId: 789012
+      queues:
+        storage: local
+
+  - name: GitHub project
+    config:
+      manager: github
+      github:
+        owner: acme
+        repo: my-app
+        labels:
+          type:
+            bug: "type: bug"
+            feature: "type: feature"
+            story: "type: story"
+          urgency:
+            critical: "priority: critical"
+            now: "priority: high"
+            next: "priority: medium"
+            future: "priority: low"
+      queues:
+        storage: local
+
+  - name: Linear project
+    config:
+      manager: linear
+      linear:
+        teamId: ENG
+        projectId: proj_123
+      queues:
+        storage: local
+
+  - name: Local-only project
+    config:
+      manager: local
+      local:
+        storagePath: ~/.claude/session/my-project-items.json
+      queues:
+        storage: local
+
+  - name: Teamwork with native queue sync
+    config:
+      manager: teamwork
+      teamwork:
+        projectId: 123456
+      queues:
+        storage: local
+        sync:
+          enabled: true
+          mapping:
+            immediate: "Queue:Immediate"
+            todo: "Queue:Todo"
+            backlog: "Queue:Backlog"
+            icebox: "Queue:Icebox"

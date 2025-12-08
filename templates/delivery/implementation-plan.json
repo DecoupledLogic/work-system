@@ -1,0 +1,338 @@
+{
+  "$schema": "../_schema.json",
+  "templateId": "delivery/implementation-plan",
+  "name": "Implementation Plan",
+  "description": "Template for implementation plans generated during design stage. Defines task breakdown, dependencies, and technical approach for delivering a work item.",
+  "version": "1.0.0",
+  "appliesTo": ["feature", "story"],
+  "workType": "product_delivery",
+  "requiredSections": [
+    "overview",
+    "tasks",
+    "dependencies"
+  ],
+  "recommendedSections": [
+    "technical_approach",
+    "risks",
+    "rollout_strategy",
+    "success_metrics"
+  ],
+  "outputs": [
+    {
+      "type": "document",
+      "location": "repo",
+      "path": "docs/plans/{workItemId}-implementation.md",
+      "format": "markdown"
+    },
+    {
+      "type": "tasks",
+      "location": "teamwork",
+      "format": "subtasks"
+    }
+  ],
+  "validationRules": [
+    "must have at least one task",
+    "all tasks must have acceptance criteria",
+    "all tasks must have hour estimates",
+    "total estimate must fit within work item appetite",
+    "dependencies must reference valid task IDs"
+  ],
+  "stages": {
+    "design": {
+      "required": true,
+      "outputs": ["implementation plan document", "task breakdown"],
+      "agents": ["design-agent"]
+    },
+    "deliver": {
+      "required": true,
+      "outputs": ["completed tasks", "code changes"],
+      "agents": ["dev-agent"]
+    }
+  },
+  "sections": {
+    "overview": {
+      "description": "High-level summary of the implementation",
+      "format": "markdown",
+      "fields": [
+        {
+          "name": "workItemId",
+          "type": "string",
+          "required": true,
+          "description": "Reference to the work item being implemented"
+        },
+        {
+          "name": "workItemName",
+          "type": "string",
+          "required": true,
+          "description": "Name of the work item"
+        },
+        {
+          "name": "adrReference",
+          "type": "string",
+          "required": false,
+          "description": "Reference to related ADR (e.g., ADR-0042)"
+        },
+        {
+          "name": "designBranch",
+          "type": "string",
+          "required": false,
+          "description": "Git branch for design work"
+        },
+        {
+          "name": "totalEstimateHours",
+          "type": "number",
+          "required": true,
+          "description": "Sum of all task estimates in hours"
+        },
+        {
+          "name": "selectedApproach",
+          "type": "string",
+          "required": true,
+          "description": "Brief description of the chosen implementation approach"
+        }
+      ],
+      "example": {
+        "workItemId": "TW-26134585",
+        "workItemName": "User authentication system",
+        "adrReference": "ADR-0042",
+        "designBranch": "design/TW-26134585-auth-system",
+        "totalEstimateHours": 24,
+        "selectedApproach": "JWT with refresh tokens for stateless authentication"
+      }
+    },
+    "tasks": {
+      "description": "Breakdown of implementation tasks",
+      "format": "array",
+      "itemSchema": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "description": "Unique task identifier (will become Teamwork task ID)"
+        },
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "Clear, actionable task name"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "description": "Additional context or implementation notes"
+        },
+        "estimateHours": {
+          "type": "number",
+          "required": true,
+          "minimum": 0.5,
+          "maximum": 8,
+          "description": "Estimated hours to complete (max 8 per task)"
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["foundation", "core", "integration", "testing", "documentation"],
+          "required": false,
+          "description": "Implementation phase this task belongs to"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": "string",
+          "required": false,
+          "description": "Task IDs this task depends on"
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "items": "string",
+          "required": true,
+          "minItems": 1,
+          "description": "Testable criteria for task completion"
+        },
+        "technicalNotes": {
+          "type": "array",
+          "items": "string",
+          "required": false,
+          "description": "Implementation guidance, libraries, patterns to use"
+        },
+        "testingNotes": {
+          "type": "string",
+          "required": false,
+          "description": "Specific testing considerations for this task"
+        }
+      },
+      "example": [
+        {
+          "id": "task-1",
+          "name": "Create JWT token service",
+          "description": "Implement service for generating and validating JWT tokens",
+          "estimateHours": 4,
+          "phase": "foundation",
+          "dependencies": [],
+          "acceptanceCriteria": [
+            "Token generation with configurable expiry",
+            "Token validation returns decoded payload",
+            "Refresh token rotation implemented",
+            "Unit tests cover all token operations"
+          ],
+          "technicalNotes": [
+            "Use jsonwebtoken library",
+            "Follow existing auth service patterns",
+            "Store refresh tokens in Redis with TTL"
+          ]
+        },
+        {
+          "id": "task-2",
+          "name": "Implement login endpoint",
+          "description": "Create POST /auth/login endpoint with rate limiting",
+          "estimateHours": 3,
+          "phase": "core",
+          "dependencies": ["task-1"],
+          "acceptanceCriteria": [
+            "Accepts email and password",
+            "Returns access and refresh tokens on success",
+            "Returns 401 with generic message on failure",
+            "Rate limited to 5 attempts per minute"
+          ],
+          "technicalNotes": [
+            "Use express-rate-limit middleware",
+            "Follow existing API response format"
+          ]
+        }
+      ]
+    },
+    "dependencies": {
+      "description": "External and internal dependencies",
+      "format": "object",
+      "fields": {
+        "external": {
+          "type": "array",
+          "items": {
+            "name": "string",
+            "type": "string",
+            "status": "string",
+            "notes": "string"
+          },
+          "description": "Dependencies on external systems or services"
+        },
+        "internal": {
+          "type": "array",
+          "items": {
+            "workItemId": "string",
+            "name": "string",
+            "status": "string"
+          },
+          "description": "Dependencies on other work items"
+        },
+        "blockers": {
+          "type": "array",
+          "items": "string",
+          "description": "Any blocking issues that must be resolved"
+        }
+      },
+      "example": {
+        "external": [
+          {
+            "name": "Redis cluster",
+            "type": "infrastructure",
+            "status": "available",
+            "notes": "Using existing auth Redis instance"
+          }
+        ],
+        "internal": [
+          {
+            "workItemId": "TW-26134500",
+            "name": "User model updates",
+            "status": "completed"
+          }
+        ],
+        "blockers": []
+      }
+    },
+    "technical_approach": {
+      "description": "Detailed technical implementation approach",
+      "optional": true,
+      "format": "markdown",
+      "prompts": [
+        "What architecture patterns are being used?",
+        "What libraries or frameworks are required?",
+        "How does this integrate with existing systems?",
+        "What data models are affected?"
+      ],
+      "example": "## Architecture\n\nUsing middleware-based authentication with JWT tokens.\n\n## Libraries\n- jsonwebtoken for token operations\n- bcrypt for password hashing\n- express-rate-limit for rate limiting\n\n## Integration\n- Integrates with existing User service\n- Uses shared Redis instance for refresh tokens"
+    },
+    "risks": {
+      "description": "Implementation risks and mitigations",
+      "optional": true,
+      "format": "array",
+      "itemSchema": {
+        "risk": "string",
+        "impact": "string",
+        "likelihood": "string",
+        "mitigation": "string"
+      },
+      "example": [
+        {
+          "risk": "Token revocation at scale",
+          "impact": "high",
+          "likelihood": "low",
+          "mitigation": "Using short-lived access tokens (15min) with refresh rotation"
+        },
+        {
+          "risk": "Redis unavailability",
+          "impact": "medium",
+          "likelihood": "low",
+          "mitigation": "Graceful degradation to shorter token expiry"
+        }
+      ]
+    },
+    "rollout_strategy": {
+      "description": "How the implementation will be deployed",
+      "optional": true,
+      "format": "markdown",
+      "prompts": [
+        "How will this be deployed?",
+        "Is a migration required?",
+        "What's the rollback plan?",
+        "Any feature flags needed?"
+      ]
+    },
+    "success_metrics": {
+      "description": "How we'll measure success",
+      "optional": true,
+      "format": "array",
+      "itemSchema": {
+        "metric": "string",
+        "target": "string",
+        "measurement": "string"
+      },
+      "example": [
+        {
+          "metric": "Login latency P95",
+          "target": "< 200ms",
+          "measurement": "DataDog APM"
+        },
+        {
+          "metric": "Authentication error rate",
+          "target": "< 0.1%",
+          "measurement": "Error tracking"
+        }
+      ]
+    }
+  },
+  "sizing": {
+    "guidance": {
+      "small": "1-2 tasks, 2-4 hours total",
+      "medium": "3-5 tasks, 4-16 hours total",
+      "large": "6-10 tasks, 16-40 hours total"
+    },
+    "split_triggers": [
+      "More than 10 tasks",
+      "Total estimate exceeds 40 hours",
+      "Multiple distinct delivery phases",
+      "Tasks span multiple teams or capabilities"
+    ]
+  },
+  "metadata": {
+    "author": "work-system",
+    "createdAt": "2024-12-07T00:00:00Z",
+    "updatedAt": "2024-12-07T00:00:00Z",
+    "tags": ["delivery", "implementation", "planning", "tasks"]
+  }
+}
