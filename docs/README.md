@@ -2,136 +2,119 @@
 
 Comprehensive documentation for the Claude Code Work System, including guides, specifications, and architectural decision records.
 
-## Overview
-
-This directory contains all documentation needed to understand, configure, and extend the work system.
-
 ## Directory Structure
 
-```
+```text
 docs/
-├── README.md                           # This file
-├── adrs/                               # Architecture Decision Records
-├── documentation-summary.md            # Overview of all documentation
-├── domain-commands-guide.md            # Comprehensive domain command reference
-├── programming-in-natural-language.md  # Philosophy and design principles
-├── quick-reference.md                  # Command and workflow cheat sheet
-├── repo-setup-guide.md                 # Repository configuration guide
-├── sub-agents-guide.md                 # Guide to creating sub-agents
-├── work-system.md                      # Core specification
-├── work-system-guide.md                # User guide and tutorials
-├── work-system-implementation-plan.md  # Phased implementation roadmap
-└── work-system-readme.md               # Work system overview
+├── README.md                    # This file
+├── adrs/                        # Architecture Decision Records
+│   ├── 0001-work-manager-abstraction.md
+│   ├── 0002-local-first-session-state.md
+│   ├── 0003-stage-based-workflow.md
+│   └── 0004-architecture-aware-agents.md
+├── agents/                      # Agent methodology and prompts
+│   ├── architecture-review-agent.md
+│   ├── architecture-agents-prompts.md
+│   ├── document-writer-agent.md
+│   ├── document-writer-prompts.md
+│   └── sub-agents-guide.md
+├── core/                        # Core work system documentation
+│   ├── work-system.md           # Authoritative specification
+│   ├── work-system-guide.md     # User guide and tutorials
+│   └── work-system-readme.md    # High-level overview
+├── reference/                   # Reference and standards
+│   ├── markdown-standards.md    # Markdown linting rules
+│   ├── quick-reference.md       # Command cheat sheet
+│   └── domain-commands-guide.md # Domain command reference
+├── plans/                       # Implementation plans
+│   └── work-system-implementation-plan.md
+├── concepts/                    # Conceptual documentation
+│   ├── programming-in-natural-language.md
+│   └── documentation-summary.md
+└── templates/                   # Templates for agents
+    ├── architecture.yaml
+    ├── agent-playbook.yaml
+    ├── README.md
+    └── documents/               # Document templates (PRD, Spec, etc.)
 ```
 
 ## Documentation Categories
-
-### Domain Architecture
-
-| Document | Purpose |
-|----------|---------|
-| [programming-in-natural-language.md](programming-in-natural-language.md) | Philosophy and design principles |
-| [domain-commands-guide.md](domain-commands-guide.md) | Comprehensive domain command reference |
-| [Schema Directory](../schema/) | Domain object schemas and aggregates |
-| [Domain Commands](../commands/domain/) | Aggregate command implementations |
 
 ### Core Specification
 
 | Document | Purpose |
 |----------|---------|
-| [work-system.md](work-system.md) | Authoritative specification for the work system |
-| [work-system-readme.md](work-system-readme.md) | High-level overview and concepts |
-| [work-system-guide.md](work-system-guide.md) | Detailed user guide with examples |
+| [work-system.md](core/work-system.md) | Authoritative specification |
+| [work-system-readme.md](core/work-system-readme.md) | High-level overview |
+| [work-system-guide.md](core/work-system-guide.md) | Detailed user guide |
 
-### Implementation
+### Agent Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [work-system-implementation-plan.md](work-system-implementation-plan.md) | Phased rollout plan |
-| [repo-setup-guide.md](repo-setup-guide.md) | How to configure repositories |
-| [sub-agents-guide.md](sub-agents-guide.md) | Creating and using sub-agents |
+| [architecture-review-agent.md](agents/architecture-review-agent.md) | 3-pass codebase analysis methodology |
+| [architecture-agents-prompts.md](agents/architecture-agents-prompts.md) | System prompts for architecture agents |
+| [document-writer-agent.md](agents/document-writer-agent.md) | Template-driven document generation |
+| [document-writer-prompts.md](agents/document-writer-prompts.md) | System prompts for document writer |
+| [sub-agents-guide.md](agents/sub-agents-guide.md) | Guide to creating sub-agents |
 
 ### Reference
 
 | Document | Purpose |
 |----------|---------|
-| [quick-reference.md](quick-reference.md) | Commands, schemas, workflows |
-| [documentation-summary.md](documentation-summary.md) | Index of all documentation |
+| [quick-reference.md](reference/quick-reference.md) | Command and workflow cheat sheet |
+| [markdown-standards.md](reference/markdown-standards.md) | Linting rules for documentation |
+| [domain-commands-guide.md](reference/domain-commands-guide.md) | Domain command reference |
+
+### Concepts
+
+| Document | Purpose |
+|----------|---------|
+| [programming-in-natural-language.md](concepts/programming-in-natural-language.md) | Philosophy and design principles |
+| [documentation-summary.md](concepts/documentation-summary.md) | Index of all documentation |
+
+### Plans
+
+| Document | Purpose |
+|----------|---------|
+| [work-system-implementation-plan.md](plans/work-system-implementation-plan.md) | Phased rollout plan |
 
 ### Architecture Decision Records
 
-The `adrs/` subdirectory contains records of significant architecture decisions:
-
-```
-adrs/
-├── 001-queue-based-prioritization.md
-├── 002-template-driven-workflows.md
-└── ...
-```
+| ADR | Title |
+|-----|-------|
+| [0001](adrs/0001-work-manager-abstraction.md) | Work Manager Abstraction Layer |
+| [0002](adrs/0002-local-first-session-state.md) | Local-First Session State |
+| [0003](adrs/0003-stage-based-workflow.md) | Stage-Based Workflow with Sub-Agents |
+| [0004](adrs/0004-architecture-aware-agents.md) | Architecture-Aware Agent System |
 
 ## Reading Order
 
-For new users:
+### For New Users
 
-1. [programming-in-natural-language.md](programming-in-natural-language.md) - Understand the philosophy
-2. [domain-commands-guide.md](domain-commands-guide.md) - Learn the commands
-3. [quick-reference.md](quick-reference.md) - Quick command lookup
+1. [core/work-system-readme.md](core/work-system-readme.md) - Overview
+2. [reference/quick-reference.md](reference/quick-reference.md) - Commands
+3. [core/work-system-guide.md](core/work-system-guide.md) - Tutorials
 
-For developers:
+### For Developers
 
-1. [Schema Directory](../schema/) - Domain model and aggregates
-2. [work-system.md](work-system.md) - Full specification
-3. [sub-agents-guide.md](sub-agents-guide.md) - Agent development
+1. [Schema Directory](../schema/) - Domain models
+2. [core/work-system.md](core/work-system.md) - Full specification
+3. [agents/sub-agents-guide.md](agents/sub-agents-guide.md) - Agent development
 
-For architects:
+### For Architects
 
-1. [programming-in-natural-language.md](programming-in-natural-language.md) - Design principles
-2. [Schema Directory](../schema/aggregates.md) - Aggregate patterns
-3. [work-system-implementation-plan.md](work-system-implementation-plan.md) - Roadmap
-
-## Document Conventions
-
-### Version Tracking
-
-Documents include version info at the bottom:
-```markdown
----
-*Last Updated: 2024-12-07*
-```
-
-### Cross-References
-
-Documents link to related files:
-```markdown
-## Related Files
-- [agents/](../agents/) - Agent definitions
-- [templates/](../templates/) - Process templates
-```
-
-### Code Examples
-
-Examples use fenced code blocks with language:
-```json
-{
-  "example": "configuration"
-}
-```
-
-## Contributing
-
-When updating documentation:
-1. Keep documents focused and concise
-2. Update cross-references when moving files
-3. Update the last modified date
-4. Add entries to documentation-summary.md for new docs
+1. [concepts/programming-in-natural-language.md](concepts/programming-in-natural-language.md) - Design philosophy
+2. [adrs/](adrs/) - Decision records
+3. [agents/architecture-review-agent.md](agents/architecture-review-agent.md) - Architecture methodology
 
 ## Related Directories
 
-- [agents/](../agents/) - Sub-agent definitions
+- [agents/](../agents/) - Agent definitions (executable)
 - [commands/](../commands/) - Slash command implementations
+- [schema/](../schema/) - Domain object schemas
 - [templates/](../templates/) - Process templates
-- [session/](../session/) - Session state and logs
 
 ---
 
-*Last Updated: 2024-12-07*
+*Last Updated: 2024-12-08*

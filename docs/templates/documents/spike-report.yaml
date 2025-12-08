@@ -1,0 +1,87 @@
+name: spike-report
+version: 1
+description: Research/Investigation Report for spikes
+
+requiredContext:
+  - title
+  - workItemId
+  - question
+  - findings
+
+optionalContext:
+  - approach
+  - recommendations
+  - nextSteps
+  - timeSpent
+  - resources
+  - limitations
+
+render:
+  - type: heading
+    level: 1
+    content: "Spike Report: {{title}}"
+
+  - type: metadata
+    fields:
+      - "**Work Item:** {{workItemId}}"
+      - "**Created:** {{currentDate}}"
+      - "**Time Spent:** {{timeSpent}}"
+
+  - type: heading
+    level: 2
+    content: "Research Question"
+
+  - type: paragraph
+    content: "{{question}}"
+
+  - type: conditional
+    if: "{{approach}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Approach"
+      - type: paragraph
+        content: "{{approach}}"
+
+  - type: heading
+    level: 2
+    content: "Findings"
+
+  - type: paragraph
+    content: "{{findings}}"
+
+  - type: conditional
+    if: "{{limitations}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Limitations"
+      - type: list
+        items: "{{limitations}}"
+
+  - type: conditional
+    if: "{{recommendations}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Recommendations"
+      - type: list
+        items: "{{recommendations}}"
+
+  - type: conditional
+    if: "{{nextSteps}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Next Steps"
+      - type: list
+        items: "{{nextSteps}}"
+
+  - type: conditional
+    if: "{{resources}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Resources"
+      - type: list
+        items: "{{resources}}"

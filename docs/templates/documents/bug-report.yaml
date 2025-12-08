@@ -1,0 +1,116 @@
+name: bug-report
+version: 1
+description: Bug Documentation
+
+requiredContext:
+  - title
+  - workItemId
+  - symptoms
+  - stepsToReproduce
+
+optionalContext:
+  - expectedBehavior
+  - actualBehavior
+  - environment
+  - rootCause
+  - resolution
+  - affectedUsers
+  - workaround
+  - preventionMeasures
+
+render:
+  - type: heading
+    level: 1
+    content: "Bug Report: {{title}}"
+
+  - type: metadata
+    fields:
+      - "**Work Item:** {{workItemId}}"
+      - "**Created:** {{currentDate}}"
+      - "**Status:** Open"
+
+  - type: heading
+    level: 2
+    content: "Symptoms"
+
+  - type: paragraph
+    content: "{{symptoms}}"
+
+  - type: heading
+    level: 2
+    content: "Steps to Reproduce"
+
+  - type: orderedList
+    items: "{{stepsToReproduce}}"
+
+  - type: conditional
+    if: "{{expectedBehavior}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Expected Behavior"
+      - type: paragraph
+        content: "{{expectedBehavior}}"
+
+  - type: conditional
+    if: "{{actualBehavior}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Actual Behavior"
+      - type: paragraph
+        content: "{{actualBehavior}}"
+
+  - type: conditional
+    if: "{{environment}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Environment"
+      - type: list
+        items: "{{environment}}"
+
+  - type: conditional
+    if: "{{affectedUsers}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Affected Users"
+      - type: paragraph
+        content: "{{affectedUsers}}"
+
+  - type: conditional
+    if: "{{workaround}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Workaround"
+      - type: paragraph
+        content: "{{workaround}}"
+
+  - type: conditional
+    if: "{{rootCause}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Root Cause"
+      - type: paragraph
+        content: "{{rootCause}}"
+
+  - type: conditional
+    if: "{{resolution}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Resolution"
+      - type: paragraph
+        content: "{{resolution}}"
+
+  - type: conditional
+    if: "{{preventionMeasures}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Prevention Measures"
+      - type: list
+        items: "{{preventionMeasures}}"

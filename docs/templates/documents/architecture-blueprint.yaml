@@ -1,0 +1,380 @@
+name: architecture-blueprint
+version: 1
+description: Architecture Blueprint for systems, services, or aggregate roots - establishes technical patterns and integration contracts before implementation
+
+requiredContext:
+  - systemName
+  - overview
+  - goals
+  - components
+  - corePrinciples
+
+optionalContext:
+  - taskUrl
+  - eventSources
+  - domainModel
+  - coreFlows
+  - integrationDesign
+  - eventContracts
+  - serviceApis
+  - reconciliationStrategy
+  - securityAndTenancy
+  - openQuestions
+  - migrationStrategy
+  - failureModes
+  - performanceConsiderations
+
+render:
+  - type: heading
+    level: 1
+    content: "{{systemName}} Architecture Blueprint"
+
+  - type: conditional
+    if: "{{taskUrl}}"
+    blocks:
+      - type: metadata
+        fields:
+          - "**Task:** {{taskUrl}}"
+
+  - type: heading
+    level: 2
+    content: "Overview"
+
+  - type: paragraph
+    content: "{{overview}}"
+
+  - type: heading
+    level: 2
+    content: "Goals"
+
+  - type: list
+    items: "{{goals}}"
+
+  - type: heading
+    level: 2
+    content: "High Level Architecture"
+
+  - type: paragraph
+    content: "Components:"
+
+  - type: forEach
+    items: "{{components}}"
+    blocks:
+      - type: paragraph
+        content: "**{{item.name}}**"
+      - type: list
+        items: "{{item.responsibilities}}"
+
+  - type: heading
+    level: 2
+    content: "Core Principles"
+
+  - type: forEach
+    items: "{{corePrinciples}}"
+    blocks:
+      - type: paragraph
+        content: "{{item.number}}. **{{item.name}}**: {{item.explanation}}"
+
+  - type: conditional
+    if: "{{corePrinciples[0].benefits}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Why This Pattern?"
+      - type: list
+        items: "{{corePrinciples[0].benefits}}"
+
+  - type: conditional
+    if: "{{eventSources}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Event Sources and What We Use Them For"
+
+      - type: conditional
+        if: "{{eventSources.webhooks}}"
+        blocks:
+          - type: paragraph
+            content: "From {{eventSources.systemName}} webhooks:"
+          - type: forEach
+            items: "{{eventSources.webhooks}}"
+            blocks:
+              - type: paragraph
+                content: "**{{item.eventType}}**"
+              - type: conditional
+                if: "{{item.includes}}"
+                blocks:
+                  - type: paragraph
+                    content: "- Includes: {{item.includes}}"
+              - type: paragraph
+                content: "- We use this to: {{item.purpose}}"
+
+      - type: conditional
+        if: "{{eventSources.apis}}"
+        blocks:
+          - type: paragraph
+            content: "From {{eventSources.systemName}} REST APIs:"
+          - type: forEach
+            items: "{{eventSources.apis}}"
+            blocks:
+              - type: paragraph
+                content: "**{{item.endpoint}}**"
+              - type: paragraph
+                content: "- Used for: {{item.purpose}}"
+
+  - type: conditional
+    if: "{{domainModel}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Domain Model"
+
+      - type: forEach
+        items: "{{domainModel.aggregates}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "{{item.serviceName}} Domain"
+          - type: paragraph
+            content: "Key aggregates:"
+          - type: forEach
+            items: "{{item.entities}}"
+            blocks:
+              - type: paragraph
+                content: "**{{item.name}}**"
+              - type: list
+                items: "{{item.fields}}"
+
+  - type: conditional
+    if: "{{coreFlows}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Core Flows"
+
+      - type: forEach
+        items: "{{coreFlows}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "{{item.number}}. {{item.name}}"
+          - type: orderedList
+            items: "{{item.steps}}"
+          - type: conditional
+            if: "{{item.notes}}"
+            blocks:
+              - type: paragraph
+                content: "{{item.notes}}"
+
+  - type: conditional
+    if: "{{integrationDesign}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "{{integrationDesign.type}} Handling Design"
+
+      - type: paragraph
+        content: "{{integrationDesign.serviceName}} exposes endpoints:"
+
+      - type: forEach
+        items: "{{integrationDesign.endpoints}}"
+        blocks:
+          - type: paragraph
+            content: "- `{{item.method}} {{item.path}}`"
+          - type: paragraph
+            content: "  - {{item.description}}"
+
+      - type: conditional
+        if: "{{integrationDesign.processingPattern}}"
+        blocks:
+          - type: paragraph
+            content: "**Processing pattern:**"
+          - type: list
+            items: "{{integrationDesign.processingPattern}}"
+
+      - type: conditional
+        if: "{{integrationDesign.idempotencyRules}}"
+        blocks:
+          - type: paragraph
+            content: "**Idempotency rules:**"
+          - type: list
+            items: "{{integrationDesign.idempotencyRules}}"
+
+  - type: conditional
+    if: "{{eventContracts}}"
+    blocks:
+      - type: forEach
+        items: "{{eventContracts}}"
+        blocks:
+          - type: heading
+            level: 2
+            content: "{{item.eventName}} Event Contract"
+          - type: paragraph
+            content: "Example payload:"
+          - type: code
+            language: json
+            content: "{{item.examplePayload}}"
+          - type: conditional
+            if: "{{item.description}}"
+            blocks:
+              - type: paragraph
+                content: "{{item.description}}"
+
+  - type: conditional
+    if: "{{serviceApis}}"
+    blocks:
+      - type: forEach
+        items: "{{serviceApis}}"
+        blocks:
+          - type: heading
+            level: 2
+            content: "{{item.serviceName}} API"
+          - type: paragraph
+            content: "Key endpoints:"
+          - type: forEach
+            items: "{{item.endpoints}}"
+            blocks:
+              - type: paragraph
+                content: "- `{{item.method}} {{item.path}}`"
+              - type: paragraph
+                content: "  - {{item.description}}"
+          - type: conditional
+            if: "{{item.internalBehavior}}"
+            blocks:
+              - type: paragraph
+                content: "**Internal behavior:**"
+              - type: list
+                items: "{{item.internalBehavior}}"
+          - type: conditional
+            if: "{{item.caching}}"
+            blocks:
+              - type: paragraph
+                content: "**Caching:**"
+              - type: list
+                items: "{{item.caching}}"
+
+  - type: conditional
+    if: "{{reconciliationStrategy}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Reconciliation Job"
+      - type: paragraph
+        content: "**Assumption:** {{reconciliationStrategy.assumption}}"
+      - type: paragraph
+        content: "{{reconciliationStrategy.frequency}} job in {{reconciliationStrategy.serviceName}}:"
+      - type: list
+        items: "{{reconciliationStrategy.actions}}"
+
+  - type: conditional
+    if: "{{securityAndTenancy}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Security and Tenancy"
+      - type: list
+        items: "{{securityAndTenancy}}"
+
+  - type: conditional
+    if: "{{migrationStrategy}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Migration Strategy"
+
+      - type: heading
+        level: 3
+        content: "Current Architecture"
+      - type: paragraph
+        content: "{{migrationStrategy.currentState}}"
+      - type: conditional
+        if: "{{migrationStrategy.problems}}"
+        blocks:
+          - type: paragraph
+            content: "**Problems:**"
+          - type: list
+            items: "{{migrationStrategy.problems}}"
+
+      - type: heading
+        level: 3
+        content: "Future Architecture"
+      - type: paragraph
+        content: "{{migrationStrategy.futureState}}"
+      - type: conditional
+        if: "{{migrationStrategy.benefits}}"
+        blocks:
+          - type: paragraph
+            content: "**Benefits:**"
+          - type: list
+            items: "{{migrationStrategy.benefits}}"
+
+      - type: heading
+        level: 3
+        content: "Migration Steps"
+      - type: orderedList
+        items: "{{migrationStrategy.steps}}"
+
+  - type: conditional
+    if: "{{failureModes}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Failure Modes and Recovery"
+
+      - type: forEach
+        items: "{{failureModes}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "{{item.scenario}}"
+          - type: paragraph
+            content: "- **Trigger:** {{item.trigger}}"
+          - type: paragraph
+            content: "- **Impact:** {{item.impact}}"
+          - type: paragraph
+            content: "- **Detection:** {{item.detection}}"
+          - type: paragraph
+            content: "- **Recovery:** {{item.recovery}}"
+
+  - type: conditional
+    if: "{{performanceConsiderations}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Performance Considerations"
+
+      - type: conditional
+        if: "{{performanceConsiderations.throughput}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "Throughput"
+          - type: list
+            items: "{{performanceConsiderations.throughput}}"
+
+      - type: conditional
+        if: "{{performanceConsiderations.latency}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "Latency"
+          - type: list
+            items: "{{performanceConsiderations.latency}}"
+
+      - type: conditional
+        if: "{{performanceConsiderations.scalability}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "Scalability"
+          - type: list
+            items: "{{performanceConsiderations.scalability}}"
+
+  - type: conditional
+    if: "{{openQuestions}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Open Questions"
+      - type: list
+        items: "{{openQuestions}}"

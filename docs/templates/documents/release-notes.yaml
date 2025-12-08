@@ -1,0 +1,87 @@
+name: release-notes
+version: 1
+description: Release Notes documentation
+
+requiredContext:
+  - version
+  - releaseDate
+  - features
+
+optionalContext:
+  - bugFixes
+  - breakingChanges
+  - knownIssues
+  - upgradeNotes
+  - deprecations
+  - contributors
+
+render:
+  - type: heading
+    level: 1
+    content: "Release Notes: v{{version}}"
+
+  - type: metadata
+    fields:
+      - "**Release Date:** {{releaseDate}}"
+      - "**Version:** {{version}}"
+
+  - type: heading
+    level: 2
+    content: "New Features"
+
+  - type: list
+    items: "{{features}}"
+
+  - type: conditional
+    if: "{{bugFixes}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Bug Fixes"
+      - type: list
+        items: "{{bugFixes}}"
+
+  - type: conditional
+    if: "{{breakingChanges}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Breaking Changes"
+      - type: list
+        items: "{{breakingChanges}}"
+
+  - type: conditional
+    if: "{{deprecations}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Deprecations"
+      - type: list
+        items: "{{deprecations}}"
+
+  - type: conditional
+    if: "{{knownIssues}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Known Issues"
+      - type: list
+        items: "{{knownIssues}}"
+
+  - type: conditional
+    if: "{{upgradeNotes}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Upgrade Notes"
+      - type: paragraph
+        content: "{{upgradeNotes}}"
+
+  - type: conditional
+    if: "{{contributors}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Contributors"
+      - type: list
+        items: "{{contributors}}"

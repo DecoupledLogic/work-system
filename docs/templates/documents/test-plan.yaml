@@ -1,0 +1,150 @@
+name: test-plan
+version: 1
+description: Test Plan for work items
+
+requiredContext:
+  - workItemName
+  - workItemId
+  - testStrategy
+
+optionalContext:
+  - overview
+  - unitTests
+  - integrationTests
+  - e2eTests
+  - securityTests
+  - performanceTests
+  - testDataRequirements
+  - environmentRequirements
+  - coverageTargets
+
+render:
+  - type: heading
+    level: 1
+    content: "Test Plan: {{workItemName}}"
+
+  - type: metadata
+    fields:
+      - "**Work Item:** {{workItemId}}"
+      - "**Created:** {{currentDate}}"
+
+  - type: conditional
+    if: "{{overview}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Overview"
+      - type: paragraph
+        content: "{{overview}}"
+
+  - type: heading
+    level: 2
+    content: "Test Strategy"
+
+  - type: paragraph
+    content: "{{testStrategy}}"
+
+  - type: heading
+    level: 2
+    content: "Test Levels"
+
+  - type: conditional
+    if: "{{unitTests}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Unit Tests"
+      - type: paragraph
+        content: "**Scope:** {{unitTests.scope}}"
+      - type: paragraph
+        content: "**Framework:** {{unitTests.framework}}"
+      - type: paragraph
+        content: "**Key Test Cases:**"
+      - type: list
+        items: "{{unitTests.cases}}"
+
+  - type: conditional
+    if: "{{integrationTests}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Integration Tests"
+      - type: paragraph
+        content: "**Scope:** {{integrationTests.scope}}"
+      - type: paragraph
+        content: "**Framework:** {{integrationTests.framework}}"
+      - type: paragraph
+        content: "**Key Test Cases:**"
+      - type: list
+        items: "{{integrationTests.cases}}"
+
+  - type: conditional
+    if: "{{e2eTests}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "End-to-End Tests"
+      - type: paragraph
+        content: "**Scope:** {{e2eTests.scope}}"
+      - type: paragraph
+        content: "**Framework:** {{e2eTests.framework}}"
+      - type: paragraph
+        content: "**Key Scenarios:**"
+      - type: list
+        items: "{{e2eTests.scenarios}}"
+
+  - type: conditional
+    if: "{{securityTests}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Security Tests"
+      - type: paragraph
+        content: "**Approach:** {{securityTests.approach}}"
+      - type: paragraph
+        content: "**Focus Areas:**"
+      - type: list
+        items: "{{securityTests.focusAreas}}"
+
+  - type: conditional
+    if: "{{performanceTests}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Performance Tests"
+      - type: paragraph
+        content: "**Approach:** {{performanceTests.approach}}"
+      - type: paragraph
+        content: "**Targets:**"
+      - type: list
+        items: "{{performanceTests.targets}}"
+
+  - type: conditional
+    if: "{{coverageTargets}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Coverage Targets"
+      - type: table
+        headers:
+          - Metric
+          - Target
+        rows: "{{coverageTargets}}"
+
+  - type: conditional
+    if: "{{testDataRequirements}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Test Data Requirements"
+      - type: list
+        items: "{{testDataRequirements}}"
+
+  - type: conditional
+    if: "{{environmentRequirements}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Environment Requirements"
+      - type: list
+        items: "{{environmentRequirements}}"

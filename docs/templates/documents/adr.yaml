@@ -1,0 +1,122 @@
+name: adr
+version: 1
+description: Architecture Decision Record
+
+requiredContext:
+  - title
+  - context
+  - decision
+  - consequences
+
+optionalContext:
+  - number
+  - status
+  - date
+  - decisionMakers
+  - alternatives
+  - relatedDecisions
+  - references
+
+render:
+  - type: heading
+    level: 1
+    content: "ADR-{{number}}: {{title}}"
+
+  - type: heading
+    level: 2
+    content: "Status"
+
+  - type: paragraph
+    content: "{{status | default: 'Proposed'}}"
+
+  - type: heading
+    level: 2
+    content: "Date"
+
+  - type: paragraph
+    content: "{{date | default: currentDate}}"
+
+  - type: heading
+    level: 2
+    content: "Context"
+
+  - type: paragraph
+    content: "{{context}}"
+
+  - type: heading
+    level: 2
+    content: "Decision"
+
+  - type: paragraph
+    content: "{{decision}}"
+
+  - type: heading
+    level: 2
+    content: "Consequences"
+
+  - type: conditional
+    if: "{{consequences.positive}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Positive"
+      - type: list
+        items: "{{consequences.positive}}"
+
+  - type: conditional
+    if: "{{consequences.negative}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Negative"
+      - type: list
+        items: "{{consequences.negative}}"
+
+  - type: conditional
+    if: "{{consequences.neutral}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Neutral"
+      - type: list
+        items: "{{consequences.neutral}}"
+
+  - type: conditional
+    if: "{{alternatives}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Alternatives Considered"
+      - type: forEach
+        items: "{{alternatives}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "{{item.name}}"
+          - type: paragraph
+            content: "{{item.reason}}"
+
+  - type: conditional
+    if: "{{relatedDecisions}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Related Decisions"
+      - type: list
+        items: "{{relatedDecisions}}"
+
+  - type: conditional
+    if: "{{references}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "References"
+      - type: list
+        items: "{{references}}"
+
+  - type: conditional
+    if: "{{decisionMakers}}"
+    blocks:
+      - type: divider
+      - type: paragraph
+        content: "*Decision makers: {{decisionMakers | join: ', '}}*"

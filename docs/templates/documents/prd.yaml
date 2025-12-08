@@ -1,0 +1,103 @@
+name: prd
+version: 1
+description: Product Requirements Document for features and epics
+
+requiredContext:
+  - featureName
+  - vision
+  - actors
+  - acceptanceCriteria
+
+optionalContext:
+  - jobs
+  - constraints
+  - outOfScope
+  - risks
+  - dependencies
+  - successMetrics
+
+render:
+  - type: heading
+    level: 1
+    content: "PRD: {{featureName}}"
+
+  - type: metadata
+    fields:
+      - "**Created:** {{currentDate}}"
+      - "**Status:** Draft"
+      - "**Work Item:** {{workItemId}}"
+
+  - type: heading
+    level: 2
+    content: "Vision"
+
+  - type: paragraph
+    content: "{{vision}}"
+
+  - type: heading
+    level: 2
+    content: "Actors"
+
+  - type: list
+    items: "{{actors}}"
+
+  - type: conditional
+    if: "{{jobs}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Jobs to be Done"
+      - type: list
+        items: "{{jobs}}"
+
+  - type: heading
+    level: 2
+    content: "Acceptance Criteria"
+
+  - type: list
+    items: "{{acceptanceCriteria}}"
+
+  - type: conditional
+    if: "{{constraints}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Constraints"
+      - type: list
+        items: "{{constraints}}"
+
+  - type: conditional
+    if: "{{outOfScope}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Out of Scope"
+      - type: list
+        items: "{{outOfScope}}"
+
+  - type: conditional
+    if: "{{risks}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Risks"
+      - type: list
+        items: "{{risks}}"
+
+  - type: conditional
+    if: "{{dependencies}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Dependencies"
+      - type: list
+        items: "{{dependencies}}"
+
+  - type: conditional
+    if: "{{successMetrics}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Success Metrics"
+      - type: list
+        items: "{{successMetrics}}"

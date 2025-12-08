@@ -1,0 +1,115 @@
+name: impl-plan
+version: 1
+description: Implementation Plan for work items
+
+requiredContext:
+  - workItemName
+  - workItemId
+  - tasks
+
+optionalContext:
+  - overview
+  - adrReference
+  - designBranch
+  - phases
+  - dependencies
+  - risks
+  - estimatedTotal
+
+render:
+  - type: heading
+    level: 1
+    content: "Implementation Plan: {{workItemName}}"
+
+  - type: metadata
+    fields:
+      - "**Work Item:** {{workItemId}}"
+      - "**Design Branch:** {{designBranch}}"
+      - "**ADR:** {{adrReference}}"
+      - "**Estimated Total:** {{estimatedTotal}}"
+
+  - type: conditional
+    if: "{{overview}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Overview"
+      - type: paragraph
+        content: "{{overview}}"
+
+  - type: heading
+    level: 2
+    content: "Task Breakdown"
+
+  - type: conditional
+    if: "{{phases}}"
+    blocks:
+      - type: forEach
+        items: "{{phases}}"
+        blocks:
+          - type: heading
+            level: 3
+            content: "Phase {{item.number}}: {{item.name}}"
+          - type: table
+            headers:
+              - Task
+              - Estimate
+              - Dependencies
+              - Notes
+            rows: "{{item.tasks}}"
+
+  - type: conditional
+    if: "{{tasks}}"
+    unless: "{{phases}}"
+    blocks:
+      - type: table
+        headers:
+          - Task
+          - Estimate
+          - Dependencies
+          - Notes
+        rows: "{{tasks}}"
+
+  - type: heading
+    level: 2
+    content: "Task Details"
+
+  - type: forEach
+    items: "{{tasks}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "{{item.name}}"
+      - type: paragraph
+        content: "**Acceptance Criteria:**"
+      - type: list
+        items: "{{item.acceptanceCriteria}}"
+      - type: conditional
+        if: "{{item.technicalNotes}}"
+        blocks:
+          - type: paragraph
+            content: "**Technical Notes:**"
+          - type: list
+            items: "{{item.technicalNotes}}"
+
+  - type: conditional
+    if: "{{dependencies}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Dependencies"
+      - type: list
+        items: "{{dependencies}}"
+
+  - type: conditional
+    if: "{{risks}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Risks"
+      - type: table
+        headers:
+          - Risk
+          - Impact
+          - Mitigation
+        rows: "{{risks}}"

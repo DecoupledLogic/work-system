@@ -1,0 +1,108 @@
+name: spec
+version: 1
+description: Technical Specification for stories
+
+requiredContext:
+  - storyName
+  - workItemId
+  - userStory
+  - acceptanceCriteria
+
+optionalContext:
+  - parentFeature
+  - technicalApproach
+  - apiChanges
+  - dataChanges
+  - uiChanges
+  - testingNotes
+  - edgeCases
+  - securityConsiderations
+
+render:
+  - type: heading
+    level: 1
+    content: "Spec: {{storyName}}"
+
+  - type: metadata
+    fields:
+      - "**Work Item:** {{workItemId}}"
+      - "**Parent Feature:** {{parentFeature}}"
+      - "**Created:** {{currentDate}}"
+      - "**Status:** Draft"
+
+  - type: heading
+    level: 2
+    content: "User Story"
+
+  - type: paragraph
+    content: "{{userStory}}"
+
+  - type: heading
+    level: 2
+    content: "Acceptance Criteria"
+
+  - type: list
+    items: "{{acceptanceCriteria}}"
+
+  - type: conditional
+    if: "{{technicalApproach}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Technical Approach"
+      - type: paragraph
+        content: "{{technicalApproach}}"
+
+  - type: conditional
+    if: "{{apiChanges}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "API Changes"
+      - type: list
+        items: "{{apiChanges}}"
+
+  - type: conditional
+    if: "{{dataChanges}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Data Changes"
+      - type: list
+        items: "{{dataChanges}}"
+
+  - type: conditional
+    if: "{{uiChanges}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "UI Changes"
+      - type: list
+        items: "{{uiChanges}}"
+
+  - type: conditional
+    if: "{{edgeCases}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Edge Cases"
+      - type: list
+        items: "{{edgeCases}}"
+
+  - type: conditional
+    if: "{{securityConsiderations}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Security Considerations"
+      - type: list
+        items: "{{securityConsiderations}}"
+
+  - type: conditional
+    if: "{{testingNotes}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Testing Notes"
+      - type: paragraph
+        content: "{{testingNotes}}"

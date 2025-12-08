@@ -1,0 +1,90 @@
+name: retro
+version: 1
+description: Retrospective/Learnings document
+
+requiredContext:
+  - workItemId
+  - whatWentWell
+  - whatCouldImprove
+
+optionalContext:
+  - workItemName
+  - actionItems
+  - metrics
+  - learnings
+  - teamFeedback
+  - processChanges
+
+render:
+  - type: heading
+    level: 1
+    content: "Retrospective: {{workItemName}}"
+
+  - type: metadata
+    fields:
+      - "**Work Item:** {{workItemId}}"
+      - "**Date:** {{currentDate}}"
+
+  - type: heading
+    level: 2
+    content: "What Went Well"
+
+  - type: list
+    items: "{{whatWentWell}}"
+
+  - type: heading
+    level: 2
+    content: "What Could Improve"
+
+  - type: list
+    items: "{{whatCouldImprove}}"
+
+  - type: conditional
+    if: "{{learnings}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Key Learnings"
+      - type: list
+        items: "{{learnings}}"
+
+  - type: conditional
+    if: "{{actionItems}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Action Items"
+      - type: list
+        items: "{{actionItems}}"
+
+  - type: conditional
+    if: "{{metrics}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Metrics"
+      - type: table
+        headers:
+          - Metric
+          - Planned
+          - Actual
+          - Notes
+        rows: "{{metrics}}"
+
+  - type: conditional
+    if: "{{processChanges}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Process Changes"
+      - type: list
+        items: "{{processChanges}}"
+
+  - type: conditional
+    if: "{{teamFeedback}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Team Feedback"
+      - type: paragraph
+        content: "{{teamFeedback}}"

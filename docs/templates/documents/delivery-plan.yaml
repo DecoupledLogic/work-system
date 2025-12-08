@@ -1,0 +1,160 @@
+name: delivery-plan
+version: 1
+description: Delivery Plan for epics - bridges architecture to implementation
+
+requiredContext:
+  - initiativeName
+  - strategy
+  - problem
+  - epics
+
+optionalContext:
+  - taskUrl
+  - blueprintUrl
+  - estimateUrl
+  - successMetrics
+  - dependencies
+  - risks
+  - rolloutStrategy
+
+render:
+  - type: heading
+    level: 1
+    content: "{{initiativeName}} Delivery Plan"
+
+  - type: metadata
+    fields:
+      - "**Task:** {{taskUrl}}"
+      - "**Blueprint:** {{blueprintUrl}}"
+      - "**Estimate:** {{estimateUrl}}"
+
+  - type: heading
+    level: 2
+    content: "Strategy"
+
+  - type: paragraph
+    content: "{{strategy}}"
+
+  - type: heading
+    level: 2
+    content: "Problem"
+
+  - type: list
+    items: "{{problem}}"
+
+  - type: conditional
+    if: "{{successMetrics}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Success Metrics"
+      - type: list
+        items: "{{successMetrics}}"
+
+  - type: heading
+    level: 2
+    content: "Implementation Plan"
+
+  - type: forEach
+    items: "{{epics}}"
+    blocks:
+      - type: heading
+        level: 3
+        content: "Epic {{item.number}}: {{item.name}}"
+      - type: paragraph
+        content: "**Goal:** {{item.goal}}"
+      - type: conditional
+        if: "{{item.taskUrl}}"
+        blocks:
+          - type: paragraph
+            content: "**Task:** {{item.taskUrl}}"
+
+      - type: forEach
+        items: "{{item.features}}"
+        blocks:
+          - type: heading
+            level: 4
+            content: "Feature {{item.id}}: {{item.name}}"
+          - type: paragraph
+            content: "**Purpose:** {{item.purpose}}"
+
+          - type: forEach
+            items: "{{item.stories}}"
+            blocks:
+              - type: heading
+                level: 5
+                content: "Story {{item.id}}: {{item.name}}"
+              - type: list
+                items: "{{item.acceptanceCriteria}}"
+              - type: conditional
+                if: "{{item.implementationNotes}}"
+                blocks:
+                  - type: paragraph
+                    content: "{{item.implementationNotes}}"
+              - type: conditional
+                if: "{{item.codeExample}}"
+                blocks:
+                  - type: code
+                    language: "{{item.codeLanguage}}"
+                    content: "{{item.codeExample}}"
+
+      - type: heading
+        level: 4
+        content: "Epic {{item.number}} Deployment"
+      - type: conditional
+        if: "{{item.deployment.prerequisites}}"
+        blocks:
+          - type: paragraph
+            content: "**Prerequisites:**"
+          - type: list
+            items: "{{item.deployment.prerequisites}}"
+      - type: conditional
+        if: "{{item.deployment.steps}}"
+        blocks:
+          - type: paragraph
+            content: "**Deploy:**"
+          - type: orderedList
+            items: "{{item.deployment.steps}}"
+      - type: conditional
+        if: "{{item.deployment.rollback}}"
+        blocks:
+          - type: paragraph
+            content: "**Rollback:**"
+          - type: list
+            items: "{{item.deployment.rollback}}"
+      - type: conditional
+        if: "{{item.deployment.risk}}"
+        blocks:
+          - type: paragraph
+            content: "**Risk:** {{item.deployment.risk}}"
+
+  - type: conditional
+    if: "{{dependencies}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Dependencies"
+      - type: list
+        items: "{{dependencies}}"
+
+  - type: conditional
+    if: "{{risks}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Risks"
+      - type: table
+        headers:
+          - Risk
+          - Impact
+          - Mitigation
+        rows: "{{risks}}"
+
+  - type: conditional
+    if: "{{rolloutStrategy}}"
+    blocks:
+      - type: heading
+        level: 2
+        content: "Rollout Strategy"
+      - type: paragraph
+        content: "{{rolloutStrategy}}"
