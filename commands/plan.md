@@ -129,6 +129,33 @@ Context:
 
 Based on work item type, generate appropriate documents using `/doc-write`:
 
+**For Epics:**
+
+```bash
+/doc-write delivery-plan --work-item {workItemId}
+```
+
+This generates:
+
+- Initiative strategy and problem statement
+- Epic breakdown with features
+- Story-level acceptance criteria
+- Deployment and rollout strategy
+- Risk matrix and dependencies
+
+**For Features:**
+
+```bash
+/doc-write prd --work-item {workItemId}
+```
+
+This generates:
+
+- Vision statement
+- Actor analysis
+- Acceptance criteria
+- Constraints and risks
+
 **For Bugs:**
 
 ```bash
@@ -141,19 +168,6 @@ This generates:
 - Root cause analysis
 - Fix approach
 - Test plan for verification
-
-**For Features/Epics:**
-
-```bash
-/doc-write prd --work-item {workItemId}
-```
-
-This generates:
-
-- Vision statement
-- Actor analysis
-- Acceptance criteria
-- Constraints and risks
 
 **For Stories:**
 

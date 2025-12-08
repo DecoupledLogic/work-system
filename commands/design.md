@@ -176,91 +176,61 @@ This generates:
 - Event contracts and APIs
 - Migration strategy
 
-**For Simple Features/Stories:**
+**For All Features/Stories - Implementation Plan:**
 
-No architecture blueprint needed - proceed with ADR if architectural decisions were made.
+```bash
+/doc-write impl-plan --work-item {workItemId}
+```
 
-### Step 7: Create ADR (if needed)
+This generates:
 
-For features and stories with architectural decisions:
+- Work item overview and ADR reference
+- Task breakdown with estimates
+- Dependencies between tasks
+- Technical notes per task
 
-1. **Determine ADR location:**
-   - Project-specific: `docs/architecture/adr/ADR-{number}-{title}.md`
-   - Global: `~/.claude/adr/ADR-{number}-{title}.md`
+**For All Features/Stories - Test Plan:**
 
-2. **Get next ADR number:**
-   ```bash
-   ls docs/architecture/adr/ | grep -oP 'ADR-\K\d+' | sort -n | tail -1
-   ```
+```bash
+/doc-write test-plan --work-item {workItemId}
+```
 
-3. **Write ADR using template:**
-   - Use `~/.claude/templates/delivery/adr.md` structure
-   - Include context, decision, consequences
-   - Document alternatives considered
+This generates:
 
-### Step 8: Create Implementation Plan
+- Coverage matrix (unit, integration, E2E)
+- Test cases from acceptance criteria
+- Expected outcomes per criterion
 
-Generate implementation plan document:
+### Step 7: Generate ADR (if architectural decision made)
 
-1. **Determine location:**
-   - `docs/plans/TW-{id}-implementation.md`
+When the design involves a significant architectural decision, generate an ADR:
 
-2. **Write implementation plan:**
-   ```markdown
-   # Implementation Plan: {workItem.name}
+```bash
+/doc-write adr --work-item {workItemId} --title "Use JWT for authentication"
+```
 
-   ## Overview
-   - **Work Item:** TW-{id}
-   - **ADR:** ADR-{number} (if applicable)
-   - **Design Branch:** design/TW-{id}-{slug}
-   - **Estimated Total:** {hours} hours
+This generates:
 
-   ## Tasks
+- Context explaining why decision was needed
+- The decision made
+- Positive and negative consequences
+- Alternatives considered
 
-   | # | Task | Estimate | Dependencies |
-   |---|------|----------|--------------|
-   | 1 | {task1.name} | {hours}h | - |
-   | 2 | {task2.name} | {hours}h | Task 1 |
-   ...
+**ADR triggers:**
 
-   ## Task Details
+- New technology or framework choice
+- Significant pattern change
+- Integration approach decision
+- Data model restructuring
+- Security or performance tradeoff
 
-   ### Task 1: {name}
-   **Acceptance Criteria:**
-   - {criterion1}
-   - {criterion2}
+**Skip ADR when:**
 
-   **Technical Notes:**
-   - {note1}
-   ```
+- Following existing established patterns
+- Simple CRUD operations
+- Minor refactoring within existing architecture
 
-### Step 9: Create Test Plan
-
-Generate test plan document:
-
-1. **Determine location:**
-   - `docs/plans/TW-{id}-test-plan.md`
-
-2. **Write test plan:**
-   ```markdown
-   # Test Plan: {workItem.name}
-
-   ## Coverage
-
-   | Level | Framework | Scope |
-   |-------|-----------|-------|
-   | Unit | {framework} | {scope} |
-   | Integration | {framework} | {scope} |
-   | E2E | {framework} | {scope} |
-
-   ## Test Cases from Acceptance Criteria
-
-   ### {criterion1}
-   - **Test:** {test description}
-   - **Expected:** {expected outcome}
-   ```
-
-### Step 10: Update Work Item (via Aggregate)
+### Step 8: Update Work Item (via Aggregate)
 
 Post design summary using aggregate commands:
 
@@ -297,7 +267,7 @@ Post design summary using aggregate commands:
 
 The `/work-item comment` command automatically syncs to the external system (Teamwork, GitHub, etc.).
 
-### Step 11: Update Session State
+### Step 9: Update Session State
 
 Update active work context:
 
@@ -322,7 +292,7 @@ Update active work context:
    - Test Plan: docs/plans/TW-26134585-test-plan.md
    ```
 
-### Step 12: Transition to Next Stage (via Aggregate)
+### Step 10: Transition to Next Stage (via Aggregate)
 
 Based on design results, transition using the aggregate:
 
