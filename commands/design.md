@@ -143,7 +143,44 @@ Context:
 - Constraints: [known constraints]
 ```
 
-### Step 6: Create ADR (if needed)
+### Step 6: Generate Design Documents
+
+Based on work item type, generate appropriate documents using `/doc-write`:
+
+**For Stories:**
+
+```bash
+/doc-write spec --work-item {workItemId}
+```
+
+This generates:
+
+- User story format
+- Technical approach
+- API changes
+- Data changes
+- Testing notes
+
+**For Features with Significant Architecture:**
+
+```bash
+/doc-write architecture-blueprint --work-item {workItemId}
+```
+
+This generates:
+
+- System overview and goals
+- Component breakdown
+- Core design principles
+- Integration design
+- Event contracts and APIs
+- Migration strategy
+
+**For Simple Features/Stories:**
+
+No architecture blueprint needed - proceed with ADR if architectural decisions were made.
+
+### Step 7: Create ADR (if needed)
 
 For features and stories with architectural decisions:
 
@@ -161,7 +198,7 @@ For features and stories with architectural decisions:
    - Include context, decision, consequences
    - Document alternatives considered
 
-### Step 7: Create Implementation Plan
+### Step 8: Create Implementation Plan
 
 Generate implementation plan document:
 
@@ -197,7 +234,7 @@ Generate implementation plan document:
    - {note1}
    ```
 
-### Step 8: Create Test Plan
+### Step 9: Create Test Plan
 
 Generate test plan document:
 
@@ -223,7 +260,7 @@ Generate test plan document:
    - **Expected:** {expected outcome}
    ```
 
-### Step 9: Update Work Item (via Aggregate)
+### Step 10: Update Work Item (via Aggregate)
 
 Post design summary using aggregate commands:
 
@@ -260,7 +297,7 @@ Post design summary using aggregate commands:
 
 The `/work-item comment` command automatically syncs to the external system (Teamwork, GitHub, etc.).
 
-### Step 10: Update Session State
+### Step 11: Update Session State
 
 Update active work context:
 
@@ -285,7 +322,7 @@ Update active work context:
    - Test Plan: docs/plans/TW-26134585-test-plan.md
    ```
 
-### Step 11: Transition to Next Stage (via Aggregate)
+### Step 12: Transition to Next Stage (via Aggregate)
 
 Based on design results, transition using the aggregate:
 

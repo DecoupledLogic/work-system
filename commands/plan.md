@@ -125,9 +125,43 @@ Context:
 - Parent Context: [parent work item if exists]
 ```
 
-### Step 5: Generate Plan Document (if Epic/Feature)
+### Step 5: Generate Documents
 
-For epics and features, create a plan document:
+Based on work item type, generate appropriate documents using `/doc-write`:
+
+**For Bugs:**
+
+```bash
+/doc-write bug-report --work-item {workItemId}
+```
+
+This generates:
+
+- Symptoms and reproduction steps
+- Root cause analysis
+- Fix approach
+- Test plan for verification
+
+**For Features/Epics:**
+
+```bash
+/doc-write prd --work-item {workItemId}
+```
+
+This generates:
+
+- Vision statement
+- Actor analysis
+- Acceptance criteria
+- Constraints and risks
+
+**For Stories:**
+
+No document generated at plan stage (spec generated during design).
+
+### Step 5b: Generate Plan Document (if Epic/Feature)
+
+For epics and features, also create a plan document:
 
 1. **Determine document location:**
    - Project-specific: `docs/plans/{workItemId}.md`

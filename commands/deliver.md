@@ -254,7 +254,31 @@ Delivery Context:
 - Lines changed: [added/removed]
 ```
 
-### Step 8: Create Pull Request
+### Step 8: Generate Release Notes
+
+For features and significant stories, generate release notes documentation:
+
+```bash
+/doc-write release-notes --work-item {workItemId}
+```
+
+This generates:
+
+- Version and release date
+- Features and enhancements list
+- Bug fixes list
+- Breaking changes (if any)
+- Migration notes
+
+**For Bug Fixes:**
+
+Release notes entry is included in the bug fix section of the broader release.
+
+**For Tasks:**
+
+No release notes generated - tasks contribute to parent story's release notes.
+
+### Step 9: Create Pull Request
 
 If not already created:
 
@@ -271,7 +295,7 @@ The `/gh-create-pr` command automatically generates a PR body with:
 - Test plan checklist
 - Proper attribution
 
-### Step 9: Update Work Item (via Aggregate)
+### Step 10: Update Work Item (via Aggregate)
 
 Post completion summary using aggregate commands:
 
@@ -319,7 +343,7 @@ Post completion summary using aggregate commands:
 
 The aggregate commands automatically sync to the external system (Teamwork, GitHub, etc.).
 
-### Step 10: Update Session State
+### Step 11: Update Session State
 
 Update active work context:
 
@@ -347,7 +371,7 @@ Update active work context:
 | Tests | 45 passed |
 ```
 
-### Step 11: Complete or Route (via Aggregate)
+### Step 12: Complete or Route (via Aggregate)
 
 Based on evaluation results, transition using the aggregate:
 
