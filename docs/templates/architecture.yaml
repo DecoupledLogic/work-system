@@ -1,0 +1,199 @@
+version: 1
+system:
+  name: MyApp
+  style: modular-monolith
+  language:
+    backend: csharp
+    frontend: typescript-react
+    database: sql-relational
+  description: >
+    MyApp is a modular monolith with a layered .NET backend, a feature-first React
+    frontend, and a relational database (SQL Server or PostgreSQL). The goal is to
+    keep domain logic isolated, make features easy to add, and allow future
+    extraction into services if needed.
+
+backend:
+  projects:
+    - name: MyApp.Domain
+      layer: domain
+      responsibilities:
+        - Domain models and value objects
+        - Domain services and business rules
+        - Domain events and invariants
+      allowedDependencies: []
+      forbiddenDependencies:
+        - Microsoft.AspNetCore.*
+        - System.Net.Http
+        - EntityFrameworkCore
+
+    - name: MyApp.Application
+      layer: application
+      responsibilities:
+        - Use case coordination (commands/queries)
+        - Application services / handlers
+        - Transaction boundaries
+        - Input/output DTOs for use cases
+      allowedDependencies:
+        - MyApp.Domain
+      forbiddenDependencies:
+        - Microsoft.AspNetCore.Mvc
+        - UI frameworks
+
+    - name: MyApp.Infrastructure
+      layer: infrastructure
+      responsibilities:
+        - Persistence (EF Core / Dapper / SQL)
+        - External service integrations (HTTP, queues, storage)
+        - Implementations of repository and gateway interfaces
+      allowedDependencies:
+        - MyApp.Domain
+        - MyApp.Application
+        - Microsoft.EntityFrameworkCore
+        - Dapper
+      forbiddenDependencies:
+        - Microsoft.AspNetCore.Mvc
+
+    - name: MyApp.Api
+      layer: api
+      responsibilities:
+        - HTTP endpoints (controllers / minimal APIs)
+        - Request/response mapping
+        - Authentication and authorization wiring
+        - API-specific concerns (filters, middleware)
+      allowedDependencies:
+        - MyApp.Application
+        - MyApp.Domain (read-only contracts / validation only)
+      forbiddenDependencies:
+        - MyApp.Infrastructure (no direct persistence access)
+
+    - name: MyApp.Workers
+      layer: worker
+      responsibilities:
+        - Background jobs and scheduled tasks
+        - Message queue consumers
+      allowedDependencies:
+        - MyApp.Application
+        - MyApp.Domain
+        - MyApp.Infrastructure (for messaging/storage only via abstractions is preferred)
+      forbiddenDependencies: []
+
+  patterns:
+    commandQueryStyle: mediator
+    validation: fluent-validation-or-equivalent
+    transactionBoundary: application-layer
+    domainEventDispatch: optional-but-preferred
+
+frontend:
+  root: frontend
+  framework: react
+  language: typescript
+  structure: feature-first
+  directories:
+    featuresRoot: src/features
+    sharedUiRoot: src/shared/ui
+    sharedApiRoot: src/shared/api
+    sharedLibRoot: src/shared/lib
+    appShellRoot: src/app
+  routing:
+    pattern: file-based-or-central-router
+    location: src/app/routes.tsx
+  stateManagement:
+    globalState: minimal (e.g. Zustand/Redux/Context)
+    asyncState: react-query-or-equivalent
+  rules:
+    - id: FE01
+      description: "All new user-facing functionality lives under src/features/<featureName>."
+    - id: FE02
+      description: "HTTP calls must be implemented via functions in src/shared/api, not inline in components."
+    - id: FE03
+      description: "Components in src/shared/ui must be presentational and not perform data fetching."
+    - id: FE04
+      description: "Avoid using `any`. API types must be defined in shared/api/types."
+
+data:
+  engine: sql
+  preferredVendors:
+    - sql-server
+    - postgresql
+  migrationTool: ef-core
+  schemas:
+    - name: core
+      ownerLayer: domain
+      description: "Core business entities (e.g., Customer, Order, Pet, Clinic)."
+    - name: identity
+      ownerLayer: infrastructure
+      description: "Authentication and authorization tables (users, roles, claims)."
+    - name: integration
+      ownerLayer: infrastructure
+      description: "Integration/event/outbox tables."
+  rules:
+    - id: DB01
+      description: "All tables must belong to an explicit schema; no dbo/public tables for new entities."
+    - id: DB02
+      description: "All relational associations must be expressed with foreign keys unless explicitly documented."
+    - id: DB03
+      description: "Schema changes go through code-based migrations only; no ad hoc manual DDL in production."
+    - id: DB04
+      description: "Business rules belong in domain/application code; use database constraints only for integrity."
+
+crossCutting:
+  auth:
+    model: "JWT or cookie-based auth via ASP.NET Core middleware."
+    rules:
+      - "Controllers must use policy-based authorization attributes; no manual role checks sprinkled in methods."
+  logging:
+    library: "Serilog-or-equivalent"
+    rules:
+      - "Use structured logging (no concatenated strings)."
+      - "Log key events at info; failures at warning/error; sensitive data must never be logged."
+  observability:
+    tracing: "OpenTelemetry-or-equivalent"
+    metrics: "App-level metrics on core flows (requests, errors, latency)."
+  errorHandling:
+    rules:
+      - "Use global exception handling middleware to convert exceptions to problem details responses."
+      - "Frontend must show user-friendly error messages; do not expose raw stack traces."
+  testing:
+    levels:
+      - unit
+      - integration
+      - endToEnd
+    rules:
+      - id: T01
+        description: "Domain logic must have unit test coverage for core invariants."
+      - id: T02
+        description: "At least one integration test per critical use case (happy path)."
+
+evolvability:
+  principles:
+    - "Prefer adding new modules/features over editing shared core abstractions."
+    - "Keep domain boundaries explicit so future extraction into microservices is possible."
+    - "Favor composition over inheritance in both backend and frontend."
+  redLines:
+    - "No direct DbContext or SQL access from Api controllers."
+    - "No HTTP calls from Domain or Application layers."
+    - "No feature module importing another feature module's internals on the frontend."
+  extensionPoints:
+    backend:
+      - "Add new use cases via Application commands/queries and handlers."
+      - "Add new integrations behind interfaces in Domain/Application, implemented in Infrastructure."
+    frontend:
+      - "Add new screens under src/features/<feature>/pages."
+      - "Add new API calls via src/shared/api/<feature>Client.ts."
+    data:
+      - "Add new tables via migrations and map via EF Core configurations."
+
+tooling:
+  architectureTests:
+    backend:
+      framework: "ArchUnitNET-or-custom-tests"
+      goals:
+        - "Enforce project dependency rules."
+        - "Enforce no forbidden dependencies in Domain/Application."
+    frontend:
+      framework: "dependency-cruiser-or-equivalent"
+      goals:
+        - "Enforce feature-first import rules."
+  linting:
+    backend: "Roslyn analyzers / .editorconfig rules."
+    frontend: "ESLint + TypeScript strict mode + Prettier."

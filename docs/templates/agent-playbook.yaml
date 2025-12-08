@@ -1,0 +1,176 @@
+version: 1
+intent: >
+  This playbook defines how coding agents and developers should implement and modify
+  code in the MyApp repository while staying aligned with the architecture. It
+  translates architecture.yaml into concrete do/don't rules and workflows.
+
+taskTypes:
+  - feature
+  - bugfix
+  - refactor
+  - experiment
+  - chore
+
+generalGuidelines:
+  - "Read architecture.yaml before making structural decisions."
+  - "Prefer extending existing patterns over inventing new ones."
+  - "Keep changes small and localized; avoid cross-cutting refactors unless explicitly requested."
+  - "When in doubt, choose the option that keeps domain logic closer to MyApp.Domain and UI logic closer to src/features."
+
+backend:
+  projectMap:
+    api: "MyApp.Api"
+    application: "MyApp.Application"
+    domain: "MyApp.Domain"
+    infrastructure: "MyApp.Infrastructure"
+    workers: "MyApp.Workers"
+  guardrails:
+    - id: BE-G01
+      description: "Controllers in MyApp.Api must not reference MyApp.Infrastructure."
+      check: "No project reference from Api to Infrastructure; no using MyApp.Infrastructure.* in Api."
+    - id: BE-G02
+      description: "MyApp.Domain must not depend on ASP.NET Core, EF Core, or HTTP libraries."
+      check: "No references to Microsoft.AspNetCore.*, Microsoft.EntityFrameworkCore.*, System.Net.Http in Domain."
+    - id: BE-G03
+      description: "Business rules should not be encoded in raw SQL inside controllers."
+      check: "Controllers may call Application layer, not compose SQL."
+    - id: BE-G04
+      description: "All new use cases must be represented as Application-level services, commands, or queries."
+      check: "No long-running new logic added directly into controllers; add Application handlers."
+
+  patterns:
+    - id: BE-P01
+      name: "Command/Query Handler"
+      when: "Implementing a new use case triggered by HTTP or a worker."
+      steps:
+        - "Define a Request DTO (command or query) in Application layer."
+        - "Implement a handler/service in Application that depends on Domain and repositories."
+        - "Expose a controller endpoint or worker handler that maps transport models to/from the Request/Response."
+    - id: BE-P02
+      name: "Repository pattern via Infrastructure"
+      when: "Accessing persistence for a domain aggregate."
+      steps:
+        - "Define an IRepository-like interface in Domain or Application."
+        - "Implement it in Infrastructure using EF Core or Dapper."
+        - "Register the implementation in DI in MyApp.Api / MyApp.Workers startup."
+
+  hygiene:
+    - id: BE-H01
+      description: "When touching a file with mixed concerns (HTTP + business + data), move non-HTTP logic into Application/Domain."
+    - id: BE-H02
+      description: "Prefer injecting dependencies via constructor; avoid service locators and static singletons."
+    - id: BE-H03
+      description: "Add or update tests whenever you change domain rules or core invariants."
+
+frontend:
+  roots:
+    featuresRoot: "frontend/src/features"
+    sharedUiRoot: "frontend/src/shared/ui"
+    sharedApiRoot: "frontend/src/shared/api"
+    appShellRoot: "frontend/src/app"
+  guardrails:
+    - id: FE-G01
+      description: "New screens must be placed in a feature folder under src/features/<featureName>."
+    - id: FE-G02
+      description: "Components in src/shared/ui must not perform data fetching."
+    - id: FE-G03
+      description: "HTTP calls must go through src/shared/api; no direct fetch/axios in feature components."
+    - id: FE-G04
+      description: "Avoid `any` for API data; use shared API types from src/shared/api/types."
+    - id: FE-G05
+      description: "Features must not import private internals from other features; share through src/shared."
+
+  patterns:
+    - id: FE-P01
+      name: "Feature Page with Data Fetching"
+      steps:
+        - "Create src/features/<feature>/components for presentational components."
+        - "Create src/features/<feature>/pages for route-level containers."
+        - "Create API helper in src/shared/api/<feature>Client.ts using react-query or a similar library."
+        - "In the page component, call the query hook and pass data to presentational components."
+    - id: FE-P02
+      name: "Shared Presentational Component"
+      steps:
+        - "Implement the component in src/shared/ui."
+        - "Accept data via props only; no hooks that talk to API or global state directly."
+        - "Keep styling consistent with the design system (e.g. Tailwind/shadcn)."
+
+  hygiene:
+    - id: FE-H01
+      description: "When modifying a large component that mixes concerns, extract UI-only subcomponents into src/shared/ui or feature/components."
+    - id: FE-H02
+      description: "Normalize API responses in shared/api to avoid ad hoc shape transformations inside components."
+    - id: FE-H03
+      description: "Use consistent error and loading handling patterns (e.g. shared skeleton/spinner components)."
+
+data:
+  guardrails:
+    - id: DB-G01
+      description: "New tables must be created via EF Core migrations under the appropriate schema (core, identity, integration)."
+    - id: DB-G02
+      description: "Foreign keys must be added for relationships unless there is a documented reason not to."
+    - id: DB-G03
+      description: "Do not implement complex business rules exclusively in stored procedures or triggers."
+    - id: DB-G04
+      description: "No ad hoc SQL modifications in production without a corresponding migration or script in source control."
+
+  patterns:
+    - id: DB-P01
+      name: "Add New Entity"
+      steps:
+        - "Add a domain model (entity/value object) to MyApp.Domain."
+        - "Add EF Core configuration in MyApp.Infrastructure (or use Fluent API)."
+        - "Add a migration describing the new table and constraints."
+        - "Add repository or DbContext access methods as needed."
+    - id: DB-P02
+      name: "Add Read-Optimized View/Projection"
+      steps:
+        - "Create a read model (DTO) in Application or Infrastructure."
+        - "Add a database view or query (EF LINQ or SQL) that populates the read model."
+        - "Expose via Application handlers and API endpoints; do not mix read projection with write aggregate logic."
+
+crossCutting:
+  auth:
+    rules:
+      - "Use policy-based [Authorize] attributes on controllers; do not hard-code role checks in business logic."
+      - "Frontend must use provided auth hooks or utilities; do not reimplement JWT parsing."
+  logging:
+    rules:
+      - "Log at the edges (API, workers, integrations) with correlation IDs."
+      - "Do not log sensitive data such as passwords, tokens, or secrets."
+  errorHandling:
+    rules:
+      - "Use centralized exception handling middleware for API; avoid try/catch in every controller unless adding domain-specific behavior."
+      - "Frontend should show clear, non-technical error messages and optionally log details via a monitoring service."
+
+improvementGuidelines:
+  leverage:
+    - id: IMP-L01
+      description: "When adding a new feature, consider adopting the latest recommended pattern (e.g., mediator, react-query) if the feature area does not already have a conflicting pattern."
+    - id: IMP-L02
+      description: "When touching a legacy area, you may opportunistically move a small piece of logic toward the target architecture if it does not expand the change surface significantly."
+  experiments:
+    - id: IMP-E01
+      description: "Architecture experiments (new patterns, libraries) must be scoped to a single feature/module and clearly marked in code comments and PR description."
+      constraints:
+        - "No changes to shared core modules without an explicit architecture decision."
+        - "Must be easy to roll back."
+  refusalRules:
+    - "If a requested change would violate a guardrail, the agent must explain the conflict and propose an alternative that respects the architecture."
+    - "If a change would require a large cross-cutting refactor, the agent should propose a follow-up 'architecture refactor' task instead of partially applying it."
+
+workflow:
+  perTask:
+    steps:
+      - "Classify task as feature/bugfix/refactor/experiment/chore."
+      - "List affected layers (backend/frontend/data) and modules (projects/features/schemas)."
+      - "Check relevant guardrails and note any potential conflicts."
+      - "Draft a small plan (2–7 steps) that references architecture.yaml concepts (layers, schemas, directories)."
+      - "Implement changes following the plan, keeping scope tight."
+      - "Update or add tests for domain rules and critical flows."
+      - "Summarize changes and note any suggested follow-up architecture improvements."
+
+  requiredOutputs:
+    - "Architecture compliance note: list of guardrails touched and whether they were respected."
+    - "List of files changed grouped by layer (api/application/domain/infrastructure/frontend/data)."
+    - "Optional: follow-up tasks for deeper refactors or architectural experiments."
