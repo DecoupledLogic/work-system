@@ -1,6 +1,6 @@
-# AI-Powered Work System for Claude Code
+# AgenticOps Work System
 
-An intelligent, stage-based work management system that leverages AI agents to guide work from intake through delivery with consistent quality and process adherence.
+An intelligent, stage-based, AgenticOps work management system that leverages AI agents to guide work from intake through delivery with consistent quality and process adherence.
 
 ## Overview
 
@@ -22,6 +22,7 @@ This work system transforms how you manage tasks, features, bugs, and support re
    - (Optional) External work tracking account (Teamwork, GitHub, etc.)
 
 2. **Clone and install**:
+
    ```bash
    git clone https://github.com/yourname/work-system.git ~/projects/work-system
    cd ~/projects/work-system
@@ -29,6 +30,7 @@ This work system transforms how you manage tasks, features, bugs, and support re
    ```
 
 3. **Configure** (if using external system):
+
    ```bash
    cat > ~/.claude/work-manager.yaml <<EOF
    manager: teamwork
@@ -40,6 +42,7 @@ This work system transforms how you manage tasks, features, bugs, and support re
    ```
 
 4. **Verify installation**:
+
    ```bash
    # In Claude Code
    /work-status
@@ -68,13 +71,14 @@ This work system transforms how you manage tasks, features, bugs, and support re
 
 ### Stage-Based Workflow
 
-```
+```markdown
 Intake → Triage → Plan → Design → Deliver
          ↓        ↓       ↓        ↓
       Categorize  Size  Decide   Build & Test
 ```
 
 Each stage has:
+
 - Dedicated AI agents
 - Clear entry/exit criteria
 - Template-driven validation
@@ -98,16 +102,19 @@ Each stage has:
 9 built-in templates covering:
 
 **Support**:
+
 - Generic support request
 - Profile removal (GDPR/CCPA)
 - Subscription changes
 
 **Product**:
+
 - Product Requirements Document (PRD)
 - Feature specifications
 - User stories (versioned)
 
 **Delivery**:
+
 - Architecture Decision Records (ADR)
 - Bug fixes
 - Implementation plans
@@ -141,7 +148,7 @@ Four priority queues:
 
 ## Directory Structure
 
-```
+```markdown
 ~/projects/work-system/
 ├── agents/              # AI agents
 ├── commands/            # Slash commands
@@ -155,7 +162,7 @@ Four priority queues:
 
 After installation, symlinks in `~/.claude/` point to this repository:
 
-```
+```markdown
 ~/.claude/agents/  →  ~/projects/work-system/agents/
 ~/.claude/commands/  →  ~/projects/work-system/commands/
 ...
@@ -171,12 +178,6 @@ Edit files in either location - changes appear in both.
 4. Test with `/work-status`
 5. Submit PR
 
-## License
-
-MIT
-
 ---
-
-**Built with Claude Code**
 
 🤖 Submitted by George with love ♥

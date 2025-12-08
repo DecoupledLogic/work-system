@@ -208,37 +208,17 @@ Delivery Context:
 If not already created:
 
 ```bash
-# Push branch
-git push -u origin feature/TW-{id}-{slug}
-
-# Create PR
-gh pr create --title "feat(auth): {story.name}" --body "$(cat <<'EOF'
-## Summary
-{Brief description of changes}
-
-## Work Item
-TW-{id}: {name}
-
-## Changes
-- {change1}
-- {change2}
-
-## Test Plan
-- [ ] Unit tests pass ({count} tests)
-- [ ] Integration tests pass
-- [ ] Coverage at {percent}%
-- [ ] Manual verification of acceptance criteria
-
-## Acceptance Criteria Verification
-| Criterion | Verified |
-|-----------|----------|
-| {criterion1} | ✓ |
-| {criterion2} | ✓ |
-
-🤖 Submitted by George with love ♥
-EOF
-)"
+# Push branch and create PR using slash commands
+/gh-push-remote "feat(auth): {story.name}" --set-upstream
+/gh-create-pr "feat(auth): {story.name}"
 ```
+
+The `/gh-create-pr` command automatically generates a PR body with:
+
+- Summary from commit messages
+- Task reference (TW-{id})
+- Test plan checklist
+- Proper attribution
 
 ### Step 8: Update Teamwork
 

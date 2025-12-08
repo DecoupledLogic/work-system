@@ -111,6 +111,7 @@ Update the assignments and append to history:
 If routing to/from Immediate, add a comment to the external system for audit trail:
 
 **Teamwork:**
+
 ```
 mcp__Teamwork__twprojects-create_comment(
   object: { type: "tasks", id: <task_id> },
@@ -120,8 +121,9 @@ mcp__Teamwork__twprojects-create_comment(
 ```
 
 **GitHub:**
-```
-gh issue comment <number> --body "Routed to {queue}: {reason}"
+
+```bash
+/gh-issue-comment <number> "Routed to {queue}: {reason}"
 ```
 
 ### Step 5: Log the Action

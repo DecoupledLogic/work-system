@@ -637,6 +637,7 @@ Track what was completed and when. Update this section after each work session.
 | 2024-12-07 | 5 | Completed Phase 5 Session Logging | See Phase 5 deliverables below |
 | 2024-12-07 | 6 | Completed Phase 6 Queue Management | See Phase 6 deliverables below |
 | 2024-12-07 | 7 | Completed Phase 7 Template Evolution | See Phase 7 deliverables below |
+| 2024-12-08 | 8 | Completed Phase 8 Domain Architecture | See Phase 8 deliverables below |
 | | | | |
 
 ### Phase Status
@@ -651,6 +652,7 @@ Track what was completed and when. Update this section after each work session.
 | 5 - Logging | Complete | 2024-12-07 | 2024-12-07 | Agent, log format, integration guide created |
 | 6 - Queues | Complete | 2024-12-07 | 2024-12-07 | /queue, /route commands, tag mapping documented |
 | 7 - Templates | Complete | 2024-12-07 | 2024-12-07 | Registry, validator, 9 templates, versioning |
+| 8 - Domain Architecture | Complete | 2024-12-08 | 2024-12-08 | Schemas, aggregates, natural language docs |
 
 ### Deliverables Checklist
 
@@ -716,6 +718,24 @@ Track what was completed and when. Update this section after each work session.
 - [x] `delivery/adr.json`
 - [x] `delivery/bug-fix.json`
 - [x] Template versioning implemented (`versioning.md`)
+
+#### Phase 8: Domain Architecture
+
+- [x] `schema/README.md`
+- [x] `schema/aggregates.md`
+- [x] `schema/work-item.schema.md`
+- [x] `schema/project.schema.md`
+- [x] `schema/agent.schema.md`
+- [x] `schema/queue.schema.md`
+- [x] `schema/process-template.schema.md`
+- [x] `schema/external-system.schema.md`
+- [x] `commands/domain/README.md`
+- [x] `commands/domain/work-item.md`
+- [x] `commands/domain/project.md`
+- [x] `commands/domain/agent.md`
+- [x] `commands/domain/queue.md`
+- [x] `docs/programming-in-natural-language.md`
+- [x] `docs/domain-commands-guide.md`
 
 ---
 
@@ -1124,5 +1144,171 @@ All 7 phases (0-7) are now complete. The work system includes:
 
 ---
 
-*Last Updated: 2024-12-07*
-*Status: ALL PHASES COMPLETE - Work System Implementation Finished*
+### Session: 2024-12-08 (Domain Architecture)
+
+**Focus:** Domain-Driven Design, Schema Layer, Natural Language Interface
+
+**Completed:**
+
+**Schema Layer (`schema/`):**
+
+- Created `work-item.schema.md` - Normalized work item with type hierarchy (epic→feature→story→task)
+- Created `project.schema.md` - Project container with team membership
+- Created `agent.schema.md` - Human, AI, and automation agents
+- Created `queue.schema.md` - Urgency queues with SLA tracking
+- Created `process-template.schema.md` - Workflow stage definitions
+- Created `external-system.schema.md` - Adapter layer for Teamwork, GitHub, Linear, JIRA
+- Created `aggregates.md` - DDD aggregate patterns and command response format
+- Created `schema/README.md` - Architecture overview and migration path
+
+**Domain Commands (`commands/domain/`):**
+
+- Created `/work-item` aggregate command - Full CRUD, assignment, workflow, collaboration
+- Created `/project` aggregate command - Project management and team membership
+- Created `/agent` aggregate command - Agent queries and status management
+- Created `/queue` aggregate command - Queue visualization and statistics
+- Created `commands/domain/README.md` - Natural language interface documentation
+
+**Documentation (`docs/`):**
+
+- Created `programming-in-natural-language.md` - True natural language vs DSL
+- Created `domain-commands-guide.md` - Comprehensive command reference
+- Updated `docs/README.md` with new domain architecture section
+
+#### Key Insight: True Natural Language
+
+We realized the difference between DSL and natural language:
+
+```bash
+# This is DSL (readable, but still programmer syntax)
+/work-item assign WI-042 @cbryant
+
+# This is natural language (what humans actually say)
+give the login bug to charles, it's urgent
+```
+
+True natural language means:
+
+- **Your vocabulary** - "issue" not "work-item", "charles" not "@cbryant"
+- **Your context** - "the login bug" not "WI-042"
+- **Your flow** - conversation, not commands
+- **Your intent** - "it's urgent" not "--queue urgent"
+
+The AI acts as translator between human language and system operations.
+
+**Architecture Evolved:**
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                     Human Language                              │
+│        "give the login bug to charles, it's urgent"            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     AI Understanding                            │
+│  Resolves: "login bug" → #42, "charles" → Charles Bryant       │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Domain Aggregates                           │
+│  /work-item  /project  /agent  /queue                          │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Domain Schemas                              │
+│  WorkItem, Project, Agent, Queue, ProcessTemplate              │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     External Adapters                           │
+│  Teamwork, GitHub, Linear, JIRA, Internal                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Decisions Made:**
+
+- Domain schemas abstract all external systems (Teamwork, GitHub, Linear, JIRA)
+- Aggregate commands provide structured interface (DSL layer)
+- Natural language interface sits above aggregates (AI translates)
+- External system adapters handle bidirectional sync
+- Work item types: epic, feature, story, task, bug, spike
+- Urgency queues: immediate, urgent, standard, deferred
+
+**Files Created:**
+
+```text
+schema/
+├── README.md
+├── aggregates.md
+├── work-item.schema.md
+├── project.schema.md
+├── agent.schema.md
+├── queue.schema.md
+├── process-template.schema.md
+└── external-system.schema.md
+
+commands/domain/
+├── README.md
+├── work-item.md
+├── project.md
+├── agent.md
+└── queue.md
+
+docs/
+├── programming-in-natural-language.md
+└── domain-commands-guide.md
+```
+
+**Blockers:** None
+
+**Next Steps:**
+
+- Update workflow commands (/triage, /plan, /design, /deliver) to use domain aggregates
+- Consider implementing natural language resolution layer
+- Define ubiquitous language for the team (issue vs work-item, etc.)
+
+---
+
+## Phase 8: Domain Architecture (New)
+
+**Goal:** Establish domain-driven design with normalized schemas and aggregate commands.
+
+**Status:** Complete
+
+**Duration:** 1 day
+
+### Phase 8 Deliverables
+
+1. **Schema Layer** - Normalized domain objects
+   - WorkItem schema with type hierarchy
+   - Project schema with team membership
+   - Agent schema for humans, AI, automation
+   - Queue schema with SLA configuration
+   - ProcessTemplate schema for workflows
+   - ExternalSystem schema for adapters
+
+2. **Aggregate Commands** - Domain operations
+   - `/work-item` - Full work item management
+   - `/project` - Project management
+   - `/agent` - Agent queries and status
+   - `/queue` - Queue visualization
+
+3. **Natural Language Documentation**
+   - Philosophy document explaining true natural language
+   - Comprehensive command guide
+
+### Phase 8 Acceptance Criteria
+
+- [x] All core schemas documented with YAML definitions
+- [x] Aggregate commands cover all domain operations
+- [x] External system abstraction supports multiple backends
+- [x] Documentation distinguishes DSL from natural language
+
+---
+
+*Last Updated: 2024-12-08*
+*Status: Phase 8 Complete - Domain Architecture Established*
