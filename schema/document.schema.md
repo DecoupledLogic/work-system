@@ -72,6 +72,77 @@ LintIssue:
   fixable: boolean                  # Can be auto-fixed
 ```
 
+## Document Location Schema
+
+Documents are stored in two locations based on their purpose and scope.
+
+```yaml
+DocumentLocation:
+  # Location type
+  locationType: enum
+    - repo                          # In repository (docs/...)
+    - global                        # In global config (~/.claude/docs/...)
+
+  # Path template
+  pathTemplate: string              # Path with variables (e.g., "docs/prd/{prefix}-{id}-{slug}.md")
+
+  # Path variables
+  variables:
+    prefix: string                  # Work manager prefix (TW, ADO, GH, WI)
+    id: string                      # Work item numeric ID
+    slug: string                    # Slugified work item name
+    number: string                  # Auto-incremented number (ADRs)
+    version: string                 # Version string (releases)
+```
+
+### Location Rules
+
+| Template | Location | Rationale |
+|----------|----------|-----------|
+| prd | repo | Feature requirements tied to codebase |
+| spec | repo | Story specs reference specific code |
+| impl-plan | repo | Implementation details for specific changes |
+| test-plan | repo | Test coverage for specific code |
+| bug-report | repo | Bug analysis tied to codebase |
+| spike-report | repo | Research for specific feature |
+| release-notes | repo | Version notes tied to code release |
+| architecture-blueprint | repo | System architecture for codebase |
+| adr | global | Architecture decisions apply across projects |
+| retro | global | Learnings inform all future work |
+| delivery-plan | global | Initiative planning spans projects |
+
+### Default Paths
+
+```yaml
+DocumentPaths:
+  # Repo-local documents
+  repo:
+    prd: docs/prd/{prefix}-{id}-{slug}.md
+    spec: docs/specs/{prefix}-{id}-{slug}.md
+    impl-plan: docs/plans/{prefix}-{id}-implementation.md
+    test-plan: docs/plans/{prefix}-{id}-test-plan.md
+    bug-report: docs/bugs/{prefix}-{id}-{slug}.md
+    spike-report: docs/spikes/{prefix}-{id}-{slug}.md
+    release-notes: docs/releases/v{version}-notes.md
+    architecture-blueprint: docs/architecture/blueprints/{slug}-blueprint.md
+
+  # Global documents
+  global:
+    adr: ~/.claude/docs/adr/ADR-{number}-{slug}.md
+    retro: ~/.claude/docs/retros/{prefix}-{id}-retro.md
+    delivery-plan: ~/.claude/docs/plans/{prefix}-{id}-delivery-plan.md
+```
+
+### Path Variable Sources
+
+| Variable | Source | Derivation |
+|----------|--------|------------|
+| `{prefix}` | Work item external system | TW=Teamwork, ADO=Azure DevOps, GH=GitHub, WI=internal |
+| `{id}` | Work item ID | Numeric portion only (e.g., 26134585 from TW-26134585) |
+| `{slug}` | Work item name | Lowercase, hyphenated (e.g., "User Auth" → "user-auth") |
+| `{number}` | ADR sequence | 4-digit zero-padded, auto-increment from existing ADRs |
+| `{version}` | Release version | From work item or git tag (e.g., "1.2.0") |
+
 ## Template Definition Schema
 
 ```yaml

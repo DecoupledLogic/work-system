@@ -189,26 +189,54 @@ Check the returned result:
 
 ### Step 6: Save Document
 
-Determine output path:
+Documents are stored in two locations based on their purpose:
 
-| Template | Default Path |
-|----------|--------------|
-| prd | docs/prd/TW-{id}-{slug}.md |
-| spec | docs/specs/TW-{id}-{slug}.md |
-| adr | docs/architecture/adr/ADR-{number}-{slug}.md |
-| impl-plan | docs/plans/TW-{id}-implementation.md |
-| test-plan | docs/plans/TW-{id}-test-plan.md |
-| spike-report | docs/spikes/TW-{id}-{slug}.md |
-| bug-report | docs/bugs/TW-{id}-{slug}.md |
-| release-notes | docs/releases/v{version}-notes.md |
-| retro | docs/retros/TW-{id}-retro.md |
-| delivery-plan | docs/plans/TW-{id}-delivery-plan.md |
-| architecture-blueprint | docs/architecture/blueprints/{slug}-blueprint.md |
+**Repo-local documents** (`docs/...`) - Tied to specific code changes:
 
-**Create directory if needed:**
+- Specs, implementation plans, test plans
+- Bug reports, spike reports
+- PRDs, release notes, architecture blueprints
+
+**Global documents** (`~/.claude/docs/...`) - Cross-project learnings and decisions:
+
+- ADRs (architecture decisions apply across projects)
+- Retros (learnings inform future work)
+- Delivery plans (initiative-level planning)
+
+#### Default Paths
+
+| Template | Location | Default Path |
+|----------|----------|--------------|
+| prd | repo | docs/prd/{prefix}-{id}-{slug}.md |
+| spec | repo | docs/specs/{prefix}-{id}-{slug}.md |
+| impl-plan | repo | docs/plans/{prefix}-{id}-implementation.md |
+| test-plan | repo | docs/plans/{prefix}-{id}-test-plan.md |
+| bug-report | repo | docs/bugs/{prefix}-{id}-{slug}.md |
+| spike-report | repo | docs/spikes/{prefix}-{id}-{slug}.md |
+| release-notes | repo | docs/releases/v{version}-notes.md |
+| architecture-blueprint | repo | docs/architecture/blueprints/{slug}-blueprint.md |
+| adr | global | ~/.claude/docs/adr/ADR-{number}-{slug}.md |
+| retro | global | ~/.claude/docs/retros/{prefix}-{id}-retro.md |
+| delivery-plan | global | ~/.claude/docs/plans/{prefix}-{id}-delivery-plan.md |
+
+#### Path Variables
+
+| Variable | Source | Example |
+|----------|--------|---------|
+| `{prefix}` | Work manager type | TW (Teamwork), ADO (Azure DevOps), GH (GitHub), WI (internal) |
+| `{id}` | Work item ID (numeric) | 26134585 |
+| `{slug}` | Slugified work item name | user-authentication |
+| `{number}` | Auto-incremented (ADRs only) | 0042 |
+| `{version}` | Release version | 1.2.0 |
+
+**Create directories if needed:**
 
 ```bash
-mkdir -p docs/{prd,specs,spikes,bugs,releases,retros,plans}
+# Repo-local directories
+mkdir -p docs/{prd,specs,spikes,bugs,releases,plans,architecture/blueprints}
+
+# Global directories
+mkdir -p ~/.claude/docs/{adr,retros,plans}
 ```
 
 **Write document:**
@@ -220,12 +248,13 @@ Write document to {output_path}
 
 ### Step 7: Report Results
 
-**Success:**
+**Success (repo-local):**
 
 ```text
 Document created: docs/prd/TW-26134585-link-contacts.md
 
 Template: prd
+Location: repo
 Word count: 245
 Headings: 6
 Lint status: ✓ Clean
@@ -236,12 +265,30 @@ Next steps:
 3. Commit when ready: git add docs/prd/TW-26134585-link-contacts.md
 ```
 
+**Success (global):**
+
+```text
+Document created: ~/.claude/docs/adr/ADR-0042-jwt-authentication.md
+
+Template: adr
+Location: global
+Word count: 312
+Headings: 5
+Lint status: ✓ Clean
+
+Next steps:
+1. Review the generated document
+2. Add any missing details
+3. Document is in global location (cross-project)
+```
+
 **With warnings:**
 
 ```text
-Document created: docs/prd/TW-26134585-link-contacts.md
+Document created: docs/prd/ADO-12345-link-contacts.md
 
 Template: prd
+Location: repo
 Word count: 245
 Headings: 6
 Lint status: ✓ Clean
