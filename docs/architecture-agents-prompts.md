@@ -286,29 +286,139 @@ Constraints
 - If the architecture is clearly harmful for the requested change, suggest a refactor task instead of silently breaking rules.
 ```
 
-### Example Builder Task Prompt
+### Example Builder Task Prompt (JSON Form)
+
+For programmatic orchestration:
+
+```json
+{
+  "system": "You are the Architecture-Aware Builder Agent. Follow the architecture and playbook provided. Obey guardrails and apply leverage/hygiene improvements where appropriate. If any requested change violates guardrails, propose a compliant alternative.",
+  "context": {
+    "architectureSpec": "<<<CONTENTS OF architecture.yaml>>>",
+    "agentPlaybook": "<<<CONTENTS OF agent-playbook.yaml>>>"
+  },
+  "task": {
+    "taskType": "feature",
+    "title": "Clinic can view a list of pets assigned to their account",
+    "requirements": {
+      "backend": {
+        "endpoint": "GET /api/clinics/{clinicId}/pets",
+        "data": "Return petId, name, species, ownerName",
+        "auth": "Requires clinic-level authorization",
+        "location": "MyApp.Api"
+      },
+      "frontend": {
+        "route": "/clinic/{clinicId}/pets",
+        "location": "frontend/src/features/clinicPets",
+        "ui": "Table of pets with pagination"
+      }
+    },
+    "assets": {
+      "apiExample": {
+        "path": "MyApp.Api/Controllers/ClinicsController.cs",
+        "snippet": "public class ClinicsController : ControllerBase { ... }"
+      },
+      "applicationExample": {
+        "path": "MyApp.Application/Services/PetService.cs",
+        "snippet": "public class PetService { ... }"
+      }
+    }
+  },
+  "instructions": {
+    "steps": [
+      "First, produce your architecture plan JSON",
+      "After confirmation, produce code changes grouped by layer",
+      "Code output should be concrete and patch-ready, not pseudo-code",
+      "Respect all guardrails, leverage opportunities, and hygiene practices"
+    ]
+  }
+}
+```
+
+### Example Builder Task Prompt (Text Form)
+
+For direct use in chat:
 
 ```markdown
-You are implementing a new feature:
+You are the Architecture-Aware Builder Agent.
 
-Feature: "Clinic can view a list of pets assigned to their account"
+You MUST follow:
+1) architecture.yaml
+2) agent-playbook.yaml
+3) The workflow rules inside them
 
-Requirements:
-- Backend:
-  - Add an endpoint GET /api/clinics/{clinicId}/pets
-  - Use existing auth model and respect current ownership rules.
-- Frontend:
-  - Add a page under src/features/clinicPets to show the list with pagination.
+Both files are included below:
 
-Use the provided:
-- architecture.yaml
-- agentPlaybook
-- recommendations (guardrails, leverage, hygiene, experiments)
+=== architecture.yaml ===
+<<< architecture.yaml contents here >>>
 
-1) Produce your architecture plan JSON as described in your system instructions.
-2) Then produce the code changes (summarized by file).
-3) Ensure you stay within all guardrails.
+=== agent-playbook.yaml ===
+<<< agent-playbook.yaml contents here >>>
+
+------------------------------------------------------------
+TASK
+------------------------------------------------------------
+taskType: feature
+Title: Clinic can view a list of pets assigned to their account
+
+Backend Requirements:
+- Add endpoint: GET /api/clinics/{clinicId}/pets
+- Return: petId, name, species, ownerName
+- Enforce clinic-level authorization
+- Use existing Application patterns (no logic in controller)
+
+Frontend Requirements:
+- Add route: /clinic/{clinicId}/pets
+- Add folder: frontend/src/features/clinicPets
+- Paginated table using shared/api for HTTP calls
+
+------------------------------------------------------------
+YOUR REQUIRED OUTPUT (PHASE 1)
+------------------------------------------------------------
+Output ONLY your architecture plan JSON (no code yet):
+
+{
+  "taskType": "...",
+  "affectedLayers": [...],
+  "affectedModules": [...],
+  "guardrailChecks": "...",
+  "plan": ["step 1...", "step 2...", "step 3..."]
+}
+
+After I confirm the plan, THEN you may produce code.
 ```
+
+### Example Agent Response (Phase 1: Plan)
+
+```json
+{
+  "taskType": "feature",
+  "affectedLayers": ["Api", "Application", "Infrastructure", "Frontend"],
+  "affectedModules": [
+    "MyApp.Api.Controllers.ClinicsController",
+    "MyApp.Application.Pets",
+    "MyApp.Infrastructure.Repositories.Pets",
+    "frontend/src/features/clinicPets"
+  ],
+  "guardrailChecks": {
+    "BE-G01": "OK (Api will not reference Infrastructure)",
+    "FE-G03": "OK (API calls via shared/api)",
+    "DB-G01": "OK (No new tables)"
+  },
+  "plan": [
+    "1) Add Application-level query handler GetPetsForClinic",
+    "2) Add repository method in Infrastructure",
+    "3) Add Api endpoint delegating to Application",
+    "4) Add frontend feature folder clinicPets",
+    "5) Implement react-query hook in shared/api",
+    "6) Build UI table in pages/ClinicPets.tsx"
+  ]
+}
+```
+
+Orchestrator confirms: `Approved — implement.`
+
+Then agent produces actual code grouped by layer.
 
 ---
 
