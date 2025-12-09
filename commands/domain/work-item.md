@@ -67,6 +67,13 @@ The primary domain aggregate for managing work items across all external systems
 | `add-child` | Create child item | `/work-item add-child WI-001 --type task --name "..."` |
 | `move` | Reparent item | `/work-item move WI-001 --parent WI-002` |
 
+### Dependency Commands
+
+| Action | Description | Example |
+|--------|-------------|---------|
+| `depend` | Add/remove dependency | `/work-item depend WI-001 --blocked-by WI-002` |
+| `show-dependencies` | Show dependency graph | `/work-item show-dependencies WI-001` |
+
 ### Sync Commands
 
 | Action | Description | Example |
@@ -85,10 +92,10 @@ action="$1"
 shift
 
 case "$action" in
-  get|list|history)
+  get|list|history|show-dependencies)
     # Query actions
     ;;
-  create|update|delete|assign|unassign|transition|route|block|unblock|comment|log-time|add-child|move|sync|link)
+  create|update|delete|assign|unassign|transition|route|block|unblock|comment|log-time|add-child|move|sync|link|depend)
     # Command actions
     ;;
   *)
@@ -439,6 +446,191 @@ echo "   Duration: ${hours}h ${mins}m"
 [ -n "$description" ] && echo "   Description: $description"
 ```
 
+### 9. Action: depend
+
+**Manage dependencies between work items.**
+
+```bash
+# /work-item depend WI-001 --blocked-by WI-002
+# /work-item depend WI-001 --blocking WI-003
+# /work-item depend WI-001 --remove-blocked-by WI-002
+
+id="$1"
+shift
+
+blockedBy=()
+blocking=()
+removeBlockedBy=()
+removeBlocking=()
+depType="complete"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --blocked-by) blockedBy+=("$2"); shift 2 ;;
+    --blocking) blocking+=("$2"); shift 2 ;;
+    --remove-blocked-by) removeBlockedBy+=("$2"); shift 2 ;;
+    --remove-blocking) removeBlocking+=("$2"); shift 2 ;;
+    --type) depType="$2"; shift 2 ;;
+    *) shift ;;
+  esac
+done
+
+# Validate work item exists
+workItem=$(lookup_by_id "$id")
+if [ -z "$workItem" ]; then
+  echo "❌ Work item not found: $id"
+  exit 1
+fi
+
+# Validate all referenced work items exist
+for depId in "${blockedBy[@]}" "${blocking[@]}"; do
+  depItem=$(lookup_by_id "$depId")
+  if [ -z "$depItem" ]; then
+    echo "❌ Dependency work item not found: $depId"
+    exit 1
+  fi
+done
+
+# Check for circular dependencies
+for depId in "${blockedBy[@]}"; do
+  if is_circular_dependency "$id" "$depId"; then
+    echo "❌ Circular dependency detected"
+    echo "   $depId already depends on $id"
+    exit 1
+  fi
+done
+
+# Update local work item (source of truth)
+# - Add to blockedBy array of this item
+# - Add to blocking array of the dependency item (inverse)
+update_dependencies "$id" "$blockedBy" "$blocking" "$removeBlockedBy" "$removeBlocking" "$depType"
+
+# Sync to external systems
+externalSystem=$(echo "$workItem" | jq -r '.externalSystem')
+if [ "$externalSystem" != "null" ] && [ "$externalSystem" != "internal" ]; then
+  sync_dependencies_to_external "$id"
+fi
+
+echo "✅ Dependencies updated for $id"
+display_dependencies "$id"
+```
+
+**Output:**
+
+```text
+✅ Dependencies updated for WI-001
+
+Blocked by (1):
+  ⬤ WI-002: Setup database schema (teamwork:456) [complete]
+
+Blocking (0):
+  (none)
+
+Synced to: teamwork
+```
+
+### 10. Action: show-dependencies
+
+**Display dependency graph for a work item.**
+
+```bash
+# /work-item show-dependencies WI-001
+# /work-item show-dependencies WI-001 --recursive
+
+id="$1"
+recursive=false
+
+if [ "$2" == "--recursive" ]; then
+  recursive=true
+fi
+
+workItem=$(lookup_by_id "$id")
+if [ -z "$workItem" ]; then
+  echo "❌ Work item not found: $id"
+  exit 1
+fi
+
+name=$(echo "$workItem" | jq -r '.name')
+blockedBy=$(echo "$workItem" | jq -r '.blockedBy // []')
+blocking=$(echo "$workItem" | jq -r '.blocking // []')
+
+echo "📋 Dependency Graph for $id: $name"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Show blocked by
+blockedByCount=$(echo "$blockedBy" | jq 'length')
+echo "Blocked by ($blockedByCount):"
+if [ "$blockedByCount" -eq 0 ]; then
+  echo "  (none)"
+else
+  echo "$blockedBy" | jq -r '.[] | "  ⬤ \(.workItemId): \(.name // "Unknown") (\(.externalSystem):\(.externalId)) [\(.type)]"'
+fi
+echo ""
+
+# Show blocking
+blockingCount=$(echo "$blocking" | jq 'length')
+echo "Blocking ($blockingCount):"
+if [ "$blockingCount" -eq 0 ]; then
+  echo "  (none)"
+else
+  echo "$blocking" | jq -r '.[] | "  ⬤ \(.workItemId): \(.name // "Unknown") (\(.externalSystem):\(.externalId)) [\(.type)]"'
+fi
+
+# Show chain analysis if recursive
+if [ "$recursive" = true ]; then
+  echo ""
+  echo "Chain Analysis:"
+  analyze_dependency_chain "$id"
+fi
+```
+
+**Output:**
+
+```text
+📋 Dependency Graph for WI-001: Implement Event-Driven Architecture
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Blocked by (2):
+  ⬤ WI-002: Implement State Machine (teamwork:456) [complete]
+  ⬤ WI-005: Setup Event Bus (github:#789) [complete]
+
+Blocking (1):
+  ⬤ WI-003: Build Conductor Service (github:#123) [complete]
+
+Chain Analysis:
+  WI-002 ──▶ WI-001 ──▶ WI-003
+  WI-005 ───┘
+```
+
+---
+
+## Dependency Schema
+
+Work items include the following dependency fields:
+
+```yaml
+# Dependency Fields
+blockedBy: Dependency[]         # Work items that must complete before this one
+blocking: Dependency[]          # Work items waiting on this one
+
+# Dependency Type Definition
+Dependency:
+  workItemId: string            # Internal ID (e.g., "WI-002")
+  externalId: string | null     # External ID (e.g., "26134585")
+  externalSystem: string | null # Source (teamwork | github | linear | jira)
+  type: enum                    # complete | start
+  addedAt: datetime             # When dependency was added
+  addedBy: string | null        # Who added it
+```
+
+**Dependency Types:**
+
+| Type | Description |
+|------|-------------|
+| `complete` | This item can complete when the dependency completes (default) |
+| `start` | This item can complete when the dependency starts |
+
 ---
 
 ## External System Sync
@@ -452,6 +644,7 @@ When a work item is linked to an external system, aggregate commands automatical
 | `comment` | Creates comment in external system |
 | `log-time` | Creates time entry in external system |
 | `assign` | Updates assignee in external system |
+| `depend` | Creates dependency in external system (or appends to description) |
 
 ### Sync Flow
 

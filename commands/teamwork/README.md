@@ -256,6 +256,40 @@ Get all timelog entries for an entire project.
 
 ---
 
+## Task Dependency Commands
+
+### `/tw-task-dependency`
+Set predecessor/successor relationships between Teamwork tasks.
+
+```bash
+/tw-task-dependency 26134585 --predecessor 26134580           # Add predecessor
+/tw-task-dependency 26134585 --predecessor 26134580 --type start  # Start dependency
+/tw-task-dependency 26134585 --successor 26134590             # Add successor
+/tw-task-dependency 26134585 --remove-predecessor 26134580    # Remove predecessor
+/tw-task-dependency 26134585 --remove-successor 26134590      # Remove successor
+```
+
+**Parameters:**
+- `taskId` (required) - The Teamwork task ID to modify
+- `--predecessor` (optional, repeatable) - Task ID that must complete/start first
+- `--successor` (optional, repeatable) - Task ID that depends on this one
+- `--type` (optional) - Dependency type: `complete` (default) or `start`
+- `--remove-predecessor` (optional) - Remove predecessor relationship
+- `--remove-successor` (optional) - Remove successor relationship
+
+**Dependency Types:**
+| Type | Description |
+|------|-------------|
+| `complete` | This task can complete when the predecessor completes (default) |
+| `start` | This task can complete when the predecessor starts |
+
+**Notes:**
+- Uses Teamwork's native predecessor API
+- Accepts both numeric IDs and TW-prefixed IDs (prefix is auto-stripped)
+- Successors are implemented by adding this task as a predecessor to the target task
+
+---
+
 ## Common Use Cases
 
 ### Agent Time Logging

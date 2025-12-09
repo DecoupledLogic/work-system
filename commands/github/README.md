@@ -329,6 +329,33 @@ Merge a PR using **rebase strategy** and delete branch.
 
 ## Issues
 
+### `/gh-create-issue`
+
+Create a new GitHub issue with optional labels and assignees.
+
+```bash
+/gh-create-issue "Issue title" "Issue body"
+/gh-create-issue "Bug: Login fails" "Users cannot login" --label bug
+/gh-create-issue "Feature request" "Add dark mode" --label "type:feature" --label "impact:high"
+/gh-create-issue "Task title" "Description" --assignee @me
+```
+
+**Parameters:**
+
+- `title` (required) - The issue title
+- `body` (required) - The issue body/description
+- `--label` (optional, repeatable) - Labels to apply
+- `--assignee` (optional) - Assignee username (`@me` for self)
+- `--milestone` (optional) - Milestone name or number
+
+**Use cases:**
+
+- Bug reports with appropriate labels
+- Feature requests from work items
+- Task creation linked to Teamwork
+
+---
+
 ### `/gh-issue-comment`
 
 Add a comment to a GitHub issue.
@@ -348,6 +375,39 @@ Add a comment to a GitHub issue.
 - Routing notifications
 - Status updates
 - Workflow tracking
+
+---
+
+### `/gh-issue-dependency`
+
+Set blocked by/blocking relationships between GitHub issues.
+
+```bash
+/gh-issue-dependency 3 --blocked-by 2
+/gh-issue-dependency 2 --blocking 3
+/gh-issue-dependency 1 --blocked-by 3 --blocked-by 2
+/gh-issue-dependency 5 --remove-blocked-by 3
+```
+
+**Parameters:**
+
+- `issueNumber` (required) - The issue to modify
+- `--blocked-by` (optional, repeatable) - Issue number that blocks this issue
+- `--blocking` (optional, repeatable) - Issue number that this issue blocks
+- `--remove-blocked-by` (optional) - Remove blocked-by relationship
+- `--remove-blocking` (optional) - Remove blocking relationship
+
+**Use cases:**
+
+- Establish dependency chains between issues
+- Mark foundation issues as blocking others
+- Clear dependencies when prerequisites complete
+
+**Notes:**
+
+- Uses GitHub's native issue dependencies feature (GraphQL API)
+- Up to 50 blocked-by and 50 blocking relationships per issue
+- Blocked issues show "Blocked" icon on project boards
 
 ---
 
