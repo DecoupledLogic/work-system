@@ -119,6 +119,97 @@ Get detailed information for a single task.
 
 ---
 
+## Task Management Commands
+
+### `/tw-create-task`
+
+Create a new subtask under a parent task.
+
+```bash
+/tw-create-task 26134585 "Implement login form"
+/tw-create-task 26134585 "Add validation" "Validate email and password fields"
+```
+
+**Parameters:**
+- `parentTaskId` (required) - Parent task ID
+- `name` (required) - Task name
+- `description` (optional) - Task description
+
+**Returns:** JSON with created task details.
+
+---
+
+### `/tw-update-task`
+
+Update properties of an existing task.
+
+```bash
+/tw-update-task 26134585 --progress 50
+/tw-update-task 26134585 --status completed
+/tw-update-task 26134585 --priority high
+/tw-update-task 26134585 --description "Updated description"
+```
+
+**Parameters:**
+- `taskId` (required) - Task ID
+- `--progress` (optional) - Progress percentage (0-100)
+- `--status` (optional) - Task status
+- `--priority` (optional) - Priority level
+- `--description` (optional) - Task description
+- `--due-date` (optional) - Due date (YYYY-MM-DD)
+
+**Returns:** JSON with updated task details.
+
+---
+
+### `/tw-assign-task`
+
+Assign or unassign users from a Teamwork task.
+
+```bash
+/tw-assign-task 26134585 --user 123456              # Set single assignee
+/tw-assign-task 26134585 --user 123456 --user 789012  # Set multiple assignees
+/tw-assign-task 26134585 --add 123456               # Add assignee (keep existing)
+/tw-assign-task 26134585 --remove 123456            # Remove specific assignee
+/tw-assign-task 26134585 --clear                    # Remove all assignees
+/tw-assign-task 26134585 --me                       # Assign to self
+```
+
+**Parameters:**
+
+- `taskId` (required) - Task ID (numeric or with "TW-" prefix)
+- `--user` (optional, repeatable) - Set assignee(s) - replaces all existing
+- `--add` (optional, repeatable) - Add assignee without removing existing
+- `--remove` (optional, repeatable) - Remove specific assignee
+- `--clear` (optional) - Remove all assignees
+- `--me` (optional) - Assign to self (uses `user.id` from config)
+
+**Notes:**
+
+- Use `--user` to replace all assignees; use `--add` to preserve existing
+- `--me` reads from `~/.claude/teamwork.json` user configuration
+- TW- prefix is automatically stripped from task IDs
+
+**Returns:** Summary showing previous and current assignees.
+
+---
+
+### `/tw-create-comment`
+
+Add a comment to a Teamwork task.
+
+```bash
+/tw-create-comment 26134585 "Status update: completed initial review"
+```
+
+**Parameters:**
+- `taskId` (required) - Task ID
+- `body` (required) - Comment text
+
+**Returns:** JSON with created comment details.
+
+---
+
 ## Time Logging Commands
 
 ### `/tw-create-task-timelog`

@@ -356,6 +356,89 @@ Create a new GitHub issue with optional labels and assignees.
 
 ---
 
+### `/gh-get-issue`
+
+Get details of a single GitHub issue.
+
+```bash
+/gh-get-issue 123
+/gh-get-issue 123 --json
+```
+
+**Parameters:**
+
+- `issueNumber` (required) - The GitHub issue number
+- `--json` (optional) - Output raw JSON
+
+**Use cases:**
+
+- View issue details before updating
+- Check dependencies before linking
+- Verify issue exists
+
+---
+
+### `/gh-list-issues`
+
+List GitHub issues with optional filters.
+
+```bash
+/gh-list-issues
+/gh-list-issues --state open --label bug
+/gh-list-issues --assignee @me
+/gh-list-issues --milestone "v2.0" --limit 50
+```
+
+**Parameters:**
+
+- `--state` (optional) - Filter by state (`open`, `closed`, `all`)
+- `--label` (optional, repeatable) - Filter by label
+- `--assignee` (optional) - Filter by assignee (`@me` for self)
+- `--milestone` (optional) - Filter by milestone
+- `--search` (optional) - Search query
+- `--limit` (optional) - Max results (default: 30)
+- `--json` (optional) - Output raw JSON
+
+**Use cases:**
+
+- List open bugs
+- Find issues by label
+- Search for related issues
+
+---
+
+### `/gh-update-issue`
+
+Update properties of an existing GitHub issue.
+
+```bash
+/gh-update-issue 123 --title "New title"
+/gh-update-issue 123 --add-label bug --add-label urgent
+/gh-update-issue 123 --assignee @developer
+/gh-update-issue 123 --state closed
+```
+
+**Parameters:**
+
+- `issueNumber` (required) - The GitHub issue number
+- `--title` (optional) - New issue title
+- `--body` (optional) - New issue body
+- `--add-label` (optional, repeatable) - Add label
+- `--remove-label` (optional, repeatable) - Remove label
+- `--assignee` (optional) - Set assignee
+- `--add-assignee` (optional, repeatable) - Add assignee
+- `--remove-assignee` (optional, repeatable) - Remove assignee
+- `--milestone` (optional) - Set milestone
+- `--state` (optional) - Set state (`open` or `closed`)
+
+**Use cases:**
+
+- Update labels during workflow
+- Close/reopen issues
+- Assign team members
+
+---
+
 ### `/gh-issue-comment`
 
 Add a comment to a GitHub issue.
