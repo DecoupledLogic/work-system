@@ -490,7 +490,7 @@ Some work items don't need design:
 The design process uses these configuration files:
 
 - `~/.claude/commands/index.yaml` - Stage definitions
-- `~/.claude/templates/delivery/adr.md` - ADR template
+- `docs/templates/documents/adr-skeleton.md` - ADR template
 - `~/.claude/templates/delivery/implementation-plan.json` - Plan template
 - `~/.claude/session/active-work.md` - Current work context
 - `~/.claude/agents/design-agent.md` - Design agent

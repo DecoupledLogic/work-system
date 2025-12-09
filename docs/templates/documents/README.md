@@ -15,6 +15,7 @@ Templates listed in workflow/delivery order:
 | [bug-report.yaml](bug-report.yaml) | Bug Documentation | title, workItemId, symptoms, stepsToReproduce |
 | [architecture-blueprint.yaml](architecture-blueprint.yaml) | Architecture Blueprint | systemName, overview, goals, components, corePrinciples |
 | [adr.yaml](adr.yaml) | Architecture Decision Record | title, context, decision, consequences |
+| [adr-skeleton.md](adr-skeleton.md) | ADR markdown skeleton for manual use | (plain markdown) |
 | [test-plan.yaml](test-plan.yaml) | Test Plan | workItemName, workItemId, testStrategy |
 | [spec.yaml](spec.yaml) | Technical Specification | storyName, workItemId, userStory, acceptanceCriteria |
 | [impl-plan.yaml](impl-plan.yaml) | Implementation Plan | workItemName, workItemId, tasks |

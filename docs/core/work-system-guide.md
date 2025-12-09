@@ -1,6 +1,6 @@
 # Work System Guide
 
-A comprehensive guide to the AI-powered work management system built on Claude Code.
+A comprehensive guide to the AI-powered work management system.
 
 ## Table of Contents
 
@@ -306,8 +306,7 @@ Templates are versioned like code and evolve based on real system feedback.
 │   │       ├── v1.0.0.json
 │   │       └── latest.json → v1.0.0.json
 │   └── delivery/                     # Delivery templates
-│       ├── adr.md                    # ADR template
-│       ├── adr.json
+│       ├── adr.json                  # ADR process template
 │       ├── bug-fix.json
 │       └── implementation-plan.json
 │

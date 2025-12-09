@@ -209,7 +209,7 @@
     "file_naming": "ADR-{NNNN}-{kebab-case-title}.md",
     "number_sequence": "sequential, zero-padded to 4 digits",
     "location": "docs/adr/ or docs/adrs/",
-    "template_reference": "~/.claude/templates/delivery/adr.md"
+    "template_reference": "docs/templates/documents/adr-skeleton.md"
   },
   "when_to_write": {
     "write_adr": [

@@ -230,7 +230,7 @@ This document defines the phased implementation plan to evolve our current Claud
    4. Creates ADR document
    5. Updates work item with design artifacts
 
-3. **`~/.claude/templates/delivery/adr.md`**
+3. **`docs/templates/documents/adr-skeleton.md`**
 
    ADR template skeleton:
    ```markdown
@@ -685,7 +685,7 @@ Track what was completed and when. Update this section after each work session.
 #### Phase 3: Design
 - [x] `~/.claude/agents/design-agent.md`
 - [x] `~/.claude/commands/design.md` (generalized)
-- [x] `~/.claude/templates/delivery/adr.md`
+- [x] `docs/templates/documents/adr-skeleton.md`
 - [x] `~/.claude/templates/delivery/implementation-plan.json`
 
 #### Phase 4: Deliver
@@ -876,7 +876,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 - Begin Phase 3: Design Stage
 - Create design-agent.md
 - Create generalized /design command
-- Create delivery/adr.md template
+- Create ADR template (now at docs/templates/documents/adr-skeleton.md)
 
 ---
 
@@ -902,7 +902,7 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Session state updates
   - Teamwork comment posting
   - CMDS integration approach documented
-- Created `templates/delivery/adr.md`
+- Created ADR skeleton template (moved to `docs/templates/documents/adr-skeleton.md`)
   - Standard ADR format (Status, Context, Decision, Consequences)
   - Alternatives considered section
   - Template usage notes

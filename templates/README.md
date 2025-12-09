@@ -23,7 +23,6 @@ templates/
 │   └── story.json            # User story
 └── delivery/                 # Technical delivery templates
     ├── adr.json              # Architecture Decision Record
-    ├── adr.md                # ADR markdown skeleton
     ├── implementation-plan.json
     └── bug-fix.json          # Bug fix process
 ```
