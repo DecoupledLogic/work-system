@@ -16,19 +16,20 @@ You are the Document Write Orchestrator. Your job is to coordinate document gene
 /doc-write <template> [options]
 ```
 
-**Templates:**
+**Templates** (in workflow order):
 
-- `prd` - Product Requirements Document (for features/epics)
-- `spec` - Technical Specification (for stories)
-- `adr` - Architecture Decision Record
-- `impl-plan` - Implementation Plan
-- `test-plan` - Test Plan
-- `spike-report` - Research/Investigation Report
-- `bug-report` - Bug Documentation
-- `release-notes` - Release Notes
-- `retro` - Retrospective/Learnings
-- `delivery-plan` - Delivery Plan (for epics/initiatives)
-- `architecture-blueprint` - Architecture Blueprint (for services/aggregate roots)
+- `product-strategy` - Product Strategy (vision, north star, OKRs, initiatives, risks) - optional consulting engagement
+- `spike-report` - Research/Investigation Report (pre-plan research)
+- `delivery-plan` - Delivery Plan (epic-level planning with features and stories)
+- `prd` - Product Requirements Document (single feature requirements)
+- `bug-report` - Bug Documentation (in lieu of PRD for bugs/incidents)
+- `architecture-blueprint` - Architecture Blueprint (system/service architecture)
+- `adr` - Architecture Decision Record (major architectural decisions)
+- `test-plan` - Test Plan (test strategy for product or features)
+- `spec` - Technical Specification (story-level details)
+- `impl-plan` - Implementation Plan (task breakdown from story)
+- `release-notes` - Release Notes (after feature is ready to deploy)
+- `retro` - Retrospective/Learnings (post-delivery learnings and improvement)
 
 **Options:**
 
@@ -62,7 +63,9 @@ Identify template and context source:
 **Validate template:**
 
 ```text
-Available templates: prd, spec, adr, impl-plan, test-plan, spike-report, bug-report, release-notes, retro, delivery-plan, architecture-blueprint
+Available templates (workflow order):
+product-strategy, spike-report, delivery-plan, prd, bug-report,
+architecture-blueprint, adr, test-plan, spec, impl-plan, release-notes, retro
 ```
 
 ### Step 2: Gather Context
@@ -117,21 +120,22 @@ Parse JSON context from command or previous step:
 
 ### Step 3: Validate Context
 
-Check required fields for template:
+Check required fields for template (in workflow order):
 
 | Template | Required Fields |
 |----------|-----------------|
-| prd | featureName, vision, actors, acceptanceCriteria |
-| spec | storyName, workItemId, userStory, acceptanceCriteria |
-| adr | title, context, decision, consequences |
-| impl-plan | workItemName, workItemId, tasks |
-| test-plan | workItemName, workItemId, testStrategy |
+| product-strategy | productName, vision, northStar, okrs, initiatives |
 | spike-report | title, workItemId, question, findings |
+| delivery-plan | initiativeName, strategy, problem, epics |
+| prd | featureName, vision, actors, acceptanceCriteria |
 | bug-report | title, workItemId, symptoms, stepsToReproduce |
+| architecture-blueprint | systemName, overview, goals, components, corePrinciples |
+| adr | title, context, decision, consequences |
+| test-plan | workItemName, workItemId, testStrategy |
+| spec | storyName, workItemId, userStory, acceptanceCriteria |
+| impl-plan | workItemName, workItemId, tasks |
 | release-notes | version, releaseDate, features |
 | retro | workItemId, whatWentWell, whatCouldImprove |
-| delivery-plan | initiativeName, strategy, problem, epics |
-| architecture-blueprint | systemName, overview, goals, components, corePrinciples |
 
 If missing required fields:
 
@@ -203,21 +207,22 @@ Documents are stored in two locations based on their purpose:
 - Retros (learnings inform future work)
 - Delivery plans (initiative-level planning)
 
-#### Default Paths
+#### Default Paths (in workflow order)
 
 | Template | Location | Default Path |
 |----------|----------|--------------|
-| prd | repo | docs/prd/{prefix}-{id}-{slug}.md |
-| spec | repo | docs/specs/{prefix}-{id}-{slug}.md |
-| impl-plan | repo | docs/plans/{prefix}-{id}-implementation.md |
-| test-plan | repo | docs/plans/{prefix}-{id}-test-plan.md |
-| bug-report | repo | docs/bugs/{prefix}-{id}-{slug}.md |
+| product-strategy | global | ~/.claude/docs/strategy/{slug}-strategy.md |
 | spike-report | repo | docs/spikes/{prefix}-{id}-{slug}.md |
-| release-notes | repo | docs/releases/v{version}-notes.md |
+| delivery-plan | global | ~/.claude/docs/plans/{prefix}-{id}-delivery-plan.md |
+| prd | repo | docs/prd/{prefix}-{id}-{slug}.md |
+| bug-report | repo | docs/bugs/{prefix}-{id}-{slug}.md |
 | architecture-blueprint | repo | docs/architecture/blueprints/{slug}-blueprint.md |
 | adr | global | ~/.claude/docs/adr/ADR-{number}-{slug}.md |
+| test-plan | repo | docs/plans/{prefix}-{id}-test-plan.md |
+| spec | repo | docs/specs/{prefix}-{id}-{slug}.md |
+| impl-plan | repo | docs/plans/{prefix}-{id}-implementation.md |
+| release-notes | repo | docs/releases/v{version}-notes.md |
 | retro | global | ~/.claude/docs/retros/{prefix}-{id}-retro.md |
-| delivery-plan | global | ~/.claude/docs/plans/{prefix}-{id}-delivery-plan.md |
 
 #### Path Variables
 
@@ -236,7 +241,7 @@ Documents are stored in two locations based on their purpose:
 mkdir -p docs/{prd,specs,spikes,bugs,releases,plans,architecture/blueprints}
 
 # Global directories
-mkdir -p ~/.claude/docs/{adr,retros,plans}
+mkdir -p ~/.claude/docs/{strategy,adr,retros,plans}
 ```
 
 **Write document:**
@@ -378,25 +383,45 @@ Usually generated from design stage output.
 
 ## Integration with Work System
 
-### From /plan
+### Pre-Engagement (Optional)
 
-After planning a feature:
+For consulting engagements:
 
 ```text
-/plan TW-12345 → feature planned
-/doc-write prd --work-item TW-12345 → generates PRD
+/doc-write product-strategy --interactive → vision, north star, OKRs, initiatives
+```
+
+### Pre-Plan (Research)
+
+When research is needed before planning:
+
+```text
+/doc-write spike-report --work-item TW-12345 → research findings
+```
+
+### From /plan
+
+Document generation varies by work item type:
+
+```text
+/plan epic → /doc-write delivery-plan → epics, features, stories
+/plan feature → /doc-write prd → vision, actors, acceptance criteria
+/plan bug → /doc-write bug-report → symptoms, root cause, fix approach
 ```
 
 ### From /design
 
-After designing:
+When designing, generate multiple documents:
 
 ```text
-/design TW-12345 → design complete
-Design output auto-generates:
-- ADR (if architectural decision)
-- Implementation Plan
-- Test Plan
+/design feature → auto-generates:
+  - architecture-blueprint (if system/service architecture)
+  - adr (if major architectural decision)
+  - test-plan (test strategy)
+
+/design story → auto-generates:
+  - spec (story details, technical approach)
+  - impl-plan (task breakdown)
 ```
 
 ### From /deliver
@@ -404,8 +429,9 @@ Design output auto-generates:
 After delivery:
 
 ```text
-/deliver TW-12345 complete
-/doc-write retro --work-item TW-12345 → captures learnings
+/deliver TW-12345 complete → auto-generates:
+  - release-notes (version, features, fixes)
+  - retro (if learnings exist)
 ```
 
 ## Error Handling
@@ -416,17 +442,18 @@ After delivery:
 Unknown template: xyz
 
 Available templates:
-- prd: Product Requirements Document
-- spec: Technical Specification
-- adr: Architecture Decision Record
-- impl-plan: Implementation Plan
-- test-plan: Test Plan
+- product-strategy: Product Strategy
 - spike-report: Spike/Research Report
+- delivery-plan: Delivery Plan
+- prd: Product Requirements Document
 - bug-report: Bug Documentation
+- architecture-blueprint: Architecture Blueprint
+- adr: Architecture Decision Record
+- test-plan: Test Plan
+- spec: Technical Specification
+- impl-plan: Implementation Plan
 - release-notes: Release Notes
 - retro: Retrospective
-- delivery-plan: Delivery Plan
-- architecture-blueprint: Architecture Blueprint
 ```
 
 ### Work Item Not Found

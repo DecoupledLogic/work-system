@@ -4,19 +4,22 @@ YAML-based templates for generating lint-safe markdown documents via the Documen
 
 ## Available Templates
 
+Templates listed in workflow/delivery order:
+
 | Template | Purpose | Required Fields |
 |----------|---------|-----------------|
-| [prd.yaml](prd.yaml) | Product Requirements Document | featureName, vision, actors, acceptanceCriteria |
-| [spec.yaml](spec.yaml) | Technical Specification | storyName, workItemId, userStory, acceptanceCriteria |
-| [adr.yaml](adr.yaml) | Architecture Decision Record | title, context, decision, consequences |
-| [impl-plan.yaml](impl-plan.yaml) | Implementation Plan | workItemName, workItemId, tasks |
-| [test-plan.yaml](test-plan.yaml) | Test Plan | workItemName, workItemId, testStrategy |
+| [product-strategy.yaml](product-strategy.yaml) | Product Strategy (optional, consulting) | productName, vision, northStar, okrs, initiatives |
 | [spike-report.yaml](spike-report.yaml) | Research/Investigation Report | title, workItemId, question, findings |
+| [delivery-plan.yaml](delivery-plan.yaml) | Delivery Plan (epic-level) | initiativeName, strategy, problem, epics |
+| [prd.yaml](prd.yaml) | Product Requirements Document | featureName, vision, actors, acceptanceCriteria |
 | [bug-report.yaml](bug-report.yaml) | Bug Documentation | title, workItemId, symptoms, stepsToReproduce |
+| [architecture-blueprint.yaml](architecture-blueprint.yaml) | Architecture Blueprint | systemName, overview, goals, components, corePrinciples |
+| [adr.yaml](adr.yaml) | Architecture Decision Record | title, context, decision, consequences |
+| [test-plan.yaml](test-plan.yaml) | Test Plan | workItemName, workItemId, testStrategy |
+| [spec.yaml](spec.yaml) | Technical Specification | storyName, workItemId, userStory, acceptanceCriteria |
+| [impl-plan.yaml](impl-plan.yaml) | Implementation Plan | workItemName, workItemId, tasks |
 | [release-notes.yaml](release-notes.yaml) | Release Notes | version, releaseDate, features |
 | [retro.yaml](retro.yaml) | Retrospective/Learnings | workItemId, whatWentWell, whatCouldImprove |
-| [delivery-plan.yaml](delivery-plan.yaml) | Delivery Plan (epic-level) | initiativeName, strategy, problem, epics |
-| [architecture-blueprint.yaml](architecture-blueprint.yaml) | Architecture Blueprint | systemName, overview, goals, components, corePrinciples |
 
 ## Template Structure
 

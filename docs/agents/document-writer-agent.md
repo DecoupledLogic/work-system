@@ -35,19 +35,38 @@ Traditional LLM document generation suffers from:
 
 ## Document Types
 
-The work system uses these document types:
+The work system uses these document types, ordered by their position in the delivery workflow:
 
-| Template | Purpose | When Used |
-|----------|---------|-----------|
-| `prd` | Product Requirements Document | Features, Epics |
-| `spec` | Technical Specification | Stories |
-| `adr` | Architecture Decision Record | Design decisions |
-| `impl-plan` | Implementation Plan | Design stage |
-| `test-plan` | Test Plan | Design stage |
-| `spike-report` | Research/Investigation Report | Spikes |
-| `bug-report` | Bug Documentation | Bug triage |
-| `release-notes` | Release Documentation | Releases |
-| `retro` | Retrospective/Learnings | Post-delivery |
+| Template | Purpose | Stage | When Used |
+|----------|---------|-------|-----------|
+| `product-strategy` | Product Strategy | Pre-engagement | Vision, north star, OKRs, initiatives, risks. Optional - used when client engages consulting services. |
+| `spike-report` | Research/Investigation Report | Pre-plan | Research needed before planning begins. Answers specific questions to reduce uncertainty. |
+| `delivery-plan` | Delivery Plan | Plan (Epic) | Multi-epic initiatives. Translates architecture into epics, features, stories with acceptance criteria. |
+| `prd` | Product Requirements Document | Plan (Feature) | Single epic/feature requirements. Vision, actors, jobs, acceptance criteria. |
+| `bug-report` | Bug Documentation | Plan (Bug) | Used in lieu of PRD when work item is a bug/incident. Symptoms, root cause, fix approach. |
+| `architecture-blueprint` | Architecture Blueprint | Design | System or service architecture. Components, principles, event contracts, APIs. |
+| `adr` | Architecture Decision Record | Design | Major architectural decisions. Context, decision, consequences, alternatives. |
+| `test-plan` | Test Plan | Design | Test strategy for product or features. Coverage matrix, test cases, expected outcomes. |
+| `spec` | Technical Specification | Design (Story) | Story-level details. User story, technical approach, API/data changes. |
+| `impl-plan` | Implementation Plan | Design | Task breakdown from story. Dependencies, estimates, technical notes per task. |
+| `release-notes` | Release Notes | Deliver | After feature is done and ready to deploy. Version, features, fixes, migration notes. |
+| `retro` | Retrospective/Learnings | Deliver | After work item completion. What went well, what to improve, creates follow-up work items. |
+
+### Document Flow by Work Item Type
+
+```text
+Epic Workflow:
+  [product-strategy] → spike-report → delivery-plan → prd (per feature) → design docs → deliver docs
+
+Feature Workflow:
+  spike-report (optional) → prd → architecture-blueprint → adr → test-plan → spec (per story) → impl-plan → release-notes → retro
+
+Story Workflow:
+  spec → impl-plan → release-notes (via parent) → retro (optional)
+
+Bug Workflow:
+  bug-report → impl-plan → release-notes (via fix) → retro (if learnings)
+```
 
 ## Input Contract
 
@@ -314,12 +333,30 @@ After rendering, validate:
 
 ## Integration with Work System
 
-### With Plan Stage
+### Pre-Engagement (Optional)
 
-When planning a feature, generate PRD:
+For consulting engagements with product strategy:
 
 ```text
-/plan TW-12345 → generates PRD context → /doc-write prd
+/doc-write product-strategy → vision, north star, OKRs, initiatives, risks
+```
+
+### Pre-Plan (Research)
+
+When research is needed before planning:
+
+```text
+spike work item → /doc-write spike-report → answers questions, reduces uncertainty
+```
+
+### With Plan Stage
+
+Document generation varies by work item type:
+
+```text
+/plan epic → /doc-write delivery-plan → epics, features, stories, acceptance criteria
+/plan feature → /doc-write prd → vision, actors, jobs, acceptance criteria
+/plan bug → /doc-write bug-report → symptoms, root cause, fix approach
 ```
 
 ### With Design Stage
@@ -327,10 +364,14 @@ When planning a feature, generate PRD:
 When designing, generate multiple documents:
 
 ```text
-/design TW-12345 → generates:
-  - ADR (if architectural decision)
-  - Implementation Plan
-  - Test Plan
+/design feature → generates:
+  - architecture-blueprint (if system/service architecture)
+  - adr (if major architectural decision)
+  - test-plan (test strategy)
+
+/design story → generates:
+  - spec (story details, technical approach)
+  - impl-plan (task breakdown)
 ```
 
 ### With Deliver Stage
@@ -339,39 +380,63 @@ When completing work, generate:
 
 ```text
 /deliver TW-12345 complete → generates:
-  - Release Notes (if applicable)
-  - Retrospective (if configured)
-```
-
-### With Triage Stage
-
-When triaging bugs, generate:
-
-```text
-/triage TW-12345 (bug) → generates Bug Report
+  - release-notes (version, features, fixes)
+  - retro (if learnings exist → creates follow-up work items)
 ```
 
 ## Document Storage
 
-Generated documents are stored:
+Documents are stored in two locations based on their purpose:
+
+### Repo-Local Documents (`docs/...`)
+
+Tied to specific code changes - committed with the codebase:
 
 ```text
 docs/
 ├── prd/
-│   └── TW-{id}-{slug}.md
+│   └── {prefix}-{id}-{slug}.md
 ├── specs/
-│   └── TW-{id}-{slug}.md
-├── architecture/
-│   └── adr/
-│       └── ADR-{number}-{title}.md
-├── plans/
-│   ├── TW-{id}-implementation.md
-│   └── TW-{id}-test-plan.md
+│   └── {prefix}-{id}-{slug}.md
+├── bugs/
+│   └── {prefix}-{id}-{slug}.md
 ├── spikes/
-│   └── TW-{id}-{slug}.md
-└── releases/
-    └── v{version}-notes.md
+│   └── {prefix}-{id}-{slug}.md
+├── plans/
+│   ├── {prefix}-{id}-implementation.md
+│   └── {prefix}-{id}-test-plan.md
+├── releases/
+│   └── v{version}-notes.md
+└── architecture/
+    └── blueprints/
+        └── {slug}-blueprint.md
 ```
+
+### Global Documents (`~/.claude/docs/...`)
+
+Cross-project learnings and decisions:
+
+```text
+~/.claude/docs/
+├── strategy/
+│   └── {slug}-strategy.md
+├── adr/
+│   └── ADR-{number}-{slug}.md
+├── plans/
+│   └── {prefix}-{id}-delivery-plan.md
+└── retros/
+    └── {prefix}-{id}-retro.md
+```
+
+### Path Variables
+
+| Variable | Source | Example |
+|----------|--------|---------|
+| `{prefix}` | Work manager type | TW, ADO, GH, WI |
+| `{id}` | Work item ID | 26134585 |
+| `{slug}` | Slugified name | user-authentication |
+| `{number}` | Auto-increment | 0042 |
+| `{version}` | Release version | 1.2.0 |
 
 ## Error Handling
 
@@ -397,7 +462,11 @@ docs/
   "error": {
     "code": "INVALID_TEMPLATE",
     "message": "Template 'xyz' not found",
-    "availableTemplates": ["prd", "spec", "adr", "impl-plan", "test-plan"]
+    "availableTemplates": [
+      "product-strategy", "spike-report", "delivery-plan", "prd", "bug-report",
+      "architecture-blueprint", "adr", "test-plan", "spec", "impl-plan",
+      "release-notes", "retro"
+    ]
   }
 }
 ```

@@ -6,19 +6,20 @@ The document system enables template-driven generation of lint-safe markdown doc
 
 ```yaml
 DocumentRequest:
-  # Template selection
+  # Template selection (workflow order)
   template: enum                    # Template identifier
-    - prd                           # Product Requirements Document
-    - spec                          # Technical Specification
-    - adr                           # Architecture Decision Record
-    - impl-plan                     # Implementation Plan
-    - test-plan                     # Test Plan
+    - product-strategy              # Product Strategy (optional, consulting)
     - spike-report                  # Research/Investigation Report
+    - delivery-plan                 # Delivery Plan (epic-level)
+    - prd                           # Product Requirements Document
     - bug-report                    # Bug Documentation
+    - architecture-blueprint        # Architecture Blueprint
+    - adr                           # Architecture Decision Record
+    - test-plan                     # Test Plan
+    - spec                          # Technical Specification
+    - impl-plan                     # Implementation Plan
     - release-notes                 # Release Notes
     - retro                         # Retrospective/Learnings
-    - delivery-plan                 # Delivery Plan (epic-level)
-    - architecture-blueprint        # Architecture Blueprint
 
   # Context data
   context: object                   # Template-specific fields
@@ -99,38 +100,40 @@ DocumentLocation:
 
 | Template | Location | Rationale |
 |----------|----------|-----------|
-| prd | repo | Feature requirements tied to codebase |
-| spec | repo | Story specs reference specific code |
-| impl-plan | repo | Implementation details for specific changes |
-| test-plan | repo | Test coverage for specific code |
-| bug-report | repo | Bug analysis tied to codebase |
+| product-strategy | global | Strategic vision spans projects and engagements |
 | spike-report | repo | Research for specific feature |
-| release-notes | repo | Version notes tied to code release |
+| delivery-plan | global | Initiative planning spans projects |
+| prd | repo | Feature requirements tied to codebase |
+| bug-report | repo | Bug analysis tied to codebase |
 | architecture-blueprint | repo | System architecture for codebase |
 | adr | global | Architecture decisions apply across projects |
+| test-plan | repo | Test coverage for specific code |
+| spec | repo | Story specs reference specific code |
+| impl-plan | repo | Implementation details for specific changes |
+| release-notes | repo | Version notes tied to code release |
 | retro | global | Learnings inform all future work |
-| delivery-plan | global | Initiative planning spans projects |
 
 ### Default Paths
 
 ```yaml
 DocumentPaths:
-  # Repo-local documents
-  repo:
-    prd: docs/prd/{prefix}-{id}-{slug}.md
-    spec: docs/specs/{prefix}-{id}-{slug}.md
-    impl-plan: docs/plans/{prefix}-{id}-implementation.md
-    test-plan: docs/plans/{prefix}-{id}-test-plan.md
-    bug-report: docs/bugs/{prefix}-{id}-{slug}.md
-    spike-report: docs/spikes/{prefix}-{id}-{slug}.md
-    release-notes: docs/releases/v{version}-notes.md
-    architecture-blueprint: docs/architecture/blueprints/{slug}-blueprint.md
-
-  # Global documents
+  # Global documents (workflow order)
   global:
+    product-strategy: ~/.claude/docs/strategy/{slug}-strategy.md
+    delivery-plan: ~/.claude/docs/plans/{prefix}-{id}-delivery-plan.md
     adr: ~/.claude/docs/adr/ADR-{number}-{slug}.md
     retro: ~/.claude/docs/retros/{prefix}-{id}-retro.md
-    delivery-plan: ~/.claude/docs/plans/{prefix}-{id}-delivery-plan.md
+
+  # Repo-local documents (workflow order)
+  repo:
+    spike-report: docs/spikes/{prefix}-{id}-{slug}.md
+    prd: docs/prd/{prefix}-{id}-{slug}.md
+    bug-report: docs/bugs/{prefix}-{id}-{slug}.md
+    architecture-blueprint: docs/architecture/blueprints/{slug}-blueprint.md
+    test-plan: docs/plans/{prefix}-{id}-test-plan.md
+    spec: docs/specs/{prefix}-{id}-{slug}.md
+    impl-plan: docs/plans/{prefix}-{id}-implementation.md
+    release-notes: docs/releases/v{version}-notes.md
 ```
 
 ### Path Variable Sources
@@ -219,6 +222,42 @@ ForEachBlock:
 ```
 
 ## Template Context by Type
+
+### Product Strategy
+
+```yaml
+ProductStrategyContext:
+  # Required
+  productName: string               # Product/initiative name
+  vision: string                    # Product vision statement
+  northStar: string                 # North star metric or goal
+  okrs: OKR[]                       # Objectives and Key Results
+  initiatives: Initiative[]         # Strategic initiatives
+
+  # Optional
+  workItemId: string                # External work item reference
+  targetCustomers: string[]         # Target customer segments
+  problemStatement: string          # Problem being solved
+  risks: Risk[]                     # Identified risks
+  assumptions: string[]             # Key assumptions
+  dependencies: string[]            # External dependencies
+  timeline: string                  # High-level timeline
+
+OKR:
+  objective: string                 # Objective statement
+  keyResults: string[]              # Measurable key results
+
+Initiative:
+  name: string                      # Initiative name
+  description: string               # What this initiative does
+  priority: string                  # Priority level (high/medium/low)
+
+Risk:
+  name: string                      # Risk name
+  likelihood: string                # Probability (high/medium/low)
+  impact: string                    # Impact level (high/medium/low)
+  mitigation: string                # Mitigation strategy
+```
 
 ### PRD (Product Requirements Document)
 
