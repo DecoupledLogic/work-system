@@ -75,12 +75,19 @@ Every document request follows this structure:
 ```yaml
 DocumentRequest:
   template: string           # Template ID (prd, spec, adr, etc.)
+  workItemId: string | null  # Work item ID for path resolution (e.g., "tw-26253606")
   context: object            # Template-specific data
   formatOptions:             # Optional formatting preferences
     includeTOC: boolean      # Include table of contents
     headingDepth: number     # Maximum heading depth
     includeMetadata: boolean # Include frontmatter
+    legacyPath: boolean      # Force docs/ location (default: false)
 ```
+
+**Path Resolution:**
+
+- If `workItemId` is provided and `work-items/{workItemId}/` exists, document outputs there
+- If `workItemId` is not provided or directory doesn't exist, falls back to `docs/{category}/`
 
 ### Example: PRD Request
 
@@ -386,11 +393,61 @@ When completing work, generate:
 
 ## Document Storage
 
-Documents are stored in two locations based on their purpose:
+Documents are stored in three locations based on their purpose:
 
-### Repo-Local Documents (`docs/...`)
+### Work Item Directories (`work-items/{id}/`) - Primary
 
-Tied to specific code changes - committed with the codebase:
+**Preferred location for work-item-specific documents.** Consolidates all artifacts for a work item in one place.
+
+```text
+work-items/
+├── tw-26253606/
+│   ├── work-item.yaml      # Metadata snapshot
+│   ├── activity-log.md     # Cross-session history
+│   ├── prd.md              # Product requirements
+│   ├── spec.md             # Technical specification
+│   ├── impl-plan.md        # Implementation plan
+│   ├── test-plan.md        # Test strategy
+│   ├── bug-report.md       # Bug documentation
+│   ├── spike-report.md     # Research findings
+│   ├── delivery-plan.md    # Multi-story delivery plan
+│   ├── adr/                # Work-item-specific ADRs
+│   │   └── 001-{slug}.md
+│   └── research/           # Supporting research
+│       └── {slug}.md
+└── gh-456/
+    └── ...
+```
+
+**When to use:** Always use work-item directories when:
+
+- Document is tied to a specific work item
+- Work item directory exists (created during triage)
+- Context provides `workItemId`
+
+### Global Documents (`~/.claude/docs/...`)
+
+Cross-project learnings and decisions:
+
+```text
+~/.claude/docs/
+├── strategy/
+│   └── {slug}-strategy.md
+├── adr/
+│   └── ADR-{number}-{slug}.md
+└── retros/
+    └── {prefix}-{id}-retro.md
+```
+
+**When to use:** For documents that:
+
+- Apply across multiple work items or projects
+- Are global architectural decisions (numbered ADRs)
+- Capture cross-project learnings (retros with reusable insights)
+
+### Repo-Local Fallback (`docs/...`)
+
+Legacy location - used when work-item directory doesn't exist:
 
 ```text
 docs/
@@ -403,40 +460,58 @@ docs/
 ├── spikes/
 │   └── {prefix}-{id}-{slug}.md
 ├── plans/
-│   ├── {prefix}-{id}-implementation.md
-│   └── {prefix}-{id}-test-plan.md
+│   └── {prefix}-{id}-{slug}.md
 ├── releases/
 │   └── v{version}-notes.md
-└── architecture/
-    └── blueprints/
-        └── {slug}-blueprint.md
+└── architecture/blueprints/
+    └── {slug}-blueprint.md
 ```
 
-### Global Documents (`~/.claude/docs/...`)
+**When to use:** Only when:
 
-Cross-project learnings and decisions:
+- No work item context (standalone documents)
+- Work item directory doesn't exist
+- Explicit `--legacy-path` flag
+
+### Path Resolution Logic
 
 ```text
-~/.claude/docs/
-├── strategy/
-│   └── {slug}-strategy.md
-├── adr/
-│   └── ADR-{number}-{slug}.md
-├── plans/
-│   └── {prefix}-{id}-delivery-plan.md
-└── retros/
-    └── {prefix}-{id}-retro.md
+1. If workItemId provided AND work-items/{id}/ exists:
+   → Output to work-items/{id}/{document}.md
+
+2. Else if document is global type (strategy, numbered ADR):
+   → Output to ~/.claude/docs/{category}/{document}.md
+
+3. Else (fallback):
+   → Output to docs/{category}/{prefix}-{id}-{slug}.md
 ```
 
 ### Path Variables
 
 | Variable | Source | Example |
 |----------|--------|---------|
-| `{prefix}` | Work manager type | TW, ADO, GH, WI |
-| `{id}` | Work item ID | 26134585 |
+| `{prefix}` | Work manager type (lowercase) | tw, ado, gh, wi |
+| `{id}` | Work item ID | 26253606 |
 | `{slug}` | Slugified name | user-authentication |
 | `{number}` | Auto-increment | 0042 |
 | `{version}` | Release version | 1.2.0 |
+
+### Document Location by Template
+
+| Template | Primary Location | Global Location |
+|----------|------------------|-----------------|
+| `prd` | `work-items/{id}/prd.md` | - |
+| `spec` | `work-items/{id}/spec.md` | - |
+| `impl-plan` | `work-items/{id}/impl-plan.md` | - |
+| `test-plan` | `work-items/{id}/test-plan.md` | - |
+| `bug-report` | `work-items/{id}/bug-report.md` | - |
+| `spike-report` | `work-items/{id}/spike-report.md` | - |
+| `delivery-plan` | `work-items/{id}/delivery-plan.md` | - |
+| `release-notes` | `work-items/{id}/release-notes.md` | - |
+| `product-strategy` | - | `~/.claude/docs/strategy/` |
+| `adr` (numbered) | - | `~/.claude/docs/adr/` |
+| `adr` (work-item) | `work-items/{id}/adr/` | - |
+| `retro` | - | `~/.claude/docs/retros/` |
 
 ## Error Handling
 
@@ -515,3 +590,4 @@ Project templates take precedence over system templates.
 - [Markdown Standards](markdown-standards.md) - Linting rules
 - [Document Schema](../schema/document.schema.md) - Schema definitions
 - [Document Templates](templates/documents/) - Template library
+- [Work Item Directory Schema](../schema/work-item-directory.schema.md) - Work item structure

@@ -1,0 +1,33 @@
+# Work Item Metadata Template
+#
+# Variables (replaced during initialization):
+#   {{id}}              - Directory name (e.g., "tw-26253606")
+#   {{name}}            - Work item title
+#   {{externalSystem}}  - teamwork | github | ado | internal
+#   {{externalId}}      - ID in external system
+#   {{externalUrl}}     - Direct link to external system (or null)
+#   {{type}}            - epic | feature | story | task | bug | spike
+#   {{status}}          - Current status
+#   {{stage}}           - Current stage (usually "triage" at init)
+#   {{queue}}           - Queue assignment
+#   {{createdAt}}       - When work item was created (ISO 8601)
+#   {{initializedAt}}   - When directory was created (ISO 8601)
+#   {{updatedAt}}       - Same as initializedAt at creation
+
+# Identity
+id: {{id}}
+name: {{name}}
+externalSystem: {{externalSystem}}
+externalId: "{{externalId}}"
+externalUrl: {{externalUrl}}
+
+# Classification
+type: {{type}}
+status: {{status}}
+stage: {{stage}}
+queue: {{queue}}
+
+# Tracking
+createdAt: {{createdAt}}
+initializedAt: {{initializedAt}}
+updatedAt: {{updatedAt}}

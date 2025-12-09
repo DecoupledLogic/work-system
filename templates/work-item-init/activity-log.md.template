@@ -1,0 +1,21 @@
+# Activity Log: {{id}}
+
+Cross-session history of significant events for team handoffs and context recovery.
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Initialized | {{initializedDate}} |
+| Current Stage | {{stage}} |
+| Artifacts | 0 |
+
+---
+
+## Timeline
+
+### {{initializedDate}} - Initialized
+
+- Created from {{externalSystem}} {{type}} {{externalId}}
+- Type: {{type}}, Queue: {{queue}}
+- **Source:** {{externalUrl}}

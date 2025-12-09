@@ -1,0 +1,21 @@
+# Session Notes: {{id}}
+
+Personal scratch notes for the current developer. This file is gitignored.
+
+---
+
+## {{initializedDate}} {{sessionId}}
+
+### Initial context
+
+- Work item: {{name}}
+- Type: {{type}}
+- External: {{externalUrl}}
+
+### Notes
+
+<!-- Add your personal notes, questions, and observations here -->
+
+### Questions to resolve
+
+- [ ]

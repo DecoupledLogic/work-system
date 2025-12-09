@@ -32,6 +32,11 @@ session/session-log.md
 session/queues.json
 session/local-work-items.json
 
+# ===== Work Item Directories (PARTIAL - hybrid tracking) =====
+# Tracked: work-item.yaml, activity-log.md, documents, adr/, research/
+# Ignored: session-notes.md (personal scratch notes)
+work-items/*/session-notes.md
+
 # ===== Work System Files (INCLUDE in repo) =====
 # These are NOT ignored:
 # - agents/

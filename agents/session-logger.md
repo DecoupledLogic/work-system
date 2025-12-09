@@ -10,11 +10,13 @@ You are the Session Logger responsible for capturing structured activity logs fo
 ## Purpose
 
 Provide lightweight logging infrastructure. You handle:
+
 - Generating unique RunId and SessionId values
 - Logging actions with timestamps
 - Capturing metrics (duration, tokens, tool calls)
 - Writing structured logs to session files
 - Maintaining session continuity
+- **Writing to work item activity logs** (cross-session history)
 
 ## Input
 
@@ -22,7 +24,7 @@ Expect a logging request:
 
 ```json
 {
-  "action": "start_run" | "log_action" | "end_run" | "start_session" | "end_session",
+  "action": "start_run" | "log_action" | "end_run" | "start_session" | "end_session" | "log_to_work_item",
   "context": {
     "sessionId": "ses-20241207-143022",
     "runId": "run-20241207-143025-triage",
@@ -240,6 +242,209 @@ Close session:
   }
 }
 ```
+
+## Work Item Activity Logging
+
+In addition to session logs, the session-logger writes to work item activity logs for cross-session history. These logs are tracked in git and serve as team-facing documentation.
+
+### log_to_work_item
+
+Write an entry to a work item's activity log:
+
+```json
+{
+  "action": "log_to_work_item",
+  "context": {
+    "workItemId": "tw-26253606",
+    "sessionId": "ses-20241207-143022"
+  },
+  "data": {
+    "event": "stage_complete",
+    "stage": "plan",
+    "summary": "Decomposed into 3 features, 12 stories",
+    "artifacts": ["delivery-plan.md", "estimate.csv"],
+    "decision": "Prioritized renewal fix as Epic 1"
+  }
+}
+```
+
+**Output:**
+
+```json
+{
+  "logged": true,
+  "workItemId": "tw-26253606",
+  "activityLogPath": "work-items/tw-26253606/activity-log.md",
+  "entry": {
+    "date": "2024-12-07",
+    "time": "14:31:18",
+    "event": "stage_complete",
+    "stage": "plan"
+  }
+}
+```
+
+### Work Item Event Types
+
+| Event | When | Required Fields |
+|-------|------|-----------------|
+| `init` | Directory created | `stage`, `type`, `queue` |
+| `stage_start` | Stage begins | `stage` |
+| `stage_complete` | Stage ends | `stage`, `summary`, `artifacts` |
+| `artifact_created` | Document generated | `artifact`, `template` |
+| `decision` | Key decision made | `decision`, `rationale` |
+| `status_change` | Status updated | `fromStatus`, `toStatus` |
+
+### Activity Log Entry Format
+
+Entries are appended to `work-items/{id}/activity-log.md`:
+
+```markdown
+### {date} - {Stage} Stage
+
+- {summary}
+- **Artifacts:** {comma-separated list}
+- **Decision:** {decision text if any}
+```
+
+### init Event
+
+When a work item directory is initialized:
+
+```json
+{
+  "action": "log_to_work_item",
+  "context": {
+    "workItemId": "tw-26253606"
+  },
+  "data": {
+    "event": "init",
+    "type": "epic",
+    "queue": "standard",
+    "externalSystem": "teamwork",
+    "externalId": "26253606",
+    "externalUrl": "https://company.teamwork.com/tasks/26253606"
+  }
+}
+```
+
+Writes initial entry:
+
+```markdown
+### {date} - Initialized
+
+- Created from teamwork epic 26253606
+- Type: epic, Queue: standard
+- **Source:** https://company.teamwork.com/tasks/26253606
+```
+
+### stage_start Event
+
+```json
+{
+  "action": "log_to_work_item",
+  "context": {
+    "workItemId": "tw-26253606",
+    "sessionId": "ses-20241207-150000"
+  },
+  "data": {
+    "event": "stage_start",
+    "stage": "design"
+  }
+}
+```
+
+Writes:
+
+```markdown
+### {date} - Design Stage Started
+
+- Session: ses-20241207-150000
+```
+
+### stage_complete Event
+
+```json
+{
+  "action": "log_to_work_item",
+  "context": {
+    "workItemId": "tw-26253606",
+    "sessionId": "ses-20241207-150000"
+  },
+  "data": {
+    "event": "stage_complete",
+    "stage": "design",
+    "summary": "Completed design exploration, chose webhook approach",
+    "artifacts": ["impl-plan.md", "adr/001-webhook-approach.md"],
+    "decision": "Webhooks over polling for lower latency"
+  }
+}
+```
+
+Writes:
+
+```markdown
+### {date} - Design Stage Completed
+
+- Completed design exploration, chose webhook approach
+- **Artifacts:** impl-plan.md, adr/001-webhook-approach.md
+- **Decision:** Webhooks over polling for lower latency
+```
+
+### artifact_created Event
+
+```json
+{
+  "action": "log_to_work_item",
+  "context": {
+    "workItemId": "tw-26253606"
+  },
+  "data": {
+    "event": "artifact_created",
+    "artifact": "prd.md",
+    "template": "prd"
+  }
+}
+```
+
+Updates the Summary table artifact count (does not add timeline entry for minor artifacts).
+
+### Updating Summary Table
+
+When logging events, also update the Summary table at the top of activity-log.md:
+
+```markdown
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Initialized | 2024-12-07 |
+| Current Stage | design |
+| Artifacts | 4 |
+```
+
+- **Current Stage**: Update on `stage_start` events
+- **Artifacts**: Increment on `artifact_created` events
+
+### Activity Log vs Session Log
+
+| Aspect | Session Log | Activity Log |
+|--------|-------------|--------------|
+| Location | `~/.claude/session/session-log.md` | `work-items/{id}/activity-log.md` |
+| Scope | All work items in session | Single work item |
+| Git | Ignored | Tracked |
+| Content | Tool calls, tokens, metrics | Stage events, artifacts, decisions |
+| Audience | Developer (debug) | Team (history) |
+
+**When to use each:**
+
+- `log_action` → Session log (detailed, ephemeral)
+- `log_to_work_item` → Activity log (summary, persistent)
+
+Stage agents should call both:
+
+1. `log_action` for detailed steps (session log)
+2. `log_to_work_item` at stage start/complete (activity log)
 
 ## Standard Action Types
 
@@ -484,3 +689,10 @@ Before returning, verify:
 - **Queryable:** Structured for analysis
 - **Durable:** Persisted to file, survives context resets
 - **Actionable:** Enables improvement insights
+- **Team-facing:** Activity logs provide cross-session handoff context
+
+## Related Files
+
+- Schema: [work-item-directory.schema.md](../schema/work-item-directory.schema.md)
+- ADR: [0006-work-item-directories.md](../docs/adrs/0006-work-item-directories.md)
+- Templates: [work-item-init/](../templates/work-item-init/)

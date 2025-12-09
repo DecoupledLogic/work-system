@@ -107,16 +107,69 @@ Use Task tool:
 
 **If noTasks:** Display appropriate message and exit
 
-### Step 4: Display Confirmation
+### Step 4: Check for Work Item Context
+
+After task selection, check for existing work item context:
+
+1. **Determine work item ID:**
+   - Convert task ID to work item directory format: `tw-{taskId}`
+
+2. **Check for work item directory:**
+   - Look for `work-items/tw-{taskId}/` directory
+   - If directory doesn't exist: Skip to Step 5 (no context available)
+
+3. **Read activity log (if exists):**
+   - Read `work-items/tw-{taskId}/activity-log.md`
+   - Extract the Summary table (Current Stage, Artifacts count)
+   - Extract the last 3-5 Timeline entries
+
+4. **Read work item metadata (if exists):**
+   - Read `work-items/tw-{taskId}/work-item.yaml`
+   - Extract: type, queue, status, currentStage
+
+### Step 5: Display Confirmation with Context
 
 If selection successful, display:
+
+**Without work item directory:**
 
 ```markdown
 ✅ Task selected successfully!
 
+**Task:** [taskId] - [task name]
+**Status:** In Progress
+
+ℹ️ No local work item context found.
+This task hasn't been triaged in the work system yet.
+
 **Next steps:**
-- Task [[taskId]] is ready to resume
-- Future: Auto-invoke `/triage TW-[taskId]`
+- Run `/triage TW-[taskId]` to initialize work item
+```
+
+**With work item directory:**
+
+```markdown
+✅ Task selected successfully!
+
+**Task:** [taskId] - [task name]
+**Status:** In Progress
+
+📂 **Work Item Context Recovered**
+- **Directory:** work-items/tw-[taskId]/
+- **Current Stage:** [stage from activity-log]
+- **Artifacts:** [count] documents
+
+📜 **Recent Activity:**
+- [date] - [last activity entry]
+- [date] - [previous entry]
+- [date] - [earlier entry]
+
+**Available Documents:**
+- [list of .md files in directory]
+
+**Next steps:**
+- Review activity log: `work-items/tw-[taskId]/activity-log.md`
+- Continue from [current stage] stage
 ```
 
 ## Error Handling
@@ -203,7 +256,13 @@ This command is a thin orchestration layer that:
 
 ## Future Enhancements
 
-1. **Auto-invoke /triage**: After selection, automatically call `/triage TW-[taskId]`
+1. **Auto-invoke /triage**: After selection, automatically call `/triage TW-[taskId]` for new tasks
 2. **Time tracking**: Show how long task has been in progress
 3. **Progress insights**: Suggest tasks near completion
 4. **Caching**: Cache task data for session duration
+5. **Session notes recovery**: Optionally display personal session notes from previous work
+
+## References
+
+- [Work Item Directory Schema](../schema/work-item-directory.schema.md) - Work item structure
+- [Session Logger Agent](../agents/session-logger.md) - Activity log format
