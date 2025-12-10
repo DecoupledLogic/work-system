@@ -181,11 +181,37 @@ Architecture Context (if available):
 2. Check for linting errors
 3. Ensure no security issues introduced
 
-### Step 6: QA Phase
+### Step 6: Create/Update Testing Plan (Optional)
+
+For complex features with multiple integration points, create a testing plan:
+
+```bash
+# Copy template
+cp docs/templates/documents/testing-plan.md work-items/{workItemId}/testing-plan.md
+
+# Or generate interactively
+/doc-write testing-plan --work-item {workItemId}
+```
+
+**When to create a testing plan:**
+
+- Multiple integration points (APIs, databases, external services)
+- Business-critical functionality
+- Complex data flows across services
+- New feature requiring verification across environments
+
+**Skip for:**
+
+- Trivial bug fixes with existing test coverage
+- Refactoring with no behavior changes
+
+See [Testing Plan Guide](../docs/guides/testing-plan-guide.md) for full documentation.
+
+### Step 7: QA Phase
 
 Call qa-agent for validation:
 
-```
+```text
 Prompt for qa-agent:
 You are the qa-agent. Read ~/.claude/agents/qa-agent.md for your instructions.
 
@@ -206,12 +232,14 @@ Test Plan:
 ```
 
 **QA Checkpoints:**
+
 1. All acceptance criteria mapped to tests
 2. Test coverage meets thresholds
 3. No regressions in existing tests
 
 **If QA Fails:**
-```
+
+```text
 QA validation found issues:
 
 | Criterion | Status | Issue |
@@ -223,7 +251,7 @@ Returning to development to fix.
 
 Route back to dev phase.
 
-### Step 7: Evaluation Phase
+### Step 8: Evaluation Phase
 
 Call eval-agent for final evaluation:
 
@@ -254,7 +282,7 @@ Delivery Context:
 - Lines changed: [added/removed]
 ```
 
-### Step 8: Generate Release Notes
+### Step 9: Generate Release Notes
 
 For features and significant stories, generate release notes documentation:
 
@@ -278,7 +306,7 @@ Release notes entry is included in the bug fix section of the broader release.
 
 No release notes generated - tasks contribute to parent story's release notes.
 
-### Step 9: Generate Retrospective (if learnings exist)
+### Step 10: Generate Retrospective (if learnings exist)
 
 When delivery reveals significant learnings, generate a retrospective:
 
@@ -336,7 +364,35 @@ When a retro is generated, the orchestrator should:
 - No significant learnings to capture
 - Already covered in a broader project retro
 
-### Step 10: Create Pull Request
+### Step 11: Create/Update Release Plan (Optional)
+
+For multi-PR releases or production deployments, create a release plan:
+
+```bash
+# Copy template
+cp docs/templates/documents/release-plan.md work-items/{workItemId}/release-plan.md
+
+# Or generate interactively
+/doc-write release-plan --work-item {workItemId}
+```
+
+**When to create a release plan:**
+
+- Multiple PRs that should be released together
+- Database migrations requiring coordinated deployment
+- Production impact on user-facing functionality
+- Staged rollout or feature flag requirements
+- Cross-service changes spanning multiple repositories
+
+**Skip for:**
+
+- Single-PR bug fixes with no database changes
+- Documentation-only changes
+- Test-only changes that don't affect production
+
+See [Release Plan Guide](../docs/guides/release-plan-guide.md) for full documentation.
+
+### Step 12: Create Pull Request
 
 If not already created:
 
@@ -353,7 +409,7 @@ The `/gh-create-pr` command automatically generates a PR body with:
 - Test plan checklist
 - Proper attribution
 
-### Step 11: Update Work Item (via Aggregate)
+### Step 13: Update Work Item (via Aggregate)
 
 Post completion summary using aggregate commands:
 
@@ -401,7 +457,7 @@ Post completion summary using aggregate commands:
 
 The aggregate commands automatically sync to the external system (Teamwork, GitHub, etc.).
 
-### Step 12: Update Session State
+### Step 14: Update Session State
 
 Update active work context:
 
@@ -429,7 +485,7 @@ Update active work context:
 | Tests | 45 passed |
 ```
 
-### Step 13: Complete or Route (via Aggregate)
+### Step 15: Complete or Route (via Aggregate)
 
 Based on evaluation results, transition using the aggregate:
 

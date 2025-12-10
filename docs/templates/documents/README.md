@@ -16,9 +16,11 @@ Templates listed in workflow/delivery order:
 | [architecture-blueprint.yaml](architecture-blueprint.yaml) | Architecture Blueprint | systemName, overview, goals, components, corePrinciples |
 | [adr.yaml](adr.yaml) | Architecture Decision Record | title, context, decision, consequences |
 | [adr-skeleton.md](adr-skeleton.md) | ADR markdown skeleton for manual use | (plain markdown) |
-| [test-plan.yaml](test-plan.yaml) | Test Plan | workItemName, workItemId, testStrategy |
+| [test-plan.yaml](test-plan.yaml) | Test Plan (design-time acceptance mapping) | workItemName, workItemId, testStrategy |
+| [testing-plan.md](testing-plan.md) | Testing Plan (runtime verification) | workItemName, coverage, testClasses |
 | [spec.yaml](spec.yaml) | Technical Specification | storyName, workItemId, userStory, acceptanceCriteria |
 | [impl-plan.yaml](impl-plan.yaml) | Implementation Plan | workItemName, workItemId, tasks |
+| [release-plan.md](release-plan.md) | Release Plan (deployment readiness) | workItemName, prStatus, riskAnalysis |
 | [release-notes.yaml](release-notes.yaml) | Release Notes | version, releaseDate, features |
 | [retro.yaml](retro.yaml) | Retrospective/Learnings | workItemId, whatWentWell, whatCouldImprove |
 
