@@ -7,9 +7,40 @@ This directory contains global Claude Code commands for managing work items acro
 | Category | Description | Documentation |
 |----------|-------------|---------------|
 | **Task Selection** | Select and resume work | This file |
+| **Code Review** | Deep code review and analysis | [code-review.md](code-review.md) |
 | **Teamwork** | Teamwork API commands | [teamwork/README.md](teamwork/README.md) |
 | **Azure DevOps** | Azure DevOps Server commands | [azuredevops/README.md](azuredevops/README.md) |
 | **GitHub** | GitHub CLI helpers | [github/README.md](github/README.md) |
+
+---
+
+## Code Review Command
+
+### `/code-review` - Deep Code Review
+
+Perform comprehensive code review of .NET microservices following Clean Architecture patterns. Reviews abstractions, API layer, services, infrastructure, tests, and documentation with learned patterns from actual PR feedback.
+
+**Usage:**
+
+```bash
+/code-review                                    # Review current microservice
+/code-review SubscriptionsMicroservice         # Review specific microservice
+/code-review --focus=services                   # Focus on services layer
+/code-review --severity=high                    # Only show high+ severity issues
+```
+
+**Key Features:**
+
+- DI lifetime selection validation
+- Vendor decoupling checks
+- Migration type consistency
+- Business logic placement
+- Security pattern verification
+- TECH_DEBT.md integration
+
+**Future Enhancement:** Multi-tech stack support (Vue.js, React, Python, SQL, etc.) - tracked in [GitHub Issue #6](https://github.com/DecoupledLogic/work-system/issues/6)
+
+See [code-review.md](code-review.md) for complete documentation.
 
 ---
 

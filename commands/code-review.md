@@ -186,6 +186,134 @@ return await repository.GetByCustomerIdAsync(customerId);
 _logger.LogInformation("Using API Key: {ApiKey}", _options.ApiKey);
 ```
 
+### 9. Business Logic in Entity Classes (High Priority)
+
+**Rule:** Entity classes in Abstractions should contain ONLY data properties. Calculated properties with business logic (like `IsEntitled`) should be moved to dedicated services in the Services layer.
+
+**Anti-pattern:**
+```csharp
+// BAD: Business logic as computed property in entity (Abstractions layer)
+public class Subscription
+{
+    public ProviderSubscriptionStatus ProviderStatus { get; set; }
+    public DateTimeOffset? GracePeriodEndsAt { get; set; }
+
+    // WRONG: Business logic in entity
+    public bool IsEntitled => ProviderStatus switch
+    {
+        ProviderSubscriptionStatus.Active => true,
+        ProviderSubscriptionStatus.PastDue when GracePeriodEndsAt > DateTimeOffset.UtcNow => true,
+        _ => false
+    };
+}
+```
+
+**Correct pattern:**
+```csharp
+// GOOD: Pure data entity in Abstractions
+public class Subscription
+{
+    public ProviderSubscriptionStatus ProviderStatus { get; set; }
+    public DateTimeOffset? GracePeriodEndsAt { get; set; }
+}
+
+// GOOD: Dedicated service in Services layer
+public class SubscriptionEntitlementService : ISubscriptionEntitlementService
+{
+    public bool IsEntitled(Subscription subscription)
+    {
+        return subscription.ProviderStatus switch
+        {
+            ProviderSubscriptionStatus.Active => true,
+            ProviderSubscriptionStatus.PastDue when subscription.GracePeriodEndsAt > DateTimeOffset.UtcNow => true,
+            _ => false
+        };
+    }
+}
+```
+
+**Check:** Search for computed properties (using `=>`) with switch expressions, conditional logic, or DateTime comparisons in entity classes.
+
+### 10. Status Fields as Strongly-Typed Enums (High Priority)
+
+**Rule:** Status fields from providers should be strongly-typed enums, not nullable strings. Make non-nullable with a sensible default.
+
+**Anti-pattern:**
+```csharp
+// BAD: Nullable string for status - allows invalid values, requires string comparisons
+public string? ProviderStatus { get; set; }
+
+// BAD: Magic strings scattered throughout code
+if (subscription.ProviderStatus == "Active") { }
+if (subscription.ProviderStatus?.ToLower() == "pastdue") { }
+```
+
+**Correct pattern:**
+```csharp
+// GOOD: Strongly-typed enum - compile-time safety
+public enum ProviderSubscriptionStatus
+{
+    Active,
+    Trial,
+    PastDue,
+    Suspended,
+    Cancelled
+}
+
+// GOOD: Non-nullable with default
+[Required]
+public ProviderSubscriptionStatus ProviderStatus { get; set; } = ProviderSubscriptionStatus.Active;
+
+// GOOD: Type-safe comparisons
+if (subscription.ProviderStatus == ProviderSubscriptionStatus.Active) { }
+```
+
+**Check:** Search for `string?` properties containing "Status" in their name. Verify if they have a known, bounded set of values that should be an enum.
+
+### 11. Migration Data Conversion for Enum Changes (Critical)
+
+**Rule:** When converting a string column to enum (int), auto-generated migrations will cause data loss. Manually handle string-to-int conversion before changing the column type.
+
+**Anti-pattern (auto-generated):**
+```csharp
+// BAD: Direct type change loses existing data
+migrationBuilder.AlterColumn<int>(
+    name: "ProviderStatus",
+    table: "Subscription",
+    type: "int",
+    nullable: false,
+    oldClrType: typeof(string));  // Existing strings become 0 or error!
+```
+
+**Correct pattern:**
+```csharp
+// GOOD: Safe conversion with data preservation
+// Step 1: Add temp column
+migrationBuilder.AddColumn<int>(
+    name: "ProviderStatus_Temp", table: "Subscription", type: "int",
+    nullable: false, defaultValue: 0);
+
+// Step 2: Convert existing values with SQL
+migrationBuilder.Sql(@"
+    UPDATE [Subscription]
+    SET [ProviderStatus_Temp] = CASE
+        WHEN LOWER([ProviderStatus]) = 'active' THEN 0
+        WHEN LOWER([ProviderStatus]) = 'trial' THEN 1
+        WHEN LOWER([ProviderStatus]) = 'pastdue' THEN 2
+        ELSE 0
+    END
+");
+
+// Step 3: Drop old column
+migrationBuilder.DropColumn(name: "ProviderStatus", table: "Subscription");
+
+// Step 4: Rename temp to original
+migrationBuilder.RenameColumn(name: "ProviderStatus_Temp", table: "Subscription",
+    newName: "ProviderStatus");
+```
+
+**Check:** Review any migration that uses `AlterColumn` to change a `nvarchar` to `int`. Verify data conversion SQL is present.
+
 ### Pattern Sources
 
 These patterns were extracted from actual PR reviews:
@@ -197,6 +325,9 @@ These patterns were extracted from actual PR reviews:
 | Audit Field Population | PR #1047 Thread 4283 | Ali Bijanfar |
 | External Provider ID Types | PR #1047 Thread 4280 | Ali Bijanfar |
 | Migration Type Consistency | PR #1047 Threads 4280, 4281, 4289 | Ali Bijanfar |
+| Business Logic in Entities | PR #1050 Thread 4300 | Ali Bijanfar |
+| Status Fields as Enums | PR #1050 Thread 4303 | Ali Bijanfar |
+| Migration Data Conversion | PR #1050 (string→enum conversion) | Ali Bijanfar |
 
 ---
 

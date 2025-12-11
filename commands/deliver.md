@@ -181,7 +181,52 @@ Architecture Context (if available):
 2. Check for linting errors
 3. Ensure no security issues introduced
 
-### Step 6: Create/Update Testing Plan (Optional)
+### Step 6: Code Review (Optional)
+
+Perform self-review of implemented code before QA:
+
+```bash
+# Review entire microservice
+/code-review
+
+# Review specific microservice
+/code-review SubscriptionsMicroservice
+
+# Focus on specific layer
+/code-review --focus=services
+
+# Show only high severity issues
+/code-review --severity=high
+```
+
+**When to run code review:**
+
+- New feature implementation with significant code changes
+- Refactoring that affects multiple layers
+- Integration with external services or APIs
+- Complex business logic implementation
+- Security-sensitive functionality
+
+**Skip for:**
+
+- Trivial bug fixes (< 10 lines changed)
+- Documentation-only changes
+- Configuration changes without code logic
+
+**Code review checklist:**
+
+- DI lifetime selection (transient vs scoped vs singleton)
+- Vendor decoupling (abstractions for external dependencies)
+- Security (no sensitive data logging, proper validation)
+- Business logic placement (services, not entities)
+- Migration consistency (type matches entity properties)
+- Test coverage for new code paths
+
+See [/code-review](code-review.md) for full patterns and methodology.
+
+**Output:** If issues found, fix them before proceeding to QA. Document any intentional deviations in TECH_DEBT.md.
+
+### Step 7: Create/Update Testing Plan (Optional)
 
 For complex features with multiple integration points, create a testing plan:
 
@@ -207,7 +252,7 @@ cp docs/templates/documents/testing-plan.md work-items/{workItemId}/testing-plan
 
 See [Testing Plan Guide](../docs/guides/testing-plan-guide.md) for full documentation.
 
-### Step 7: QA Phase
+### Step 8: QA Phase
 
 Call qa-agent for validation:
 
@@ -251,7 +296,7 @@ Returning to development to fix.
 
 Route back to dev phase.
 
-### Step 8: Evaluation Phase
+### Step 9: Evaluation Phase
 
 Call eval-agent for final evaluation:
 
@@ -282,7 +327,7 @@ Delivery Context:
 - Lines changed: [added/removed]
 ```
 
-### Step 9: Generate Release Notes
+### Step 10: Generate Release Notes
 
 For features and significant stories, generate release notes documentation:
 
@@ -306,7 +351,7 @@ Release notes entry is included in the bug fix section of the broader release.
 
 No release notes generated - tasks contribute to parent story's release notes.
 
-### Step 10: Generate Retrospective (if learnings exist)
+### Step 11: Generate Retrospective (if learnings exist)
 
 When delivery reveals significant learnings, generate a retrospective:
 
@@ -364,7 +409,7 @@ When a retro is generated, the orchestrator should:
 - No significant learnings to capture
 - Already covered in a broader project retro
 
-### Step 11: Create/Update Release Plan (Optional)
+### Step 12: Create/Update Release Plan (Optional)
 
 For multi-PR releases or production deployments, create a release plan:
 
@@ -392,7 +437,7 @@ cp docs/templates/documents/release-plan.md work-items/{workItemId}/release-plan
 
 See [Release Plan Guide](../docs/guides/release-plan-guide.md) for full documentation.
 
-### Step 12: Create Pull Request
+### Step 13: Create Pull Request
 
 If not already created:
 
@@ -409,7 +454,7 @@ The `/gh-create-pr` command automatically generates a PR body with:
 - Test plan checklist
 - Proper attribution
 
-### Step 13: Update Work Item (via Aggregate)
+### Step 14: Update Work Item (via Aggregate)
 
 Post completion summary using aggregate commands:
 
@@ -457,7 +502,7 @@ Post completion summary using aggregate commands:
 
 The aggregate commands automatically sync to the external system (Teamwork, GitHub, etc.).
 
-### Step 14: Update Session State
+### Step 15: Update Session State
 
 Update active work context:
 
@@ -485,7 +530,7 @@ Update active work context:
 | Tests | 45 passed |
 ```
 
-### Step 15: Complete or Route (via Aggregate)
+### Step 16: Complete or Route (via Aggregate)
 
 Based on evaluation results, transition using the aggregate:
 
