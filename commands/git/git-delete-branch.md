@@ -4,17 +4,17 @@ allowedTools:
   - Bash
 ---
 
-# GitHub CLI: Delete Branch
+# Git: Delete Branch
 
 Deletes a git branch from local repository and optionally from remote.
 
 ## Usage
 
 ```bash
-/gh-delete-branch feature/old-feature
-/gh-delete-branch feature/old-feature --remote
-/gh-delete-branch feature/old-feature --force
-/gh-delete-branch feature/old-feature --remote --force
+/git-delete-branch feature/old-feature
+/git-delete-branch feature/old-feature --remote
+/git-delete-branch feature/old-feature --force
+/git-delete-branch feature/old-feature --remote --force
 ```
 
 ## Input Parameters
@@ -42,12 +42,12 @@ Deletes a git branch from local repository and optionally from remote.
    if [ -z "$branchName" ]; then
      echo "❌ Missing required parameter: branchName"
      echo ""
-     echo "Usage: /gh-delete-branch <branchName> [--remote] [--force]"
+     echo "Usage: /git-delete-branch <branchName> [--remote] [--force]"
      echo ""
      echo "Examples:"
-     echo "  /gh-delete-branch feature/old-feature"
-     echo "  /gh-delete-branch feature/old-feature --remote"
-     echo "  /gh-delete-branch feature/old-feature --force"
+     echo "  /git-delete-branch feature/old-feature"
+     echo "  /git-delete-branch feature/old-feature --remote"
+     echo "  /git-delete-branch feature/old-feature --force"
      exit 1
    fi
    ```
@@ -101,7 +101,7 @@ Deletes a git branch from local repository and optionally from remote.
        echo "Branch '$branchName' has unmerged changes."
        echo ""
        echo "Options:"
-       echo "  - Force delete: /gh-delete-branch $branchName --force"
+       echo "  - Force delete: /git-delete-branch $branchName --force"
        echo "  - Merge first: git checkout $defaultBranch && git merge $branchName"
        echo ""
        echo "Unmerged commits:"
@@ -179,7 +179,7 @@ Available local branches:
 Branch 'feature/wip' has unmerged changes.
 
 Options:
-  - Force delete: /gh-delete-branch feature/wip --force
+  - Force delete: /git-delete-branch feature/wip --force
   - Merge first: git checkout main && git merge feature/wip
 
 Unmerged commits:
@@ -226,27 +226,27 @@ Return error JSON:
 ### Clean Up After PR Merge
 ```bash
 # After PR is merged, delete local and remote
-/gh-delete-branch feature/completed-feature --remote
+/git-delete-branch feature/completed-feature --remote
 ```
 
 ### Delete Abandoned Branch
 ```bash
 # Force delete an experimental branch
-/gh-delete-branch experiment/failed-approach --force --remote
+/git-delete-branch experiment/failed-approach --force --remote
 ```
 
 ### Local Cleanup Only
 ```bash
 # Delete local branch, keep remote
-/gh-delete-branch feature/old-branch
+/git-delete-branch feature/old-branch
 ```
 
 ### Batch Cleanup
 ```bash
 # Delete multiple old branches
-/gh-delete-branch feature/old-1 --remote
-/gh-delete-branch feature/old-2 --remote
-/gh-delete-branch feature/old-3 --remote
+/git-delete-branch feature/old-1 --remote
+/git-delete-branch feature/old-2 --remote
+/git-delete-branch feature/old-3 --remote
 
 # Prune remote tracking branches
 git fetch --prune
@@ -257,10 +257,10 @@ git fetch --prune
 After completing and merging a task:
 ```bash
 # 1. Switch to main and pull latest
-/gh-checkout main --pull
+/git-checkout main --pull
 
 # 2. Delete feature branch
-/gh-delete-branch feature/TW-26134585-user-auth --remote
+/git-delete-branch feature/TW-26134585-user-auth --remote
 
 # 5. Update task status in Teamwork
 /tw-update-task 26134585 --status completed
@@ -275,7 +275,7 @@ After completing and merging a task:
 
 ## Related Commands
 
-- `/gh-create-branch` - Create a new branch
-- `/gh-commit` - Commit changes
+- `/git-create-branch` - Create a new branch
+- `/git-commit` - Commit changes
 - `git branch -a` - List all branches
 - `git fetch --prune` - Clean up stale remote refs

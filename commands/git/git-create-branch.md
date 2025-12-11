@@ -4,16 +4,16 @@ allowedTools:
   - Bash
 ---
 
-# GitHub CLI: Create Branch
+# Git: Create Branch
 
 Creates a new git branch locally and optionally pushes to remote.
 
 ## Usage
 
 ```bash
-/gh-create-branch feature/user-auth
-/gh-create-branch feature/user-auth main
-/gh-create-branch bugfix/login-error develop --push
+/git-create-branch feature/user-auth
+/git-create-branch feature/user-auth main
+/git-create-branch bugfix/login-error develop --push
 ```
 
 ## Input Parameters
@@ -41,12 +41,12 @@ Creates a new git branch locally and optionally pushes to remote.
    if [ -z "$branchName" ]; then
      echo "❌ Missing required parameter: branchName"
      echo ""
-     echo "Usage: /gh-create-branch <branchName> [baseBranch] [--push]"
+     echo "Usage: /git-create-branch <branchName> [baseBranch] [--push]"
      echo ""
      echo "Examples:"
-     echo "  /gh-create-branch feature/user-auth"
-     echo "  /gh-create-branch feature/user-auth main"
-     echo "  /gh-create-branch bugfix/login-error develop --push"
+     echo "  /git-create-branch feature/user-auth"
+     echo "  /git-create-branch feature/user-auth main"
+     echo "  /git-create-branch bugfix/login-error develop --push"
      exit 1
    fi
    ```
@@ -57,7 +57,7 @@ Creates a new git branch locally and optionally pushes to remote.
      echo "⚠️  Working directory has uncommitted changes"
      echo ""
      echo "Consider:"
-     echo "  - Commit changes: /gh-commit \"message\""
+     echo "  - Commit changes: /git-commit \"message\""
      echo "  - Stash changes: git stash"
      echo ""
      echo "Proceeding with branch creation..."
@@ -163,25 +163,25 @@ Return error JSON:
 ### Feature Development
 ```bash
 # Start new feature from main
-/gh-create-branch feature/user-authentication main --push
+/git-create-branch feature/user-authentication main --push
 ```
 
 ### Bug Fix
 ```bash
 # Create bugfix branch from current
-/gh-create-branch bugfix/fix-login-error --push
+/git-create-branch bugfix/fix-login-error --push
 ```
 
 ### Hotfix from Production
 ```bash
 # Create hotfix from production branch
-/gh-create-branch hotfix/critical-fix production --push
+/git-create-branch hotfix/critical-fix production --push
 ```
 
 ### Local Experimentation
 ```bash
 # Create local branch without pushing
-/gh-create-branch experiment/try-new-approach
+/git-create-branch experiment/try-new-approach
 ```
 
 ## Integration with Work System
@@ -192,7 +192,7 @@ When starting work on a Teamwork task:
 /resume
 
 # 2. Create feature branch
-/gh-create-branch feature/TW-26134585-user-auth main --push
+/git-create-branch feature/TW-26134585-user-auth main --push
 
 # 3. Begin development...
 ```

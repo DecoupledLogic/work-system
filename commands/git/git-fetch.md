@@ -4,17 +4,17 @@ allowedTools:
   - Bash
 ---
 
-# GitHub CLI: Fetch Changes
+# Git: Fetch Changes
 
 Fetches latest changes from remote repository without modifying local branches.
 
 ## Usage
 
 ```bash
-/gh-fetch                       # Fetch from origin
-/gh-fetch --all                 # Fetch from all remotes
-/gh-fetch upstream              # Fetch from specific remote
-/gh-fetch --status              # Fetch and show branch status
+/git-fetch                       # Fetch from origin
+/git-fetch --all                 # Fetch from all remotes
+/git-fetch upstream              # Fetch from specific remote
+/git-fetch --status              # Fetch and show branch status
 ```
 
 ## Input Parameters
@@ -204,26 +204,26 @@ Return error JSON:
 ### Quick Status Check
 ```bash
 # See what's changed on remote
-/gh-fetch --status
+/git-fetch --status
 ```
 
 ### Before Code Review
 ```bash
 # Fetch PR branch to review locally
-/gh-fetch
+/git-fetch
 git checkout origin/feature/pr-branch
 ```
 
 ### Multi-Remote Project
 ```bash
 # Fetch from all remotes (fork workflow)
-/gh-fetch --all --status
+/git-fetch --all --status
 ```
 
 ### CI/CD Sync
 ```bash
 # Fetch to check for updates
-/gh-fetch
+/git-fetch
 git diff HEAD..origin/main --stat
 ```
 
@@ -252,19 +252,19 @@ git diff HEAD..origin/main --stat
 Before starting work:
 ```bash
 # 1. Fetch to see current state
-/gh-fetch --status
+/git-fetch --status
 
 # 2. If behind, pull
-/gh-pull
+/git-pull
 
 # 3. Create feature branch
-/gh-create-branch feature/TW-26134585 main --push
+/git-create-branch feature/TW-26134585 main --push
 ```
 
 During PR review:
 ```bash
 # 1. Fetch the PR
-/gh-fetch
+/git-fetch
 
 # 2. Check out PR branch (detached)
 git checkout origin/feature/pr-branch

@@ -410,4 +410,4 @@ Work item synchronization:
 
 - `/gh-create-issue` - Create new issue
 - `/gh-issue-comment` - Add comment to issue
-- `/gh-status` - Check repository status
+- `/git-status` - Check repository status

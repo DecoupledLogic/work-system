@@ -109,7 +109,7 @@ Initialize design workspace:
 
 ```bash
 # Create design branch
-git checkout -b design/TW-{id}-{slug}
+/git-checkout design/TW-{id}-{slug} --create
 
 # Create workspace directory (if project uses docs/)
 mkdir -p docs/design/TW-{id}

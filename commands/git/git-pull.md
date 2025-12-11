@@ -4,17 +4,17 @@ allowedTools:
   - Bash
 ---
 
-# GitHub CLI: Pull Changes
+# Git: Pull Changes
 
 Pulls latest changes from remote repository with options for rebase or merge.
 
 ## Usage
 
 ```bash
-/gh-pull                        # Pull current branch
-/gh-pull main                   # Pull and merge main into current
-/gh-pull --rebase               # Pull with rebase
-/gh-pull origin develop         # Pull from specific remote/branch
+/git-pull                        # Pull current branch
+/git-pull main                   # Pull and merge main into current
+/git-pull --rebase               # Pull with rebase
+/git-pull origin develop         # Pull from specific remote/branch
 ```
 
 ## Input Parameters
@@ -66,13 +66,13 @@ Pulls latest changes from remote repository with options for rebase or merge.
 
      if [ "$autoStash" = true ]; then
        echo "📦 Stashing local changes..."
-       git stash push -m "gh-pull auto-stash"
+       git stash push -m "git-pull auto-stash"
      else
        echo "⚠️  You have uncommitted changes"
        echo ""
        echo "Options:"
-       echo "  - Stash automatically: /gh-pull --stash"
-       echo "  - Commit first: /gh-commit \"message\" --all"
+       echo "  - Stash automatically: /git-pull --stash"
+       echo "  - Commit first: /git-commit \"message\" --all"
        echo "  - Stash manually: git stash"
        echo ""
        echo "Proceeding with pull (may cause conflicts)..."
@@ -194,7 +194,7 @@ Set upstream with:
   git push -u origin feature/new
 
 Or pull from specific branch:
-  /gh-pull main
+  /git-pull main
 ```
 
 Return error JSON:
@@ -219,25 +219,25 @@ Return error JSON:
 ```bash
 # Start of day - pull latest main
 git checkout main
-/gh-pull
+/git-pull
 ```
 
 ### Update Feature Branch
 ```bash
 # Rebase feature on latest main
-/gh-pull main --rebase
+/git-pull main --rebase
 ```
 
 ### Pull with Local Changes
 ```bash
 # Auto-stash and restore
-/gh-pull --stash --rebase
+/git-pull --stash --rebase
 ```
 
 ### Pull from Upstream Fork
 ```bash
 # Pull from upstream remote
-/gh-pull upstream main
+/git-pull upstream main
 ```
 
 ## Integration with Work System
@@ -246,10 +246,10 @@ Before starting work on a task:
 ```bash
 # 1. Switch to main and pull latest
 git checkout main
-/gh-pull
+/git-pull
 
 # 2. Create feature branch
-/gh-create-branch feature/TW-26134585-new-feature main --push
+/git-create-branch feature/TW-26134585-new-feature main --push
 
 # 3. Begin work...
 ```
@@ -257,5 +257,5 @@ git checkout main
 During long-running feature work:
 ```bash
 # Keep feature branch updated with main
-/gh-pull main --rebase --stash
+/git-pull main --rebase --stash
 ```

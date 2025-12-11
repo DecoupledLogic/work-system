@@ -132,13 +132,13 @@ Ensure correct branch:
 
 ```bash
 # Check if on correct branch
-git branch --show-current
+/git-branch
 
 # If not, create or switch
-git checkout feature/TW-{id}-{slug} || git checkout -b feature/TW-{id}-{slug}
+/git-checkout feature/TW-{id}-{slug} --create
 
 # Ensure up to date with main
-git pull origin main --rebase
+/git-pull main --rebase
 ```
 
 ### Step 5: Development Phase
@@ -443,7 +443,7 @@ If not already created:
 
 ```bash
 # Push branch and create PR using slash commands
-/gh-push-remote "feat(auth): {story.name}" --set-upstream
+/git-push "feat(auth): {story.name}" --set-upstream
 /gh-create-pr "feat(auth): {story.name}"
 ```
 
@@ -711,7 +711,7 @@ Conflicting files:
 - src/config/auth.ts
 
 Action:
-1. git pull origin main
+1. /git-pull main
 2. Resolve conflicts
 3. Run tests
 4. Resume delivery

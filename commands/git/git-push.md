@@ -5,16 +5,16 @@ allowedTools:
   - SlashCommand
 ---
 
-# GitHub CLI: Push to Remote
+# Git: Push to Remote
 
-Commits all changes and pushes to remote repository in a single operation. This is a convenience command that combines `/gh-commit --all` with `git push`.
+Commits all changes and pushes to remote repository in a single operation. This is a convenience command that combines `/git-commit --all` with `git push`.
 
 ## Usage
 
 ```bash
-/gh-push-remote "feat: add user authentication"
-/gh-push-remote "fix: resolve login bug" --force
-/gh-push-remote "docs: update README" --set-upstream
+/git-push "feat: add user authentication"
+/git-push "fix: resolve login bug" --force
+/git-push "docs: update README" --set-upstream
 ```
 
 ## Input Parameters
@@ -47,19 +47,19 @@ Commits all changes and pushes to remote repository in a single operation. This 
    if [ -z "$message" ]; then
      echo "❌ Missing required parameter: message"
      echo ""
-     echo "Usage: /gh-push-remote <message> [--force] [--set-upstream]"
+     echo "Usage: /git-push <message> [--force] [--set-upstream]"
      echo ""
      echo "Examples:"
-     echo "  /gh-push-remote \"feat: add login form\""
-     echo "  /gh-push-remote \"fix: resolve crash\" --set-upstream"
+     echo "  /git-push \"feat: add login form\""
+     echo "  /git-push \"fix: resolve crash\" --set-upstream"
      exit 1
    fi
    ```
 
-2. **Show current status (via /gh-status):**
+2. **Show current status (via /git-status):**
    ```bash
    echo "📊 Current Status:"
-   /gh-status --short
+   /git-status --short
    echo ""
    ```
 
@@ -80,8 +80,8 @@ Commits all changes and pushes to remote repository in a single operation. This 
        echo "⚠️  Remote is $behind commit(s) ahead"
        echo ""
        echo "Options:"
-       echo "  1. Pull first: /gh-pull --rebase"
-       echo "  2. Force push: /gh-push-remote \"message\" --force"
+       echo "  1. Pull first: /git-pull --rebase"
+       echo "  2. Force push: /git-push \"message\" --force"
        echo "     ⚠️  This will overwrite remote changes!"
        echo ""
        echo "Aborting to prevent overwriting remote changes."
@@ -122,12 +122,12 @@ Commits all changes and pushes to remote repository in a single operation. This 
    echo "   $fileCount file(s) staged"
    ```
 
-6. **Run commit via /gh-commit:**
+6. **Run commit via /git-commit:**
    ```bash
-   # Execute the gh-commit command
+   # Execute the git-commit command
    echo ""
    echo "📝 Creating commit..."
-   /gh-commit "$message" --all
+   /git-commit "$message" --all
 
    # Get commit info
    commitHash=$(git rev-parse --short HEAD)
@@ -227,7 +227,7 @@ Check git status and try again.
 Branch 'feature/new' has no upstream tracking.
 
 Set upstream with:
-  /gh-push-remote "message" --set-upstream
+  /git-push "message" --set-upstream
 
 Or manually:
   git push -u origin feature/new
@@ -240,8 +240,8 @@ Or manually:
 Remote branch has commits not in local.
 
 Options:
-  1. Pull first: /gh-pull --rebase
-  2. Force push: /gh-push-remote "message" --force
+  1. Pull first: /git-pull --rebase
+  2. Force push: /git-push "message" --force
      ⚠️  This will overwrite remote changes!
 ```
 
@@ -264,7 +264,7 @@ Return error JSON:
   "error": true,
   "message": "Push rejected - remote has changes",
   "localCommit": "a1b2c3d",
-  "suggestion": "Pull first with: /gh-pull --rebase"
+  "suggestion": "Pull first with: /git-pull --rebase"
 }
 ```
 
@@ -280,39 +280,39 @@ Return error JSON:
 ### Quick Feature Push
 ```bash
 # After completing a feature
-/gh-push-remote "feat(auth): implement password reset"
+/git-push "feat(auth): implement password reset"
 ```
 
 ### Bug Fix
 ```bash
 # Quick bug fix
-/gh-push-remote "fix: resolve null pointer in login"
+/git-push "fix: resolve null pointer in login"
 ```
 
 ### New Branch First Push
 ```bash
 # First push of a new branch
-/gh-push-remote "feat: initial feature implementation" --set-upstream
+/git-push "feat: initial feature implementation" --set-upstream
 ```
 
 ### Force Update After Rebase
 ```bash
 # After rebasing, force push to update PR
-/gh-push-remote "refactor: clean up authentication code" --force
+/git-push "refactor: clean up authentication code" --force
 ```
 
 ## Workflow Comparison
 
-### Without gh-push-remote
+### Without git-push
 ```bash
 git add -A
 git commit -m "feat: add feature"
 git push origin feature/branch
 ```
 
-### With gh-push-remote
+### With git-push
 ```bash
-/gh-push-remote "feat: add feature"
+/git-push "feat: add feature"
 ```
 
 ## Integration with Work System
@@ -322,10 +322,10 @@ Complete task workflow:
 # 1. Work on task...
 
 # 2. Push all changes
-/gh-push-remote "feat(auth): implement login TW-26134585"
+/git-push "feat(auth): implement login TW-26134585"
 
 # 3. Create PR
-/gh-create-pr "feat(auth): Implement login"
+/github:gh-create-pr "feat(auth): Implement login"
 
 # 4. Log time
 /tw-create-task-timelog 26134585 "2025-12-07" 2 30 "Implemented login feature"
@@ -340,6 +340,6 @@ Complete task workflow:
 
 ## Related Commands
 
-- `/gh-commit` - Commit without pushing
-- `/gh-pull` - Pull before pushing if remote ahead
-- `/gh-create-branch` - Create branch with `--push` for immediate upstream
+- `/git-commit` - Commit without pushing
+- `/git-pull` - Pull before pushing if remote ahead
+- `/git-create-branch` - Create branch with `--push` for immediate upstream

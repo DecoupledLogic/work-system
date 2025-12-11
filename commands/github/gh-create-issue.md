@@ -257,4 +257,4 @@ Triage workflow:
 - `/gh-issue-comment` - Add comment to issue
 - `/gh-issue-dependency` - Set blocked by/blocking relationships
 - `/gh-create-pr` - Create PR (can reference issues)
-- `/gh-status` - Check repository status
+- `/git-status` - Check repository status

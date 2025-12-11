@@ -203,4 +203,4 @@ Triage workflow:
 ## Related Commands
 
 - `/gh-create-pr` - Create PR (can reference issues)
-- `/gh-status` - Check repository status
+- `/git-status` - Check repository status

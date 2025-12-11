@@ -35,14 +35,14 @@ git config --global fetch.prune true
 
 ## Status & Information
 
-### `/gh-status`
+### `/git-status`
 
 Show comprehensive git status including working directory, branch info, and remote sync.
 
 ```bash
-/gh-status                      # Full status overview
-/gh-status --short              # Compact single-line format
-/gh-status --remote             # Fetch and compare with remote
+/git-status                      # Full status overview
+/git-status --short              # Compact single-line format
+/git-status --remote             # Fetch and compare with remote
 ```
 
 **Parameters:**
@@ -57,19 +57,19 @@ Show comprehensive git status including working directory, branch info, and remo
 - Commits behind/ahead of remote
 - Contextual suggestions (pull, commit, push)
 
-**Note:** This command is called internally by `/gh-commit` and `/gh-push-remote` to show status before operations.
+**Note:** This command is called internally by `/git-commit` and `/git-push` to show status before operations.
 
 ---
 
 ## Branch Management
 
-### `/gh-create-branch`
+### `/git-create-branch`
 Create a new git branch from current or specified base.
 
 ```bash
-/gh-create-branch feature/user-auth              # From current branch
-/gh-create-branch feature/user-auth main         # From main
-/gh-create-branch bugfix/login-error --push      # Create and push
+/git-create-branch feature/user-auth              # From current branch
+/git-create-branch feature/user-auth main         # From main
+/git-create-branch bugfix/login-error --push      # Create and push
 ```
 
 **Parameters:**
@@ -79,13 +79,13 @@ Create a new git branch from current or specified base.
 
 ---
 
-### `/gh-delete-branch`
+### `/git-delete-branch`
 Delete a git branch locally and/or remotely.
 
 ```bash
-/gh-delete-branch feature/old-feature            # Delete local only
-/gh-delete-branch feature/old-feature --remote   # Delete local and remote
-/gh-delete-branch feature/old-feature --force    # Force delete unmerged
+/git-delete-branch feature/old-feature            # Delete local only
+/git-delete-branch feature/old-feature --remote   # Delete local and remote
+/git-delete-branch feature/old-feature --force    # Force delete unmerged
 ```
 
 **Parameters:**
@@ -100,15 +100,15 @@ Delete a git branch locally and/or remotely.
 
 ---
 
-### `/gh-checkout`
+### `/git-checkout`
 
 Safely switch branches with automatic stash handling.
 
 ```bash
-/gh-checkout feature/other      # Switch to branch (auto-stash)
-/gh-checkout main --pull        # Switch and pull latest
-/gh-checkout -                  # Toggle to previous branch
-/gh-checkout feature/new --create   # Create and switch
+/git-checkout feature/other      # Switch to branch (auto-stash)
+/git-checkout main --pull        # Switch and pull latest
+/git-checkout -                  # Toggle to previous branch
+/git-checkout feature/new --create   # Create and switch
 ```
 
 **Parameters:**
@@ -128,15 +128,15 @@ Safely switch branches with automatic stash handling.
 
 ## Committing Changes
 
-### `/gh-commit`
+### `/git-commit`
 
 Create a git commit with conventional commit message format.
 
 ```bash
-/gh-commit "fix: resolve login timeout"          # Commit staged changes
-/gh-commit "feat(auth): add 2FA" --all           # Stage all and commit
-/gh-commit "docs: update README" --push          # Commit and push
-/gh-commit "refactor: simplify API" --all --push # All options
+/git-commit "fix: resolve login timeout"          # Commit staged changes
+/git-commit "feat(auth): add 2FA" --all           # Stage all and commit
+/git-commit "docs: update README" --push          # Commit and push
+/git-commit "refactor: simplify API" --all --push # All options
 ```
 
 **Parameters:**
@@ -159,15 +159,15 @@ Create a git commit with conventional commit message format.
 
 ---
 
-### `/gh-amend`
+### `/git-amend`
 
 Safely amend the last commit with checks.
 
 ```bash
-/gh-amend                       # Add staged changes to last commit
-/gh-amend "new message"         # Change commit message
-/gh-amend --all                 # Stage all and amend
-/gh-amend --push                # Amend and force push
+/git-amend                       # Add staged changes to last commit
+/git-amend "new message"         # Change commit message
+/git-amend --all                 # Stage all and amend
+/git-amend --push                # Amend and force push
 ```
 
 **Parameters:**
@@ -186,15 +186,15 @@ Safely amend the last commit with checks.
 
 ## Syncing with Remote
 
-### `/gh-sync`
+### `/git-sync`
 
 Sync current branch with main (most common operation).
 
 ```bash
-/gh-sync                        # Rebase current branch on main
-/gh-sync develop                # Sync with develop instead
-/gh-sync --stash                # Auto-stash local changes
-/gh-sync --push                 # Rebase and force push (update PR)
+/git-sync                        # Rebase current branch on main
+/git-sync develop                # Sync with develop instead
+/git-sync --stash                # Auto-stash local changes
+/git-sync --push                 # Rebase and force push (update PR)
 ```
 
 **Parameters:**
@@ -212,14 +212,14 @@ Sync current branch with main (most common operation).
 
 ---
 
-### `/gh-fetch`
+### `/git-fetch`
 
 Fetch changes from remote without modifying local branches.
 
 ```bash
-/gh-fetch                       # Fetch from origin
-/gh-fetch --all                 # Fetch from all remotes
-/gh-fetch --status              # Fetch and show branch status
+/git-fetch                       # Fetch from origin
+/git-fetch --all                 # Fetch from all remotes
+/git-fetch --status              # Fetch and show branch status
 ```
 
 **Parameters:**
@@ -230,15 +230,15 @@ Fetch changes from remote without modifying local branches.
 
 ---
 
-### `/gh-pull`
+### `/git-pull`
 
 Pull latest changes from remote repository.
 
 ```bash
-/gh-pull                        # Pull current branch
-/gh-pull main                   # Pull and merge main into current
-/gh-pull --rebase               # Pull with rebase
-/gh-pull --stash                # Auto-stash local changes
+/git-pull                        # Pull current branch
+/git-pull main                   # Pull and merge main into current
+/git-pull --rebase               # Pull with rebase
+/git-pull --stash                # Auto-stash local changes
 ```
 
 **Parameters:**
@@ -249,14 +249,14 @@ Pull latest changes from remote repository.
 
 ---
 
-### `/gh-push-remote`
+### `/git-push`
 
 Commit all changes and push to remote in one command.
 
 ```bash
-/gh-push-remote "feat: add feature"              # Commit all and push
-/gh-push-remote "fix: bug fix" --set-upstream    # Set upstream tracking
-/gh-push-remote "refactor: cleanup" --force      # Force push (caution!)
+/git-push "feat: add feature"              # Commit all and push
+/git-push "fix: bug fix" --set-upstream    # Set upstream tracking
+/git-push "refactor: cleanup" --force      # Force push (caution!)
 ```
 
 **Parameters:**
@@ -499,15 +499,15 @@ Set blocked by/blocking relationships between GitHub issues.
 ### Starting a New Feature
 ```bash
 # 1. Create feature branch
-/gh-create-branch feature/user-authentication main --push
+/git-create-branch feature/user-authentication main --push
 
 # 2. Make changes...
 
 # 3. Commit work
-/gh-commit "feat(auth): implement login flow" --all
+/git-commit "feat(auth): implement login flow" --all
 
 # 4. Push and create PR
-/gh-push-remote "feat(auth): complete feature"
+/git-push "feat(auth): complete feature"
 /gh-create-pr "feat: Add user authentication"
 
 # 5. After approval, merge
@@ -517,12 +517,12 @@ Set blocked by/blocking relationships between GitHub issues.
 ### Bug Fix Workflow
 ```bash
 # 1. Create bugfix branch
-/gh-create-branch bugfix/fix-login-error --push
+/git-create-branch bugfix/fix-login-error --push
 
 # 2. Fix the bug...
 
 # 3. Commit fix
-/gh-commit "fix: resolve login timeout issue" --all --push
+/git-commit "fix: resolve login timeout issue" --all --push
 
 # 4. Create PR
 /gh-create-pr "fix: Fix login timeout"
@@ -531,10 +531,10 @@ Set blocked by/blocking relationships between GitHub issues.
 ### Cleanup After Merge
 ```bash
 # 1. Switch to main and pull latest
-/gh-checkout main --pull
+/git-checkout main --pull
 
 # 2. Delete merged branch
-/gh-delete-branch feature/completed-feature --remote
+/git-delete-branch feature/completed-feature --remote
 ```
 
 ---
@@ -546,13 +546,13 @@ These commands integrate with the Teamwork workflow:
 ### Task Branch Naming
 ```bash
 # Include task ID in branch name for traceability
-/gh-create-branch feature/TW-26134585-user-auth main --push
+/git-create-branch feature/TW-26134585-user-auth main --push
 ```
 
 ### Commit with Task Reference
 ```bash
 # Reference task in commit message
-/gh-commit "feat(auth): implement password reset TW-26134585" --all
+/git-commit "feat(auth): implement password reset TW-26134585" --all
 ```
 
 ### Complete Workflow
@@ -561,18 +561,18 @@ These commands integrate with the Teamwork workflow:
 /resume
 
 # 2. Create branch
-/gh-create-branch feature/TW-26134585-implement-feature main --push
+/git-create-branch feature/TW-26134585-implement-feature main --push
 
 # 3. Work on feature...
 
 # 4. Commit changes
-/gh-commit "feat: implement user feature TW-26134585" --all --push
+/git-commit "feat: implement user feature TW-26134585" --all --push
 
 # 5. Create PR
 /gh-create-pr "feat: Implement user feature"
 
 # 6. After merge, cleanup
-/gh-delete-branch feature/TW-26134585-implement-feature --remote
+/git-delete-branch feature/TW-26134585-implement-feature --remote
 
 # 7. Log time
 /tw-create-task-timelog 26134585 "2025-12-07" 2 30 "Implemented feature"

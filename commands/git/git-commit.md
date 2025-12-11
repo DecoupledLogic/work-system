@@ -5,17 +5,17 @@ allowedTools:
   - SlashCommand
 ---
 
-# GitHub CLI: Commit Changes
+# Git: Commit Changes
 
 Creates a git commit with staged or all changes using conventional commit format.
 
 ## Usage
 
 ```bash
-/gh-commit "fix: resolve login authentication bug"
-/gh-commit "feat(auth): add password reset flow" --all
-/gh-commit "docs: update API documentation" --push
-/gh-commit "refactor: simplify user service" --all --push
+/git-commit "fix: resolve login authentication bug"
+/git-commit "feat(auth): add password reset flow" --all
+/git-commit "docs: update API documentation" --push
+/git-commit "refactor: simplify user service" --all --push
 ```
 
 ## Input Parameters
@@ -62,20 +62,20 @@ Creates a git commit with staged or all changes using conventional commit format
    if [ -z "$message" ]; then
      echo "❌ Missing required parameter: message"
      echo ""
-     echo "Usage: /gh-commit <message> [--all] [--push]"
+     echo "Usage: /git-commit <message> [--all] [--push]"
      echo ""
      echo "Examples:"
-     echo "  /gh-commit \"fix: resolve login bug\""
-     echo "  /gh-commit \"feat(auth): add 2FA support\" --all"
-     echo "  /gh-commit \"docs: update README\" --push"
+     echo "  /git-commit \"fix: resolve login bug\""
+     echo "  /git-commit \"feat(auth): add 2FA support\" --all"
+     echo "  /git-commit \"docs: update README\" --push"
      exit 1
    fi
    ```
 
-2. **Show current status (via /gh-status):**
+2. **Show current status (via /git-status):**
    ```bash
    echo "📊 Current Status:"
-   /gh-status --short
+   /git-status --short
 
    # Or inline status display:
    currentBranch=$(git branch --show-current)
@@ -117,7 +117,7 @@ Creates a git commit with staged or all changes using conventional commit format
      echo ""
      echo "Options:"
      echo "  - Stage specific files: git add <file>"
-     echo "  - Stage all changes: /gh-commit \"message\" --all"
+     echo "  - Stage all changes: /git-commit \"message\" --all"
      exit 1
    fi
    ```
@@ -186,14 +186,14 @@ Working directory status:
 
 Options:
   - Stage specific files: git add <file>
-  - Stage all changes: /gh-commit "message" --all
+  - Stage all changes: /git-commit "message" --all
 ```
 
 **If commit message empty:**
 ```text
 ❌ Missing required parameter: message
 
-Usage: /gh-commit <message> [--all] [--push]
+Usage: /git-commit <message> [--all] [--push]
 
 Conventional commit types:
   feat:     New feature
@@ -245,25 +245,25 @@ Return error JSON:
 ```bash
 # Stage and commit specific fix
 git add src/auth/login.ts
-/gh-commit "fix: resolve login timeout issue"
+/git-commit "fix: resolve login timeout issue"
 ```
 
 ### Feature with All Changes
 ```bash
 # Stage all and commit
-/gh-commit "feat(dashboard): add user activity chart" --all
+/git-commit "feat(dashboard): add user activity chart" --all
 ```
 
 ### Quick Documentation Update
 ```bash
 # Commit and push immediately
-/gh-commit "docs: update installation guide" --all --push
+/git-commit "docs: update installation guide" --all --push
 ```
 
 ### Scoped Refactoring
 ```bash
 # Refactor with scope
-/gh-commit "refactor(api): simplify error handling" --all
+/git-commit "refactor(api): simplify error handling" --all
 ```
 
 ## Integration with Work System
@@ -271,7 +271,7 @@ git add src/auth/login.ts
 After completing work on a task:
 ```bash
 # 1. Commit changes
-/gh-commit "feat(auth): implement password reset TW-26134585" --all
+/git-commit "feat(auth): implement password reset TW-26134585" --all
 
 # 2. Push changes
 git push origin feature/password-reset
@@ -284,22 +284,22 @@ git push origin feature/password-reset
 1. **One logical change per commit**
    ```bash
    # Good: focused commits
-   /gh-commit "feat: add user model"
-   /gh-commit "feat: add user repository"
-   /gh-commit "feat: add user service"
+   /git-commit "feat: add user model"
+   /git-commit "feat: add user repository"
+   /git-commit "feat: add user service"
 
    # Avoid: mixing unrelated changes
-   /gh-commit "feat: add user stuff and fix login and update docs"
+   /git-commit "feat: add user stuff and fix login and update docs"
    ```
 
 2. **Use scope for multi-component projects**
    ```bash
-   /gh-commit "feat(api): add user endpoints"
-   /gh-commit "feat(web): add user profile page"
-   /gh-commit "fix(mobile): resolve crash on login"
+   /git-commit "feat(api): add user endpoints"
+   /git-commit "feat(web): add user profile page"
+   /git-commit "fix(mobile): resolve crash on login"
    ```
 
 3. **Reference task IDs when relevant**
    ```bash
-   /gh-commit "fix: resolve authentication timeout TW-26134585"
+   /git-commit "fix: resolve authentication timeout TW-26134585"
    ```

@@ -67,7 +67,7 @@ Creates a GitHub pull request for the current branch with standardized format.
 2. **Show current status:**
    ```bash
    echo "📊 Pre-PR Check:"
-   /gh-status --remote
+   /git-status --remote
    echo ""
    ```
 
@@ -80,7 +80,7 @@ Creates a GitHub pull request for the current branch with standardized format.
      echo "❌ Cannot create PR from $baseBranch"
      echo ""
      echo "Create a feature branch first:"
-     echo "  /gh-create-branch feature/my-feature $baseBranch --push"
+     echo "  /git-create-branch feature/my-feature $baseBranch --push"
      exit 1
    fi
 
@@ -110,7 +110,7 @@ Creates a GitHub pull request for the current branch with standardized format.
      echo "⚠️  Uncommitted changes detected"
      echo ""
      echo "Options:"
-     echo "  - Commit first: /gh-commit \"message\" --all"
+     echo "  - Commit first: /git-commit \"message\" --all"
      echo "  - Continue anyway (changes won't be in PR)"
      echo ""
    fi
@@ -235,7 +235,7 @@ Existing PR: https://github.com/org/repo/pull/42
 
 Options:
   - View PR: gh pr view (or visit URL above)
-  - Update PR: /gh-push-remote "message" to push more commits
+  - Update PR: /git-push "message" to push more commits
   - Close and recreate: gh pr close 42
 ```
 
@@ -306,14 +306,14 @@ The generated PR body follows this format:
 Complete feature workflow:
 ```bash
 # 1. Create branch from task
-/gh-create-branch feature/TW-26134585-user-auth main --push
+/git-create-branch feature/TW-26134585-user-auth main --push
 
 # 2. Work on feature...
-/gh-commit "feat(auth): implement login" --all
-/gh-commit "feat(auth): add password reset" --all
+/git-commit "feat(auth): implement login" --all
+/git-commit "feat(auth): add password reset" --all
 
 # 3. Push and create PR
-/gh-push-remote "feat(auth): complete authentication"
+/git-push "feat(auth): complete authentication"
 /gh-create-pr "feat: Add user authentication"
 
 # 4. After approval, merge
@@ -322,6 +322,6 @@ Complete feature workflow:
 
 ## Related Commands
 
-- `/gh-push-remote` - Push commits before PR
+- `/git-push` - Push commits before PR
 - `/gh-merge-pr` - Merge PR after approval
-- `/gh-status` - Check current branch status
+- `/git-status` - Check current branch status

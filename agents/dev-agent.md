@@ -386,14 +386,14 @@ Follow project conventions:
 
 ```bash
 # Create feature branch
-git checkout -b feature/TW-{id}-{slug}
+/git-checkout feature/TW-{id}-{slug} --create
 
 # Regular commits during development
-git commit -m "test: add token validation tests"
-git commit -m "feat: implement token validation"
+/git-commit "test: add token validation tests"
+/git-commit "feat: implement token validation"
 
 # Push for backup/CI
-git push -u origin feature/TW-{id}-{slug}
+/git-push --set-upstream
 ```
 
 ### Subtask Handling

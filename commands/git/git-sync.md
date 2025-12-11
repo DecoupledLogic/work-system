@@ -5,17 +5,17 @@ allowedTools:
   - SlashCommand
 ---
 
-# GitHub CLI: Sync Branch
+# Git: Sync Branch
 
 Fetches latest changes and rebases current branch on main (or specified base). This is the most common operation for keeping feature branches up to date.
 
 ## Usage
 
 ```bash
-/gh-sync                        # Rebase current branch on main
-/gh-sync develop                # Rebase on develop instead
-/gh-sync --merge                # Merge instead of rebase
-/gh-sync --stash                # Auto-stash local changes
+/git-sync                        # Rebase current branch on main
+/git-sync develop                # Rebase on develop instead
+/git-sync --merge                # Merge instead of rebase
+/git-sync --stash                # Auto-stash local changes
 ```
 
 ## Input Parameters
@@ -61,7 +61,7 @@ Fetches latest changes and rebases current branch on main (or specified base). T
    # Check if on base branch
    if [ "$currentBranch" = "$baseBranch" ]; then
      echo "📍 On $baseBranch - pulling latest..."
-     /gh-pull
+     /git-pull
      exit 0
    fi
    ```
@@ -74,14 +74,14 @@ Fetches latest changes and rebases current branch on main (or specified base). T
 
      if [ "$autoStash" = true ]; then
        echo "📦 Stashing local changes..."
-       git stash push -m "gh-sync auto-stash $(date +%Y%m%d-%H%M%S)"
+       git stash push -m "git-sync auto-stash $(date +%Y%m%d-%H%M%S)"
        stashCreated=true
      else
        echo "⚠️  Uncommitted changes detected"
        echo ""
        echo "Options:"
-       echo "  - Auto-stash: /gh-sync --stash"
-       echo "  - Commit first: /gh-commit \"message\" --all"
+       echo "  - Auto-stash: /git-sync --stash"
+       echo "  - Commit first: /git-commit \"message\" --all"
        echo "  - Stash manually: git stash"
        echo ""
        exit 1
@@ -214,8 +214,8 @@ Fetches latest changes and rebases current branch on main (or specified base). T
 ⚠️  Uncommitted changes detected
 
 Options:
-  - Auto-stash: /gh-sync --stash
-  - Commit first: /gh-commit "message" --all
+  - Auto-stash: /git-sync --stash
+  - Commit first: /git-commit "message" --all
   - Stash manually: git stash
 ```
 
@@ -265,31 +265,31 @@ Return error JSON:
 ### Daily Sync
 ```bash
 # Keep feature branch up to date
-/gh-sync
+/git-sync
 ```
 
 ### Before Creating PR
 ```bash
 # Ensure branch is current before PR
-/gh-sync --push
+/git-sync --push
 ```
 
 ### Quick Sync with Local Changes
 ```bash
 # Auto-stash, sync, restore
-/gh-sync --stash
+/git-sync --stash
 ```
 
 ### Sync with Different Base
 ```bash
 # Sync with develop instead of main
-/gh-sync develop
+/git-sync develop
 ```
 
 ### Update PR After Main Changes
 ```bash
 # Rebase and update PR
-/gh-sync --push
+/git-sync --push
 ```
 
 ## Integration with Work System
@@ -297,20 +297,20 @@ Return error JSON:
 Daily workflow:
 ```bash
 # 1. Start of day - sync your branch
-/gh-sync --stash
+/git-sync --stash
 
 # 2. Work on feature...
-/gh-commit "feat: progress on feature" --all
+/git-commit "feat: progress on feature" --all
 
 # 3. Before PR or end of day
-/gh-sync --push
+/git-sync --push
 ```
 
 Before PR review:
 ```bash
 # Ensure branch is current
-/gh-sync --push
-/gh-create-pr "feat: My feature"
+/git-sync --push
+/github:gh-create-pr "feat: My feature"
 ```
 
 ## Rebase vs Merge
@@ -326,6 +326,6 @@ Before PR review:
 
 ## Related Commands
 
-- `/gh-pull` - Pull current branch's upstream
-- `/gh-push-remote` - Push after sync
-- `/gh-create-pr` - Create PR after sync
+- `/git-pull` - Pull current branch's upstream
+- `/git-push` - Push after sync
+- `/github:gh-create-pr` - Create PR after sync

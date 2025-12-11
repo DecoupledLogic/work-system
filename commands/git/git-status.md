@@ -4,16 +4,16 @@ allowedTools:
   - Bash
 ---
 
-# GitHub CLI: Status
+# Git: Status
 
 Shows comprehensive git status including working directory, staging area, branch info, and remote sync status.
 
 ## Usage
 
 ```bash
-/gh-status                      # Full status overview
-/gh-status --short              # Compact format
-/gh-status --remote             # Include remote comparison
+/git-status                      # Full status overview
+/git-status --short              # Compact format
+/git-status --remote             # Include remote comparison
 ```
 
 ## Input Parameters
@@ -102,9 +102,9 @@ Shows comprehensive git status including working directory, staging area, branch
    a1b2c3d feat(auth): add login form
 
 💡 Suggestions:
-   - Pull remote changes: /gh-pull --rebase
+   - Pull remote changes: /git-pull --rebase
    - Stage all changes: git add -A
-   - Commit staged: /gh-commit "message"
+   - Commit staged: /git-commit "message"
 ```
 
 **Short format (--short):**
@@ -133,7 +133,7 @@ feature/user-auth | ↓3 ↑1 | staged:5 modified:2 untracked:3
     "message": "feat(auth): add login form"
   },
   "suggestions": [
-    "Pull remote changes: /gh-pull --rebase",
+    "Pull remote changes: /git-pull --rebase",
     "Stage all changes: git add -A"
   ]
 }
@@ -156,10 +156,10 @@ Based on status, provide actionable suggestions:
 
 | Condition | Suggestion |
 |-----------|------------|
-| Behind remote | `/gh-pull --rebase` |
+| Behind remote | `/git-pull --rebase` |
 | Unstaged changes | `git add -A` or `git add <file>` |
-| Staged changes | `/gh-commit "message"` |
-| Ahead of remote | `git push` or `/gh-push-remote` |
+| Staged changes | `/git-commit "message"` |
+| Ahead of remote | `/git-push` |
 | Conflicts | Resolve conflicts, then `git add` |
 | Clean + in sync | "Working directory clean, up to date" |
 
@@ -185,7 +185,7 @@ Or clone existing:
 
 💡 Create initial commit:
    git add -A
-   /gh-commit "feat: initial commit"
+   /git-commit "feat: initial commit"
 ```
 
 ## Notes
@@ -200,38 +200,38 @@ Or clone existing:
 ### Quick Status Check
 ```bash
 # See what's changed
-/gh-status
+/git-status
 ```
 
 ### Before Committing
 ```bash
 # Check what will be committed
-/gh-status
-/gh-commit "feat: add feature" --all
+/git-status
+/git-commit "feat: add feature" --all
 ```
 
 ### Check Remote Sync
 ```bash
 # See if you need to pull
-/gh-status --remote
+/git-status --remote
 ```
 
 ### CI/Automation
 ```bash
 # Machine-readable short format
-/gh-status --short
+/git-status --short
 ```
 
 ## Integration with Other Commands
 
 This command is called internally by:
 
-- `/gh-commit` - Shows status before commit confirmation
-- `/gh-push-remote` - Checks remote status before pushing
-- `/gh-pull` - Shows status after pull completes
+- `/git-commit` - Shows status before commit confirmation
+- `/git-push` - Checks remote status before pushing
+- `/git-pull` - Shows status after pull completes
 
 ## Related Commands
 
-- `/gh-fetch` - Fetch without status display
-- `/gh-pull` - Pull and update local branch
-- `/gh-commit` - Commit staged changes
+- `/git-fetch` - Fetch without status display
+- `/git-pull` - Pull and update local branch
+- `/git-commit` - Commit staged changes

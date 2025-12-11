@@ -346,11 +346,11 @@ Return error JSON:
 Complete PR workflow:
 ```bash
 # 1. Create and work on feature
-/gh-create-branch feature/TW-26134585-user-auth main --push
+/git-create-branch feature/TW-26134585-user-auth main --push
 
 # 2. Commit changes
-/gh-commit "feat(auth): implement login" --all
-/gh-push-remote "feat(auth): complete feature"
+/git-commit "feat(auth): implement login" --all
+/git-push "feat(auth): complete feature"
 
 # 3. Create PR
 /gh-create-pr "feat: Add user authentication"
@@ -374,6 +374,6 @@ After `/gh-merge-pr`:
 ## Related Commands
 
 - `/gh-create-pr` - Create PR before merge
-- `/gh-delete-branch` - Manual branch cleanup
-- `/gh-sync` - Sync branch before merge
-- `/gh-status` - Check current branch status
+- `/git-delete-branch` - Manual branch cleanup
+- `/git-sync` - Sync branch before merge
+- `/git-status` - Check current branch status

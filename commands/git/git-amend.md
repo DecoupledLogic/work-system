@@ -4,17 +4,17 @@ allowedTools:
   - Bash
 ---
 
-# GitHub CLI: Amend Commit
+# Git: Amend Commit
 
 Safely amends the last commit to add staged changes or update the message. Includes safety checks to prevent amending pushed or others' commits.
 
 ## Usage
 
 ```bash
-/gh-amend                       # Add staged changes to last commit
-/gh-amend "new message"         # Change commit message
-/gh-amend --all                 # Stage all and amend
-/gh-amend --push                # Amend and force push
+/git-amend                       # Add staged changes to last commit
+/git-amend "new message"         # Change commit message
+/git-amend --all                 # Stage all and amend
+/git-amend --push                # Amend and force push
 ```
 
 ## Input Parameters
@@ -79,8 +79,8 @@ Safely amends the last commit to add staged changes or update the message. Inclu
        echo "   You are: $currentUser <$currentEmail>"
        echo ""
        echo "Options:"
-       echo "  - Create new commit instead: /gh-commit \"message\""
-       echo "  - Force amend (not recommended): /gh-amend --force"
+       echo "  - Create new commit instead: /git-commit \"message\""
+       echo "  - Force amend (not recommended): /git-amend --force"
        exit 1
      fi
    fi
@@ -101,9 +101,9 @@ Safely amends the last commit to add staged changes or update the message. Inclu
        echo "Amending will require force push."
        echo ""
        echo "Options:"
-       echo "  - Amend and force push: /gh-amend --push"
-       echo "  - Create new commit: /gh-commit \"fix: correction\""
-       echo "  - Force amend only: /gh-amend --force"
+       echo "  - Amend and force push: /git-amend --push"
+       echo "  - Create new commit: /git-commit \"fix: correction\""
+       echo "  - Force amend only: /git-amend --force"
 
        if [ "$pushAfter" = false ]; then
          exit 1
@@ -144,8 +144,8 @@ Safely amends the last commit to add staged changes or update the message. Inclu
      echo ""
      echo "Options:"
      echo "  - Stage changes: git add <file>"
-     echo "  - Stage all: /gh-amend --all"
-     echo "  - Change message: /gh-amend \"new message\""
+     echo "  - Stage all: /git-amend --all"
+     echo "  - Change message: /git-amend \"new message\""
      exit 1
    fi
    ```
@@ -203,8 +203,8 @@ Safely amends the last commit to add staged changes or update the message. Inclu
    You are: John Smith <john@example.com>
 
 Options:
-  - Create new commit instead: /gh-commit "message"
-  - Force amend (not recommended): /gh-amend --force
+  - Create new commit instead: /git-commit "message"
+  - Force amend (not recommended): /git-amend --force
 ```
 
 **If commit already pushed:**
@@ -214,9 +214,9 @@ Options:
 Amending will require force push.
 
 Options:
-  - Amend and force push: /gh-amend --push
-  - Create new commit: /gh-commit "fix: correction"
-  - Force amend only: /gh-amend --force
+  - Amend and force push: /git-amend --push
+  - Create new commit: /git-commit "fix: correction"
+  - Force amend only: /git-amend --force
 ```
 
 **If nothing to amend:**
@@ -225,8 +225,8 @@ Options:
 
 Options:
   - Stage changes: git add <file>
-  - Stage all: /gh-amend --all
-  - Change message: /gh-amend "new message"
+  - Stage all: /git-amend --all
+  - Change message: /git-amend "new message"
 ```
 
 Return error JSON:
@@ -252,31 +252,31 @@ Return error JSON:
 ```bash
 # Forgot to include a file
 git add src/forgotten-file.ts
-/gh-amend
+/git-amend
 ```
 
 ### Fix Typo in Last Commit
 ```bash
 # Fix typo in commit message
-/gh-amend "feat: correct spelling in feature name"
+/git-amend "feat: correct spelling in feature name"
 ```
 
 ### Add All Changes to Last Commit
 ```bash
 # Add all uncommitted changes
-/gh-amend --all
+/git-amend --all
 ```
 
 ### Update PR with Amended Commit
 ```bash
 # Amend and update PR
-/gh-amend --all --push
+/git-amend --all --push
 ```
 
 ### Fix Last Commit Message
 ```bash
 # Just change the message, no file changes
-/gh-amend "fix: better description of the fix"
+/git-amend "fix: better description of the fix"
 ```
 
 ## Integration with Work System
@@ -284,17 +284,17 @@ git add src/forgotten-file.ts
 Quick fixes during development:
 ```bash
 # 1. Make initial commit
-/gh-commit "feat: add login form" --all
+/git-commit "feat: add login form" --all
 
 # 2. Realize you forgot something
 git add src/login/styles.css
-/gh-amend
+/git-amend
 
 # 3. Or fix the message
-/gh-amend "feat(auth): add login form with styling"
+/git-amend "feat(auth): add login form with styling"
 
 # 4. Push to PR
-/gh-amend --push
+/git-amend --push
 ```
 
 ## Safety Features
@@ -313,11 +313,11 @@ git add src/login/styles.css
 
 In these cases, create a new commit instead:
 ```bash
-/gh-commit "fix: correction to previous change"
+/git-commit "fix: correction to previous change"
 ```
 
 ## Related Commands
 
-- `/gh-commit` - Create new commit
-- `/gh-push-remote` - Push changes
-- `/gh-sync` - Sync branch after amend
+- `/git-commit` - Create new commit
+- `/git-push` - Push changes
+- `/git-sync` - Sync branch after amend

@@ -5,17 +5,17 @@ allowedTools:
   - SlashCommand
 ---
 
-# GitHub CLI: Checkout Branch
+# Git: Checkout Branch
 
 Safely switches to another branch, automatically handling uncommitted changes with stash.
 
 ## Usage
 
 ```bash
-/gh-checkout feature/other      # Switch to branch
-/gh-checkout main --pull        # Switch and pull latest
-/gh-checkout -                  # Switch to previous branch
-/gh-checkout feature/new --create   # Create and switch
+/git-checkout feature/other      # Switch to branch
+/git-checkout main --pull        # Switch and pull latest
+/git-checkout -                  # Switch to previous branch
+/git-checkout feature/new --create   # Create and switch
 ```
 
 ## Input Parameters
@@ -51,13 +51,13 @@ Safely switches to another branch, automatically handling uncommitted changes wi
    if [ -z "$targetBranch" ]; then
      echo "❌ Missing required parameter: branch"
      echo ""
-     echo "Usage: /gh-checkout <branch> [--pull] [--create] [--discard]"
+     echo "Usage: /git-checkout <branch> [--pull] [--create] [--discard]"
      echo ""
      echo "Examples:"
-     echo "  /gh-checkout main"
-     echo "  /gh-checkout feature/other --pull"
-     echo "  /gh-checkout feature/new --create"
-     echo "  /gh-checkout -                  # previous branch"
+     echo "  /git-checkout main"
+     echo "  /git-checkout feature/other --pull"
+     echo "  /git-checkout feature/new --create"
+     echo "  /git-checkout -                  # previous branch"
      exit 1
    fi
    ```
@@ -67,7 +67,7 @@ Safely switches to another branch, automatically handling uncommitted changes wi
    currentBranch=$(git branch --show-current)
 
    echo "📍 Current branch: $currentBranch"
-   /gh-status --short
+   /git-status --short
    echo ""
    ```
 
@@ -110,7 +110,7 @@ Safely switches to another branch, automatically handling uncommitted changes wi
        echo "❌ Branch '$targetBranch' not found"
        echo ""
        echo "Options:"
-       echo "  - Create it: /gh-checkout $targetBranch --create"
+       echo "  - Create it: /git-checkout $targetBranch --create"
        echo "  - List branches: git branch -a"
        echo ""
        echo "Local branches:"
@@ -141,7 +141,7 @@ Safely switches to another branch, automatically handling uncommitted changes wi
        git clean -fd
      else
        echo "📦 Stashing changes..."
-       stashMessage="gh-checkout auto-stash from $currentBranch $(date +%Y%m%d-%H%M%S)"
+       stashMessage="git-checkout auto-stash from $currentBranch $(date +%Y%m%d-%H%M%S)"
        git stash push -u -m "$stashMessage"
        stashCreated=true
        echo "   Stashed as: $stashMessage"
@@ -195,7 +195,7 @@ Safely switches to another branch, automatically handling uncommitted changes wi
     "from": "feature/user-auth",
     "to": "main",
     "stashed": true,
-    "stashMessage": "gh-checkout auto-stash from feature/user-auth",
+    "stashMessage": "git-checkout auto-stash from feature/user-auth",
     "pulled": true,
     "created": false
   },
@@ -210,7 +210,7 @@ Safely switches to another branch, automatically handling uncommitted changes wi
 ❌ Branch 'feature/nonexistent' not found
 
 Options:
-  - Create it: /gh-checkout feature/nonexistent --create
+  - Create it: /git-checkout feature/nonexistent --create
   - List branches: git branch -a
 
 Local branches:
@@ -267,37 +267,37 @@ Return error JSON:
 ### Quick Branch Switch
 ```bash
 # Switch to another branch
-/gh-checkout feature/other
+/git-checkout feature/other
 ```
 
 ### Switch and Update
 ```bash
 # Switch to main and get latest
-/gh-checkout main --pull
+/git-checkout main --pull
 ```
 
 ### Toggle Between Branches
 ```bash
 # Go back to previous branch
-/gh-checkout -
+/git-checkout -
 ```
 
 ### Start New Work
 ```bash
 # Create and switch to new branch
-/gh-checkout feature/new-feature --create
+/git-checkout feature/new-feature --create
 ```
 
 ### Review PR Branch
 ```bash
 # Checkout PR branch from remote
-/gh-checkout feature/pr-branch --pull
+/git-checkout feature/pr-branch --pull
 ```
 
 ### Discard and Switch
 ```bash
 # Abandon local changes and switch
-/gh-checkout main --discard
+/git-checkout main --discard
 ```
 
 ## Integration with Work System
@@ -305,33 +305,33 @@ Return error JSON:
 Switching between tasks:
 ```bash
 # 1. Working on feature A, need to switch to urgent bug
-/gh-checkout bugfix/urgent-fix
+/git-checkout bugfix/urgent-fix
 
 # 2. Fix bug, commit, push
-/gh-commit "fix: urgent bug" --all
-/gh-push-remote "fix: urgent bug"
+/git-commit "fix: urgent bug" --all
+/git-push "fix: urgent bug"
 
 # 3. Return to feature A (changes auto-restored from stash)
-/gh-checkout -
+/git-checkout -
 git stash pop
 ```
 
 Code review workflow:
 ```bash
 # 1. Checkout PR branch
-/gh-checkout feature/pr-to-review --pull
+/git-checkout feature/pr-to-review --pull
 
 # 2. Review code...
 
 # 3. Return to your work
-/gh-checkout -
+/git-checkout -
 ```
 
 ## Stash Management
 
 When switching branches, stashes are named with context:
 ```
-gh-checkout auto-stash from feature/user-auth 20251208-143022
+git-checkout auto-stash from feature/user-auth 20251208-143022
 ```
 
 View your stashes:
@@ -346,6 +346,6 @@ git stash pop stash@{0}
 
 ## Related Commands
 
-- `/gh-create-branch` - Create new branch from base
-- `/gh-sync` - Sync current branch with main
-- `/gh-status` - Check current state
+- `/git-create-branch` - Create new branch from base
+- `/git-sync` - Sync current branch with main
+- `/git-status` - Check current state
