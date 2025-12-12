@@ -353,7 +353,7 @@ To fix: Post resolution comment to Teamwork
 ### Command Integration
 
 ```markdown
-# In /deliver command
+# In /workflow:deliver command
 
 ## Step: Validate Before Completion
 
@@ -405,8 +405,8 @@ Status: Ready for completion
 
 - `~/.claude/templates/registry.json` - Template registry
 - `~/.claude/templates/_schema.json` - Template schema
-- `~/.claude/agents/triage-agent.md` - Template assignment
-- `~/.claude/commands/deliver.md` - Delivery validation
+- `~/.claude/agents/workflow:triage-agent.md` - Template assignment
+- `~/.claude/commands/workflow:deliver.md` - Delivery validation
 
 ---
 

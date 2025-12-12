@@ -113,18 +113,39 @@ if [ -f ".claude/agent-playbook.yaml" ]; then
   # Load playbook rules
   PLAYBOOK=$(cat .claude/agent-playbook.yaml)
 fi
+
+if [ -f "architecture-recommendations.json" ]; then
+  # Load architecture recommendations (from PR feedback learning)
+  RECOMMENDATIONS=$(cat architecture-recommendations.json)
+
+  # Extract guardrails (MUST follow)
+  GUARDRAILS=$(echo "$RECOMMENDATIONS" | jq '.recommendations.guardrails')
+
+  # Extract leverage patterns (SHOULD apply)
+  LEVERAGE=$(echo "$RECOMMENDATIONS" | jq '.recommendations.leverage')
+
+  # Extract hygiene rules (NICE to have)
+  HYGIENE=$(echo "$RECOMMENDATIONS" | jq '.recommendations.hygiene')
+fi
 ```
 
 **If architecture files exist:**
 
 - Include architecture context in all agent prompts
-- Agents will validate changes against guardrails
+- Agents will validate changes against guardrails from both playbook AND recommendations
 - Compliance status will be reported in delivery summary
+
+**If architecture-recommendations.json exists:**
+
+- Pass to dev-agent: Receives guardrails + leverage + hygiene
+- Pass to qa-agent: Receives guardrails for validation
+- Pass to eval-agent: Receives all for compliance checking
 
 **If no architecture files:**
 
 - Proceed without architecture constraints
 - Consider running `/work-init` to generate architecture config
+- Consider running `/extract-review-patterns` to learn from PR feedback
 
 ### Step 4: Create/Switch to Branch
 
@@ -173,7 +194,22 @@ Context:
 Architecture Context (if available):
 - Architecture: [contents of .claude/architecture.yaml]
 - Playbook: [contents of .claude/agent-playbook.yaml]
-- Guardrails to follow: [relevant guardrails for affected layers]
+- Architecture Recommendations: [contents of architecture-recommendations.json]
+
+Guardrails (MUST follow):
+[Guardrails from playbook + guardrails from architecture-recommendations.json]
+
+Leverage Patterns (SHOULD apply):
+[Leverage patterns from architecture-recommendations.json]
+
+Hygiene Rules (NICE to have):
+[Hygiene rules from playbook + hygiene rules from architecture-recommendations.json]
+
+When implementing:
+1. Check each change against ALL guardrails
+2. Apply leverage patterns where appropriate
+3. Apply hygiene rules when touching related code
+4. Report compliance in devResult
 ```
 
 **Development Checkpoints:**
@@ -267,6 +303,7 @@ Return the full qaResult JSON including:
 - Coverage report
 - Issues found
 - Quality score
+- Guardrail compliance validation
 - Next step routing
 
 Input WorkItem:
@@ -274,6 +311,14 @@ Input WorkItem:
 
 Test Plan:
 [Test plan from design]
+
+Architecture Guardrails (validate compliance):
+[Guardrails from architecture-recommendations.json]
+
+When validating:
+1. Check that guardrails were followed in implementation
+2. Verify no violations were introduced
+3. Report compliance status in qaResult
 ```
 
 **QA Checkpoints:**
@@ -309,6 +354,7 @@ Return the full evalResult JSON including:
 - Criteria evaluation
 - Vision alignment assessment
 - Plan vs actual comparison
+- Architecture compliance assessment
 - Metrics captured
 - Follow-up items
 - Learnings
@@ -325,6 +371,18 @@ Delivery Context:
 - Actual duration: [duration]
 - Commits: [count]
 - Lines changed: [added/removed]
+
+Architecture Context (for compliance checking):
+- Guardrails checked: [from devResult]
+- Leverage patterns applied: [from devResult]
+- Hygiene rules applied: [from devResult]
+- Recommendations: [all from architecture-recommendations.json]
+
+When evaluating:
+1. Assess overall architecture compliance
+2. Identify successful pattern applications
+3. Note missed opportunities for leverage/hygiene
+4. Report in evalResult.architectureCompliance
 ```
 
 ### Step 10: Generate Release Notes
@@ -487,6 +545,12 @@ Post completion summary using aggregate commands:
    - Tests: {passed} passed, {failed} failed
    - Coverage: {percent}%
    - Quality Score: {score}
+
+   **Architecture Compliance:**
+   - Guardrails: {guardrailsChecked} checked, {violations} violations
+   - Leverage: {leverageApplied} patterns applied
+   - Hygiene: {hygieneApplied} rules applied
+   - Status: {complianceStatus}
 
    **Plan vs Actual:**
    - Estimated: {planned}

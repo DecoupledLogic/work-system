@@ -1,6 +1,6 @@
 ---
 name: architecture-review
-description: Analyze codebase architecture for .NET, TypeScript/React/Vue, and SQL. Run via /work-init for initial setup or /architecture-review to refresh analysis. Produces architecture.yaml and agent-playbook.yaml.
+description: Analyze codebase architecture for .NET, TypeScript/React/Vue, and SQL. Run via /work:init for initial setup or /quality:architecture-review to refresh analysis. Produces architecture.yaml and agent-playbook.yaml.
 tools: Read, Glob, Grep, Write
 model: sonnet
 ---

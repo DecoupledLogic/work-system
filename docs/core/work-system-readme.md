@@ -56,26 +56,26 @@ EOF
 
 ```bash
 # In Claude Code
-/work-status
+/work:status
 ```
 
 ### Your First Workflow
 
 ```bash
 # 1. Select work from queue
-/select-task
+/workflow:select-task
 
 # 2. Triage incoming work
-/triage TW-12345
+/workflow:triage TW-12345
 
 # 3. Plan features (decompose into stories)
-/plan TW-12345
+/workflow:plan TW-12345
 
 # 4. Design solution (explore options, create ADR)
-/design TW-12345
+/workflow:design TW-12345
 
 # 5. Deliver (implement, test, evaluate)
-/deliver TW-12345
+/workflow:deliver TW-12345
 ```
 
 ## Features
@@ -168,7 +168,7 @@ Queues stored locally (no external system dependencies) with optional sync to la
 ```
 ┌─────────────────────────────────────────┐
 │          Slash Commands                 │
-│  /triage /plan /design /deliver         │
+│  /workflow:triage /workflow:plan /workflow:design /workflow:deliver         │
 └─────────────────────────────────────────┘
                   │
                   ▼
@@ -244,7 +244,7 @@ We welcome contributions! See [work-system-guide.md](work-system-guide.md#contri
 ### Example 1: Triage Support Request
 
 ```bash
-/triage TW-45678
+/workflow:triage TW-45678
 ```
 
 **Agent analyzes**:
@@ -259,7 +259,7 @@ We welcome contributions! See [work-system-guide.md](work-system-guide.md#contri
 ### Example 2: Plan Feature
 
 ```bash
-/plan TW-99001  # "Dark mode for dashboard"
+/workflow:plan TW-99001  # "Dark mode for dashboard"
 ```
 
 **Agent decomposes**:
@@ -276,7 +276,7 @@ We welcome contributions! See [work-system-guide.md](work-system-guide.md#contri
 ### Example 3: Design Solution
 
 ```bash
-/design TW-99002  # "Toggle dark mode in settings"
+/workflow:design TW-99002  # "Toggle dark mode in settings"
 ```
 
 **Agent explores**:

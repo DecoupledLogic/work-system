@@ -115,7 +115,37 @@ Initialize design workspace:
 mkdir -p docs/design/TW-{id}
 ```
 
-### Step 5: Call Design Agent
+### Step 5: Load Architecture Recommendations
+
+Load architecture guidelines to inform design decisions:
+
+```bash
+# Check if architecture-recommendations.json exists
+if [ -f "architecture-recommendations.json" ]; then
+  # Load recommendations
+  recommendations=$(cat architecture-recommendations.json)
+
+  # Extract guardrails (MUST follow)
+  guardrails=$(echo "$recommendations" | jq '.recommendations.guardrails')
+
+  # Extract leverage patterns (SHOULD consider)
+  leverage=$(echo "$recommendations" | jq '.recommendations.leverage')
+
+  # Extract hygiene rules (NICE to have)
+  hygiene=$(echo "$recommendations" | jq '.recommendations.hygiene')
+fi
+```
+
+**Pass to design agent:**
+- Guardrails: Must be validated against all design options
+- Leverage: Should be suggested when applicable
+- Hygiene: Note opportunities for improvement
+
+**If file doesn't exist:**
+- Use only `.claude/architecture.yaml` and `.claude/agent-playbook.yaml`
+- Suggest: "💡 Run `/architecture-review` to generate architecture recommendations"
+
+### Step 6: Call Design Agent
 
 Use Task tool to invoke design-agent:
 
@@ -132,6 +162,7 @@ Return the full designResult JSON including:
 - implementationPlan with tasks
 - testPlan with strategy
 - routing decisions
+- architectureCompliance report
 
 Input WorkItem:
 [WorkItem JSON]
@@ -141,9 +172,24 @@ Context:
 - Repo path: [repo root]
 - Existing patterns: [detected patterns from codebase]
 - Constraints: [known constraints]
+
+Architecture Recommendations:
+[From architecture-recommendations.json]
+
+Guardrails (MUST follow):
+[List of guardrails from recommendations]
+
+Leverage Patterns (SHOULD consider):
+[List of leverage patterns from recommendations]
+
+When evaluating design options:
+1. Check each option against ALL guardrails
+2. Flag any violations with guardrail ID and explanation
+3. Suggest leverage patterns that apply to this work item
+4. Prefer options that align with existing patterns
 ```
 
-### Step 6: Generate Design Documents
+### Step 7: Generate Design Documents
 
 Based on work item type, generate appropriate documents using `/doc-write`:
 
@@ -201,7 +247,7 @@ This generates:
 - Test cases from acceptance criteria
 - Expected outcomes per criterion
 
-### Step 7: Generate ADR (if architectural decision made)
+### Step 8: Generate ADR (if architectural decision made)
 
 When the design involves a significant architectural decision, generate an ADR:
 
@@ -230,7 +276,7 @@ This generates:
 - Simple CRUD operations
 - Minor refactoring within existing architecture
 
-### Step 8: Update Work Item (via Aggregate)
+### Step 9: Update Work Item (via Aggregate)
 
 Post design summary using aggregate commands:
 
@@ -267,7 +313,7 @@ Post design summary using aggregate commands:
 
 The `/work-item comment` command automatically syncs to the external system (Teamwork, GitHub, etc.).
 
-### Step 9: Update Session State
+### Step 10: Update Session State
 
 Update active work context:
 
@@ -292,7 +338,7 @@ Update active work context:
    - Test Plan: docs/plans/TW-26134585-test-plan.md
    ```
 
-### Step 10: Transition to Next Stage (via Aggregate)
+### Step 11: Transition to Next Stage (via Aggregate)
 
 Based on design results, transition using the aggregate:
 
@@ -494,6 +540,9 @@ The design process uses these configuration files:
 - `~/.claude/templates/delivery/implementation-plan.json` - Plan template
 - `~/.claude/session/active-work.md` - Current work context
 - `~/.claude/agents/design-agent.md` - Design agent
+- **`architecture-recommendations.json`** - Architecture guardrails, leverage patterns, and hygiene rules (project root)
+- `.claude/architecture.yaml` - System architecture definition
+- `.claude/agent-playbook.yaml` - Agent behavior rules
 
 ## Domain Aggregate Reference
 

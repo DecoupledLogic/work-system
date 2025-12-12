@@ -1,0 +1,124 @@
+# Code Review Pattern Store - Example Template
+# Copy this file to your project root as: code-review-patterns.yaml
+#
+# This file contains learned patterns from PR feedback specific to YOUR project.
+# The /quality:code-review command will automatically load and check these patterns.
+#
+# To add patterns automatically, use:
+#   /quality:extract-review-patterns --source github --pr 123
+#   /quality:extract-review-patterns --source ado --pr 1045 --project MyProject --repo MyRepo
+
+schemaVersion: "1.0.0"
+
+patterns:
+  # Example Pattern 1: DI Lifetime Selection
+  - id: DI-LIFETIME-001
+    category: DependencyInjection
+    priority: High
+    title: Use Transient for stateless services
+    source:
+      system: azuredevops
+      pr: 1045
+      thread: 4269
+      reviewer: Ali Bijanfar
+      date: 2025-01-15
+    rule: >
+      Use Transient lifetime for stateless services (no internal state).
+      Use Scoped only if service needs per-request state (like IRequestContext).
+      Use Singleton for global shared state (like caches, configuration).
+    antiPattern: |
+      // BAD: Scoped for stateless service
+      services.AddScoped<ISubscriptionQuery, SubscriptionQuery>();
+    correctPattern: |
+      // GOOD: Transient for stateless service
+      services.AddTransient<ISubscriptionQuery, SubscriptionQuery>();
+    detection:
+      files: ["**/ServiceCollectionExtensions.cs", "**/Program.cs"]
+      pattern: "AddScoped<(I\\w+(?:Query|Command|Repository)), (\\w+)>"
+      validation: >
+        For each match, check if service has instance fields
+        (excluding injected dependencies). If no state fields, flag it.
+    remediation: >
+      Change AddScoped to AddTransient. Review service implementation
+      to confirm it has no instance state.
+    examples:
+      - file: "ServiceCollectionExtensions.cs"
+        line: 42
+        issue: "AddScoped<ISubscriptionQuery, SubscriptionQuery>()"
+        fix: "AddTransient<ISubscriptionQuery, SubscriptionQuery>()"
+    relatedPatterns:
+      - DI-LIFETIME-002
+      - DI-LIFETIME-003
+    metadata:
+      timesDetected: 0
+      lastDetected: null
+      falsePositives: 0
+      falsePositiveRate: 0.0
+      avgFixTime: null
+      totalTimeSaved: null
+      created: "2025-01-15T10:00:00Z"
+      updated: null
+
+  # Example Pattern 2: Vendor Decoupling
+  - id: VENDOR-DECOUPLING-001
+    category: Architecture
+    priority: High
+    title: Keep vendor names out of Abstractions layer
+    source:
+      system: azuredevops
+      pr: 1045
+      thread: 4267
+      reviewer: Ali Bijanfar
+      date: 2025-01-15
+    rule: >
+      Abstractions layer (domain) should use generic, vendor-agnostic names.
+      Vendor-specific implementations belong in Infrastructure layer.
+    antiPattern: |
+      // In *.Abstractions project - BAD
+      public interface IStaxbillService
+      {
+          Task<StaxbillSubscription> SyncFromStaxBillAsync(string id);
+      }
+    correctPattern: |
+      // In *.Abstractions project - GOOD
+      public interface ISubscriptionSyncService
+      {
+          Task<Subscription> SyncAsync(string providerId);
+      }
+
+      // In *.Infrastructure project - GOOD
+      public class StaxbillSubscriptionProvider : ISubscriptionProvider
+      {
+          // Vendor-specific implementation here
+      }
+    detection:
+      files: ["**/*.Abstractions/**/*.cs"]
+      pattern: "(?i)\\b(staxbill|stripe|paypal|square|braintree|\\w+bill)\\b"
+      validation: >
+        Check if match is in interface name, class name, method name,
+        or parameter type in Abstractions project.
+    remediation: >
+      1. Rename interface/method to generic equivalent
+      2. Create vendor-specific implementation in Infrastructure
+      3. Update DI registration to use generic interface
+    examples:
+      - file: "Abstractions/IStaxbillService.cs"
+        issue: "Interface name contains vendor 'Staxbill'"
+        fix: "Rename to ISubscriptionSyncService"
+      - file: "Abstractions/ISubscriptionRepository.cs"
+        issue: "Method SyncFromStaxBillAsync contains vendor name"
+        fix: "Rename to SyncFromProviderAsync"
+    relatedPatterns:
+      - VENDOR-DECOUPLING-002
+    metadata:
+      timesDetected: 0
+      lastDetected: null
+      falsePositives: 0
+      falsePositiveRate: 0.0
+      avgFixTime: null
+      totalTimeSaved: null
+      created: "2025-01-15T10:00:00Z"
+      updated: null
+
+# Add more patterns below as you extract them from PRs
+# Each pattern will help catch similar issues before PR creation

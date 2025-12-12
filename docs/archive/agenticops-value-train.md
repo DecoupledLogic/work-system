@@ -208,13 +208,13 @@ source venv/bin/activate
 /drive
 ```
 
-Use `/plan` to queue up more tasks when needed.
+Use `/workflow:plan` to queue up more tasks when needed.
 
 ### End‑to‑End Steps
 
 | \# | Step             | Initiator                | Key Artifacts / Scripts                                                                 | Expected Outcome                                                                 |
 |----|------------------|--------------------------|-----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| 0  | Kickoff          | Operator                 | —                                                                                       | Repo scaffolded via `/kick`; Issues triaged & labelled via /plan                 |
+| 0  | Kickoff          | Operator                 | —                                                                                       | Repo scaffolded via `/kick`; Issues triaged & labelled via /workflow:plan                 |
 | 1  | Issue Select     | Auto-Pilot               | `select_next_issue.py`                                                                  | Issue chosen and self‑assigned                                                   |
 | 2  | Branch & Folder  | Auto-Pilot               | —                                                                                       | Ticket branch and folder created                                                 |
 | 3  | Session Seed     | Auto-Pilot               | `checklist.md, ACTIVE_SESSION.md`                                                       | Ticket initialized                                                               |
@@ -239,7 +239,7 @@ Use `/plan` to queue up more tasks when needed.
     -   Priority order: `now` → `next` → `future`.
     -   Filters: labels `Task` & `auto`; no assignee; state `open`.
     -   Deterministic: oldest `created_at` wins in a priority and filter tie.
--   Implemented by /scripts/select_next_issue.py (venv). The script returns the Issue ID or an empty string. If empty string is returned, the train is halted and Auto-Pilot stopped and the operator is given an alert message to run /plan mode to fill the task queue.
+-   Implemented by /scripts/select_next_issue.py (venv). The script returns the Issue ID or an empty string. If empty string is returned, the train is halted and Auto-Pilot stopped and the operator is given an alert message to run /workflow:plan mode to fill the task queue.
 
 #### Branch & Folder Creation (Step 2)
 
@@ -388,7 +388,7 @@ evaluation:
 
 -   If `select_next_issue.py` returns nothing, Auto-Pilot posts an alert:
 
->   🚂 Drive complete — task queue empty. Run `/plan` to create or label new Issues with Task and auto (use priority labels `now` → `next` → `future`). The train halts until the operator refills the queue.
+>   🚂 Drive complete — task queue empty. Run `/workflow:plan` to create or label new Issues with Task and auto (use priority labels `now` → `next` → `future`). The train halts until the operator refills the queue.
 
 ### Operator Responsibilities
 
@@ -396,7 +396,7 @@ evaluation:
 |-----------------------------|------------------------------------------------------------------------|
 | Before running Auto-Pilot   | Label Issues correctly and leave them un‑assigned.                     |
 | While Auto-Pilot runs       | Optionally monitor PRs; intervene with `/pause` or `/abort` if needed. |
-| After Auto-Pilot completion | Use `/plan` to create or re‑label tasks in the queue for the next run. |
+| After Auto-Pilot completion | Use `/workflow:plan` to create or re‑label tasks in the queue for the next run. |
 
 ## Agents
 
@@ -604,10 +604,10 @@ A Mode is *not* the same as a pipeline phase; it is a controlled working state a
 | `/intake`    | Onboarder            | Qualify lead, capture opportunity brief, decide Go/No-Go                        |
 | `/discover`  | Onboarder            | Workshops, data samples, risk and readiness scoring                             |
 | `/scope`     | Onboarder, Conductor | Produce MVP plan, SOW, pricing, pitch                                           |
-| `/design`    | Studio, Lab          | Architect data flow, feature plan, model approach                               |
+| `/workflow:design`    | Studio, Lab          | Architect data flow, feature plan, model approach                               |
 | `/build`     | Lab, Studio          | Extract data, engineer features, train models (TDD or TML “test-measure-learn”) |
 | `/evaluate`  | Evaluator            | Formal validation against metrics and business KPIs                             |
-| `/deliver`   | Studio, Ops          | Final tests, package artifacts, create PR or release                            |
+| `/workflow:deliver`   | Studio, Ops          | Final tests, package artifacts, create PR or release                            |
 | `/operate`   | Ops, Evaluator       | Watch live performance, drift, cost, error budgets                              |
 | `/improve`   | Improver, Lab        | Root-cause analysis, retraining, roadmap updates                                |
 
@@ -653,15 +653,15 @@ n. Ready for mode switch *
 
 | Pipeline Phase       | Active Mode         |
 |----------------------|---------------------|
-| Data Sources         | /discover, /design  |
+| Data Sources         | /discover, /workflow:design  |
 | Extraction           | /build              |
 | Preparation          | /build              |
 | Exploration          | /build              |
 | Feature Engineering  | /build              |
-| Model Architecture   | /design             |
+| Model Architecture   | /workflow:design             |
 | Training             | /build              |
 | Validation           | /evaluate           |
-| Deployment           | /deliver            |
+| Deployment           | /workflow:deliver            |
 | Monitoring           | /operate            |
 | Evaluation           | /operate, /evaluate |
 | Performance Analysis | /improve            |
@@ -671,10 +671,10 @@ n. Ready for mode switch *
 ### Other Modes
 
 -   /scope: Finalise SOW, budget, pitch deck; push artifacts; get Conductor approval.
--   /design: Write model flow diagram, feature spec, ADRs; review security implications.
+-   /workflow:design: Write model flow diagram, feature spec, ADRs; review security implications.
 -   /build: Red-green-refactor for code or train-measure-iterate for models; commit MLflow runs.
 -   /evaluate: Run test suite and KPI checks; record champion–challenger comparison.
--   /deliver: Merge to main, tag release, update CURRENT_STATE and NEXT_TASKS.
+-   /workflow:deliver: Merge to main, tag release, update CURRENT_STATE and NEXT_TASKS.
 -   /operate: Verify monitors live; update cost dashboards; produce weekly performance note.
 -   /improve: Open issues for failure themes; draft improvement roadmap; farm new training data.
 

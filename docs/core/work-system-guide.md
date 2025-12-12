@@ -134,8 +134,8 @@ Templates are versioned like code and evolve based on real system feedback.
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    Slash Commands Layer                      │
-│   /select-task  /triage  /plan  /design  /deliver           │
-│   /queue  /route  /resume  /work-status                     │
+│   /workflow:select-task  /workflow:triage  /workflow:plan  /workflow:design  /workflow:deliver           │
+│   /workflow:queue  /workflow:route  /workflow:resume  /work:status                     │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -229,7 +229,7 @@ Templates are versioned like code and evolve based on real system feedback.
 5. **Verify installation**:
    ```bash
    # In Claude Code
-   /work-status
+   /work:status
    ```
 
 ### First-Time Configuration
@@ -242,17 +242,17 @@ Templates are versioned like code and evolve based on real system feedback.
 2. **Initialize session state**:
    ```bash
    # In Claude Code
-   /select-task
+   /workflow:select-task
    ```
    This initializes session tracking.
 
 3. **Test with a sample task**:
    ```bash
    # If using Teamwork
-   /triage TW-12345
+   /workflow:triage TW-12345
 
    # If using GitHub
-   /triage GH-owner/repo#123
+   /workflow:triage GH-owner/repo#123
    ```
 
 ---
@@ -374,7 +374,7 @@ Templates are versioned like code and evolve based on real system feedback.
 
 ```
 1. Select Work    → 2. Triage      → 3. Plan        → 4. Design       → 5. Deliver
-   (/select-task)    (/triage)        (/plan)          (/design)         (/deliver)
+   (/workflow:select-task)    (/workflow:triage)        (/workflow:plan)          (/workflow:design)         (/workflow:deliver)
         │                 │                │                │                 │
         ▼                 ▼                ▼                ▼                 ▼
    Pick from queue   Categorize &     Decompose &      Explore &         Build, test,
@@ -385,13 +385,13 @@ Templates are versioned like code and evolve based on real system feedback.
 
 **Step 1: Select work**
 ```bash
-/select-task
+/workflow:select-task
 ```
 Shows prioritized work items from all queues. Pick one to work on.
 
 **Step 2: Triage (if not already triaged)**
 ```bash
-/triage TW-12345
+/workflow:triage TW-12345
 ```
 - Categorizes type, urgency, impact
 - Assigns process template
@@ -399,7 +399,7 @@ Shows prioritized work items from all queues. Pick one to work on.
 
 **Step 3: Plan (if feature/epic)**
 ```bash
-/plan TW-12345
+/workflow:plan TW-12345
 ```
 - Decomposes into smaller items
 - Adds acceptance criteria
@@ -407,7 +407,7 @@ Shows prioritized work items from all queues. Pick one to work on.
 
 **Step 4: Design (if needs solution exploration)**
 ```bash
-/design TW-12345
+/workflow:design TW-12345
 ```
 - Explores 2-4 solution options
 - Creates ADR with decision rationale
@@ -415,7 +415,7 @@ Shows prioritized work items from all queues. Pick one to work on.
 
 **Step 5: Deliver**
 ```bash
-/deliver TW-12345
+/workflow:deliver TW-12345
 ```
 - Implements code (TDD)
 - Runs tests
@@ -426,29 +426,29 @@ Shows prioritized work items from all queues. Pick one to work on.
 
 ```bash
 # View all queues
-/queue
+/workflow:queue
 
 # View specific queue
-/queue immediate
-/queue todo
-/queue backlog
-/queue icebox
+/workflow:queue immediate
+/workflow:queue todo
+/workflow:queue backlog
+/workflow:queue icebox
 ```
 
 ### Quick Start: Move Work Between Queues
 
 ```bash
 # Promote to current work
-/route TW-12345 todo
+/workflow:route TW-12345 todo
 
 # Defer to backlog
-/route TW-12345 backlog
+/workflow:route TW-12345 backlog
 ```
 
 ### Quick Start: Resume Active Work
 
 ```bash
-/resume
+/workflow:resume
 ```
 Shows current work item and continues from last stage.
 
@@ -464,16 +464,16 @@ Shows current work item and continues from last stage.
 
 2. **Triage**:
    ```bash
-   /triage TW-45678
+   /workflow:triage TW-45678
    ```
    - Agent detects: type=support, workType=support
    - Matches template: `support/remove-profile`
    - Sets urgency=now, impact=medium
    - Routes to: `todo` queue
 
-3. **Deliver** (support items skip plan/design):
+3. **Deliver** (support items skip plan/workflow:design):
    ```bash
-   /deliver TW-45678
+   /workflow:deliver TW-45678
    ```
    - Follows template: verify identity, check dependencies, execute removal
    - Validates completion against template criteria
@@ -487,7 +487,7 @@ Shows current work item and continues from last stage.
 
 2. **Triage**:
    ```bash
-   /triage TW-99001
+   /workflow:triage TW-99001
    ```
    - Agent detects: type=feature, workType=product_delivery
    - Matches template: `product/feature`
@@ -497,7 +497,7 @@ Shows current work item and continues from last stage.
 
 3. **Plan**:
    ```bash
-   /plan TW-99001
+   /workflow:plan TW-99001
    ```
    - Decomposes into stories:
      - "User can toggle dark mode in settings"
@@ -508,7 +508,7 @@ Shows current work item and continues from last stage.
 
 4. **Design** (for each story):
    ```bash
-   /design TW-99002  # First story
+   /workflow:design TW-99002  # First story
    ```
    - Explores options: CSS variables vs. theme library
    - Creates ADR documenting decision
@@ -516,7 +516,7 @@ Shows current work item and continues from last stage.
 
 5. **Deliver** (for each task):
    ```bash
-   /deliver TW-99010  # First task
+   /workflow:deliver TW-99010  # First task
    ```
    - Implements feature (TDD)
    - Runs tests
@@ -531,7 +531,7 @@ Shows current work item and continues from last stage.
 
 2. **Triage**:
    ```bash
-   /triage TW-CRITICAL-1
+   /workflow:triage TW-CRITICAL-1
    ```
    - Agent detects: type=bug, workType=bug_fix
    - Matches template: `delivery/bug-fix`
@@ -540,7 +540,7 @@ Shows current work item and continues from last stage.
 
 3. **Design** (quick solution exploration):
    ```bash
-   /design TW-CRITICAL-1
+   /workflow:design TW-CRITICAL-1
    ```
    - Identifies root cause
    - Explores quick fix vs. proper fix
@@ -548,7 +548,7 @@ Shows current work item and continues from last stage.
 
 4. **Deliver**:
    ```bash
-   /deliver TW-CRITICAL-1
+   /workflow:deliver TW-CRITICAL-1
    ```
    - Writes failing test to reproduce
    - Implements fix
@@ -561,16 +561,16 @@ Shows current work item and continues from last stage.
 
 1. **View work by priority**:
    ```bash
-   /queue todo
+   /workflow:queue todo
    ```
 
 2. **Adjust priorities**:
    ```bash
    # Move critical items up
-   /route TW-12345 immediate
+   /workflow:route TW-12345 immediate
 
    # Defer lower priority items
-   /route TW-67890 backlog
+   /workflow:route TW-67890 backlog
    ```
 
 3. **Review capacity**:
@@ -578,13 +578,13 @@ Shows current work item and continues from last stage.
 
 4. **Begin work**:
    ```bash
-   /select-task
+   /workflow:select-task
    ```
    Picks highest priority item
 
 5. **Track progress**:
    ```bash
-   /work-status
+   /work:status
    ```
    Shows completion by stage
 
@@ -683,7 +683,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Usage**:
 ```bash
-# Called automatically by /triage and other commands
+# Called automatically by /workflow:triage and other commands
 # Or invoke directly via Task tool
 ```
 
@@ -704,7 +704,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Model**: sonnet (requires reasoning)
 
-**Usage**: Via `/triage` command
+**Usage**: Via `/workflow:triage` command
 
 ### plan-agent
 
@@ -723,7 +723,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Model**: sonnet (requires reasoning)
 
-**Usage**: Via `/plan` command
+**Usage**: Via `/workflow:plan` command
 
 ### design-agent
 
@@ -743,7 +743,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Model**: sonnet (requires reasoning)
 
-**Usage**: Via `/design` command
+**Usage**: Via `/workflow:design` command
 
 ### dev-agent
 
@@ -762,7 +762,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Model**: sonnet (code generation)
 
-**Usage**: Via `/deliver` command (dev phase)
+**Usage**: Via `/workflow:deliver` command (dev phase)
 
 ### qa-agent
 
@@ -781,7 +781,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Model**: haiku (straightforward execution)
 
-**Usage**: Via `/deliver` command (qa phase)
+**Usage**: Via `/workflow:deliver` command (qa phase)
 
 ### eval-agent
 
@@ -801,7 +801,7 @@ These files are `.gitignore`d and local to each machine.
 
 **Model**: sonnet (requires reasoning)
 
-**Usage**: Via `/deliver` command (eval phase)
+**Usage**: Via `/workflow:deliver` command (eval phase)
 
 ### session-logger
 
@@ -954,7 +954,7 @@ See `templates/versioning.md` for full details.
 
 4. **Test with work item**:
    ```bash
-   /triage TW-12345  # Should match your template
+   /workflow:triage TW-12345  # Should match your template
    ```
 
 ---
@@ -971,7 +971,7 @@ See `templates/versioning.md` for full details.
 **Features**:
 - Fetch tasks with full subtask tree
 - Create child tasks during planning
-- Post comments with triage/design results
+- Post comments with triage/workflow:design results
 - Track time logs
 - Update task status
 
@@ -993,7 +993,7 @@ See `templates/versioning.md` for full details.
 **Features**:
 - Fetch issues with comments
 - Create child issues during planning
-- Add labels for stage/queue
+- Add labels for stage/workflow:queue
 - Create PRs during delivery
 - Link commits to issues
 
@@ -1029,7 +1029,7 @@ manager: local
 
 ### Common Issues
 
-**Issue**: `/triage` says "Template not found"
+**Issue**: `/workflow:triage` says "Template not found"
 
 **Solution**: Check that template exists in registry:
 ```bash
@@ -1044,7 +1044,7 @@ cat ~/.claude/templates/registry.json | grep <template-name>
 ```bash
 cat ~/.claude/session/queues.json
 ```
-If missing, queues haven't been initialized. Run `/triage` on a task first.
+If missing, queues haven't been initialized. Run `/workflow:triage` on a task first.
 
 ---
 
@@ -1090,7 +1090,7 @@ To see detailed agent activity:
 
 3. Check work system status:
    ```bash
-   /work-status
+   /work:status
    ```
 
 ---

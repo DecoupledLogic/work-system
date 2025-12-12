@@ -11,16 +11,16 @@ Templates for the Architecture Review Agent output. These serve as starting poin
 
 ## Usage
 
-### During Init (`/work-init`)
+### During Init (`/work:init`)
 
 The work system separates **install** (global, once) from **init** (per-repo):
 
 ```text
 work-system install    → Global setup of agents and commands
-/work-init             → Per-repo setup with architecture review
+/work:init             → Per-repo setup with architecture review
 ```
 
-When running `/work-init` in a repo directory:
+When running `/work:init` in a repo directory:
 
 1. Architecture Review Agent analyzes the codebase
 2. Agent generates customized versions of these templates

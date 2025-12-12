@@ -38,7 +38,7 @@ A specialized agent that analyzes codebases and produces architecture artifacts:
 │              ARCHITECTURE REVIEW AGENT                    │
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
-│  Input: Codebase (via /work-init)                       │
+│  Input: Codebase (via /work:init)                       │
 │                                                          │
 │  Pass 1: MAP                                             │
 │    - Identify layers, modules, components               │
@@ -125,7 +125,7 @@ Existing agents (design, dev) read architecture files and validate compliance:
 │                  DELIVERY PIPELINE                      │
 ├────────────────────────────────────────────────────────┤
 │                                                         │
-│  /deliver TW-12345                                     │
+│  /workflow:deliver TW-12345                                     │
 │       │                                                 │
 │       ▼                                                 │
 │  ┌─────────────┐                                       │
@@ -194,14 +194,14 @@ Or if violations are detected:
 
 ### Negative
 
-- **Initial Setup**: Requires /work-init run for each repo
+- **Initial Setup**: Requires /work:init run for each repo
 - **Maintenance**: Architecture files need updating as codebase evolves
 - **Overhead**: Additional context for agents to process
 - **False Positives**: Overly strict guardrails may block valid approaches
 
 ### Mitigations
 
-- **Incremental adoption**: Can run /work-init anytime, files are additive
+- **Incremental adoption**: Can run /work:init anytime, files are additive
 - **Human override**: Agents report violations but humans decide action
 - **Periodic review**: Re-run architecture review to update artifacts
 - **Guardrail tuning**: Adjust enforcement level per guardrail
@@ -212,9 +212,9 @@ Or if violations are detected:
 
 | File | Purpose |
 |------|---------|
-| `agents/architecture-review-agent.md` | Agent that analyzes codebases |
-| `commands/work-init.md` | Per-repo initialization command |
-| `commands/architecture-review.md` | On-demand architecture review |
+| `agents/quality:architecture-review-agent.md` | Agent that analyzes codebases |
+| `commands/work:init.md` | Per-repo initialization command |
+| `commands/quality:architecture-review.md` | On-demand architecture review |
 | `docs/templates/architecture.yaml` | Template for architecture spec |
 | `docs/templates/agent-playbook.yaml` | Template for agent playbook |
 
@@ -228,12 +228,12 @@ Or if violations are detected:
 
 ### Workflow
 
-1. **Initial setup**: Run `/work-init` in project root
+1. **Initial setup**: Run `/work:init` in project root
 2. **Architecture review**: Agent analyzes codebase
 3. **Artifact generation**: Creates `.claude/architecture.yaml` and `.claude/agent-playbook.yaml`
 4. **Development**: Agents read artifacts and follow rules
 5. **Compliance reporting**: Delivery includes architecture compliance status
-6. **Maintenance**: Re-run `/architecture-review` as codebase evolves
+6. **Maintenance**: Re-run `/quality:architecture-review` as codebase evolves
 
 ## Alternatives Considered
 
@@ -284,6 +284,6 @@ Use tools like ArchUnit, NDepend.
 
 ## References
 
-- [Architecture Review Methodology](../architecture-review-agent.md) - Full 3-pass review process with 6 evaluation lenses and 4 recommendation buckets
+- [Architecture Review Methodology](../quality:architecture-review-agent.md) - Full 3-pass review process with 6 evaluation lenses and 4 recommendation buckets
 - [Architecture Agent Prompts](../architecture-agents-prompts.md) - System prompts for Architecture Review Agent and Architecture-Aware Builder Agent, including orchestrator message formats
 - [Architecture Templates](../templates/) - YAML templates for `architecture.yaml` and `agent-playbook.yaml`

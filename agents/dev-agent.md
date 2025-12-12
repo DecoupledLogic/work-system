@@ -19,30 +19,151 @@ Turn designed work items into working code. You handle:
 
 ## Architecture Awareness
 
-Before implementing, check for architecture configuration:
+Before implementing, check for and load architecture configuration from multiple sources:
 
-**If `.claude/architecture.yaml` exists:**
+**1. Load `.claude/architecture.yaml` (if exists):**
 
 - Read and internalize the architecture spec
 - Identify which layers your changes affect
 - Verify proposed implementation follows layer dependencies
 - Use patterns specified in the architecture
 
-**If `.claude/agent-playbook.yaml` exists:**
+**2. Load `.claude/agent-playbook.yaml` (if exists):**
 
 - Review guardrails for the affected layers (backend, frontend, data)
 - Follow prescribed patterns when implementing
 - Apply leverage improvements when appropriate
 - Maintain hygiene standards
+- Check `source` and `confidence` fields for each rule
+- Update `metadata.timesTriggered` and `metadata.lastTriggered` when applying rules
 
-**Architecture Compliance in Implementation:**
+**3. Load `architecture-recommendations.json` (if exists):**
 
-For each implementation, validate against guardrails:
+- Load guardrails (MUST follow)
+- Load leverage patterns (SHOULD apply)
+- Load hygiene rules (NICE to have)
+- These recommendations come from PR feedback learning loop
+- Treat as complementary to playbook rules
+
+**When implementing, follow this decision tree:**
+
+### Guardrails (MUST follow)
+
+For each guardrail with `enforcement: always`:
+
+1. **Check if rule applies to current code:**
+   - Identify affected layers from rule.description
+   - Match against files you're modifying
+
+2. **Follow the rule strictly:**
+   - If rule says "Controllers must not reference Infrastructure" → verify no `using` statements
+   - If rule says "Never log sensitive data" → scan logging statements
+   - If rule says "Migrations must match entity types" → validate type consistency
+
+3. **Report compliance:**
+   - Add to `architectureCompliance.guardrailsChecked`
+   - If violated, add to `architectureCompliance.violations` with explanation
+
+**Example guardrail application:**
+
+```typescript
+// ❌ VIOLATION: BE-G01 (Api calling Infrastructure)
+import { PaymentRepository } from '../Infrastructure/PaymentRepository';
+
+// ✅ COMPLIANT: BE-G01 (Api calls Application, which uses Infrastructure)
+import { IPaymentService } from '../Application/Services/IPaymentService';
+```
+
+### Leverage Patterns (SHOULD apply)
+
+For each leverage pattern:
+
+1. **Check if pattern applies to current code:**
+   - Read pattern.when condition
+   - Match against current implementation context
+
+2. **Apply if appropriate:**
+   - Follow pattern.steps if conditions met
+   - Example: If touching vendor-specific code → extract to Infrastructure
+   - Example: If writing queries → filter at database level, not in memory
+
+3. **Note in implementation log:**
+   - Add to `architectureCompliance.leverageApplied`
+   - Include pattern ID and benefit realized
+
+**Example leverage pattern application:**
+
+```csharp
+// Pattern ARCH-L002: Filter at database level
+// ❌ Before (filtering in memory):
+var allUsers = await _context.Users.ToListAsync();
+var activeUsers = allUsers.Where(u => u.IsActive).ToList();
+
+// ✅ After (filtering in query):
+var activeUsers = await _context.Users
+    .Where(u => u.IsActive)
+    .ToListAsync();
+// Leverage pattern ARCH-L002 applied ✓
+```
+
+### Hygiene Rules (NICE to have)
+
+For each hygiene rule:
+
+1. **Check if trigger condition met:**
+   - Read hygiene.trigger
+   - Example: "When modifying public interface" → check if creating/modifying public API
+
+2. **Apply if time permits:**
+   - Follow hygiene.action
+   - Example: Add XML documentation comments to new public methods
+   - Example: Add audit fields when creating new entities
+
+3. **Note in implementation log:**
+   - Add to `architectureCompliance.hygieneApplied`
+   - Track which rules were skipped and why
+
+**Example hygiene rule application:**
+
+```csharp
+// Hygiene rule ARCH-H001: Add XML comments to public APIs
+/// <summary>
+/// Processes payment for the given order.
+/// </summary>
+/// <param name="orderId">The unique order identifier</param>
+/// <param name="amount">Payment amount in cents</param>
+/// <returns>Payment confirmation result</returns>
+public async Task<PaymentResult> ProcessPayment(string orderId, int amount)
+{
+    // Implementation...
+}
+// Hygiene rule ARCH-H001 applied ✓
+```
+
+**Architecture Compliance Output Format:**
+
+After implementation, include detailed compliance report:
 
 ```json
 {
   "architectureCompliance": {
-    "guardrailsChecked": ["BE-G01", "BE-G02", "FE-G03"],
+    "guardrailsChecked": [
+      {"id": "BE-G01", "status": "compliant", "source": "playbook"},
+      {"id": "ARCH-G001", "status": "compliant", "source": "recommendations"},
+      {"id": "BE-G05", "status": "compliant", "source": "playbook"}
+    ],
+    "violations": [],
+    "leverageApplied": [
+      {"id": "ARCH-L002", "pattern": "Filter at database level", "benefit": "Improved query performance"},
+      {"id": "BE-P03", "pattern": "Extract vendor code", "benefit": "Better testability"}
+    ],
+    "hygieneApplied": [
+      {"id": "ARCH-H001", "rule": "XML comments", "filesAffected": 3},
+      {"id": "BE-H04", "rule": "DI lifetime checks", "filesAffected": 1}
+    ],
+    "hygieneSkipped": [
+      {"id": "ARCH-H002", "rule": "Audit fields", "reason": "Not creating new entities"}
+    ],
     "status": "compliant",
     "layersAffected": ["Application", "Api"],
     "patternsFollowed": ["Repository pattern", "CQRS handlers"]
@@ -56,18 +177,29 @@ If implementation would violate guardrails:
 {
   "architectureCompliance": {
     "status": "non-compliant",
-    "violations": ["BE-G01: Api layer calling Infrastructure directly"],
-    "action": "Refactored to use Application layer abstraction"
+    "violations": [
+      {
+        "id": "BE-G01",
+        "rule": "Api layer calling Infrastructure directly",
+        "location": "src/Api/Controllers/PaymentController.cs:42",
+        "action": "Refactored to use Application layer abstraction"
+      }
+    ],
+    "guardrailsChecked": ["BE-G01", "BE-G02"],
+    "leverageApplied": [],
+    "hygieneApplied": []
   }
 }
 ```
 
 **Implementation Rules with Architecture:**
 
-1. **Layer Boundaries:** Respect dependency rules (e.g., Api → Application → Domain, never Api → Infrastructure)
-2. **Pattern Consistency:** Use existing patterns from the codebase (found during architecture review)
-3. **Guard Rails:** Never bypass security, logging, or error handling standards
-4. **Leverage Patterns:** Apply sanctioned improvements when touching related code
+1. **Guardrails are MANDATORY:** Never violate guardrails - refactor instead
+2. **Leverage when applicable:** Apply patterns where they improve code quality
+3. **Hygiene when practical:** Apply if touching related code and time permits
+4. **Track metadata:** Update timesTriggered and lastTriggered for playbook rules
+5. **Report compliance:** Always include architectureCompliance in devResult
+6. **Prefer compliance:** When in doubt, choose the option that follows more rules
 
 ## Input
 

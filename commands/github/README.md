@@ -300,6 +300,180 @@ Create a GitHub pull request for the current branch.
 
 ---
 
+### `/gh-get-pr-comments`
+
+List all comments and review threads on a GitHub pull request.
+
+```bash
+/gh-get-pr-comments                  # Current branch's PR
+/gh-get-pr-comments 123              # Specific PR
+```
+
+**Parameters:**
+
+- `pr-number` (optional) - PR number (default: current branch's PR)
+
+**Output includes:**
+
+- General PR comments
+- Formal reviews (APPROVED, CHANGES_REQUESTED, COMMENTED)
+- Comment authors and timestamps
+- Summary counts
+
+**Use cases:**
+
+- View feedback before addressing
+- Check for approvals
+- Monitor PR discussion
+
+---
+
+### `/gh-comment-pr`
+
+Add a general comment to a GitHub pull request.
+
+```bash
+/gh-comment-pr "LGTM!"                          # Current branch's PR
+/gh-comment-pr 123 "Looks great! Approved."     # Specific PR
+/gh-comment-pr "Can you add tests?"             # Request changes
+```
+
+**Parameters:**
+
+- `pr-number` (optional) - PR number (default: current branch's PR)
+- `comment` (required) - Comment text (supports Markdown)
+
+**Use cases:**
+
+- General feedback and discussion
+- Status updates
+- Questions about approach
+- Informal approval messages
+
+**Note:** For inline code comments and replies, see `/gh-reply-pr-comment` below.
+
+---
+
+### `/gh-reply-pr-comment`
+
+Reply to an existing comment thread on a pull request.
+
+```bash
+# Reply to specific comment
+gh api repos/{owner}/{repo}/pulls/comments/{comment_id}/replies \
+  -X POST -f body="Fixed - changed to Transient as suggested"
+```
+
+**Parameters:**
+
+- `comment_id` (required) - ID of the comment to reply to
+- `body` (required) - Text of your reply
+
+**Use cases:**
+
+- Respond to code review feedback
+- Address specific concerns
+- Explain changes made
+- Ask for clarification on feedback
+
+**Workflow:**
+1. Use `/gh-get-pr-comments` to find comment IDs
+2. Make necessary code changes
+3. Reply to explain what was fixed
+4. Optionally resolve with `/gh-resolve-pr-comment`
+
+See [gh-reply-pr-comment.md](gh-reply-pr-comment.md) for detailed usage.
+
+---
+
+### `/gh-resolve-pr-comment`
+
+Mark a pull request comment thread as resolved.
+
+```bash
+# Mark comment as resolved
+gh api repos/{owner}/{repo}/pulls/comments/{comment_id} \
+  -X PATCH -f state="resolved"
+```
+
+**Parameters:**
+
+- `comment_id` (required) - ID of the comment thread
+- `state` - Either "resolved" or "unresolved"
+
+**Use cases:**
+
+- Mark issues as addressed after fixing
+- Close resolved discussions
+- Track PR progress
+
+**Best practices:**
+- Reply with explanation before resolving
+- Let reviewers verify critical fixes
+- Resolve obvious typos immediately
+
+See [gh-resolve-pr-comment.md](gh-resolve-pr-comment.md) for detailed usage.
+
+---
+
+### `/gh-review-pr`
+
+Submit a formal code review with approval, change requests, or comments.
+
+```bash
+/gh-review-pr 123 --approve --body "LGTM! Great work."
+/gh-review-pr 123 --request-changes --body "Please address the DI lifetime issues"
+/gh-review-pr 123 --comment --body "Some architectural thoughts"
+```
+
+**Parameters:**
+
+- `pr-number` (optional) - PR number (default: current branch's PR)
+- `--approve` - Approve the PR
+- `--request-changes` - Request changes before merging
+- `--comment` - Add review without approval/rejection
+- `--body` (required) - Review summary text
+
+**Use cases:**
+
+- Formal PR approval
+- Request specific changes
+- Provide architectural feedback
+- Add non-blocking suggestions
+
+**Review types:**
+- **APPROVE**: PR can be merged
+- **REQUEST_CHANGES**: Blocks merge, changes needed
+- **COMMENT**: Neutral feedback, doesn't block
+
+See [gh-review-pr.md](gh-review-pr.md) for detailed usage.
+
+---
+
+### Learning from PR Feedback
+
+After PR is merged, you can extract learnable patterns from reviewer feedback:
+
+```bash
+# Extract patterns from merged PR
+/extract-review-patterns --source github --pr 123
+
+# Patterns are saved to code-review-patterns.yaml in project root
+# Next time you run /code-review, these patterns will be checked automatically
+```
+
+**Pattern Learning Flow:**
+1. PR gets feedback → Comments created
+2. You address feedback → PR merged
+3. Extract patterns → Patterns stored in `code-review-patterns.yaml`
+4. Future code reviews → Patterns automatically checked
+
+This creates a self-improving code review system that learns from your team's actual PR feedback.
+
+See [extract-review-patterns.md](../extract-review-patterns.md) for details.
+
+---
+
 ### `/gh-merge-pr`
 
 Merge a PR using **rebase strategy** and delete branch.

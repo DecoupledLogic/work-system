@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://work-system/schemas/architecture-recommendations.schema.json",
+  "title": "Architecture Recommendations",
+  "description": "Structured architecture guidelines learned from PR feedback and architecture reviews",
+  "type": "object",
+  "required": ["schemaVersion", "recommendations"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version (semver format)"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of last update (ISO 8601)"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["architecture-review", "pr-feedback-learning", "manual"],
+      "description": "How these recommendations were generated"
+    },
+    "recommendations": {
+      "type": "object",
+      "properties": {
+        "guardrails": {
+          "type": "array",
+          "description": "Critical rules that MUST be followed",
+          "items": { "$ref": "#/definitions/guardrail" }
+        },
+        "leverage": {
+          "type": "array",
+          "description": "Sanctioned improvements that SHOULD be applied when appropriate",
+          "items": { "$ref": "#/definitions/leverage" }
+        },
+        "hygiene": {
+          "type": "array",
+          "description": "Nice-to-have improvements applied when touching related code",
+          "items": { "$ref": "#/definitions/hygiene" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "guardrail": {
+      "type": "object",
+      "required": ["id", "category", "priority", "title", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ARCH-G\\d{3}$",
+          "description": "Unique identifier (e.g., ARCH-G001)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the guardrail",
+          "examples": ["Architecture", "Security", "Performance", "Data"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["Critical", "High", "Medium"],
+          "description": "Enforcement priority"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short title for the guardrail"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed explanation of what must be followed"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this rule matters"
+        },
+        "source": {
+          "$ref": "#/definitions/source",
+          "description": "Where this guardrail came from"
+        },
+        "implementation": {
+          "$ref": "#/definitions/implementation",
+          "description": "How to enforce this guardrail"
+        }
+      }
+    },
+    "leverage": {
+      "type": "object",
+      "required": ["id", "category", "priority", "title", "pattern"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ARCH-L\\d{3}$",
+          "description": "Unique identifier (e.g., ARCH-L001)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the pattern"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["Medium"],
+          "description": "Leverage patterns are always Medium priority"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short title for the pattern"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "When to apply this pattern"
+        },
+        "benefit": {
+          "type": "string",
+          "description": "What improves when this pattern is applied"
+        },
+        "source": {
+          "$ref": "#/definitions/source",
+          "description": "Where this pattern came from"
+        }
+      }
+    },
+    "hygiene": {
+      "type": "object",
+      "required": ["id", "category", "priority", "title", "trigger", "action"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ARCH-H\\d{3}$",
+          "description": "Unique identifier (e.g., ARCH-H001)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the hygiene rule"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["Low"],
+          "description": "Hygiene rules are always Low priority"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short title for the hygiene rule"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "When to apply this rule"
+        },
+        "action": {
+          "type": "string",
+          "description": "What action to take"
+        },
+        "benefit": {
+          "type": "string",
+          "description": "Why this helps code quality"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["pr-feedback", "architecture-review", "manual"],
+          "description": "Source type"
+        },
+        "pr": {
+          "type": "integer",
+          "description": "PR number if from PR feedback"
+        },
+        "reviewer": {
+          "type": "string",
+          "description": "Reviewer name if from PR feedback"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the recommendation was identified"
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "type": "string",
+          "description": "What to check to validate compliance"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["every-commit", "every-pr", "weekly", "monthly"],
+          "description": "How often to check"
+        },
+        "automation": {
+          "type": "string",
+          "description": "What tool/command enforces this",
+          "examples": ["code-review command", "CI pipeline", "pre-commit hook"]
+        }
+      }
+    }
+  }
+}

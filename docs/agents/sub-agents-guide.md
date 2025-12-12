@@ -261,7 +261,7 @@ Use Task tool with:
 
 ### Example 1: Code Reviewer Agent
 
-**File:** `.claude/agents/code-reviewer.md`
+**File:** `.claude/agents/quality:code-reviewer.md`
 
 ```markdown
 ---
@@ -645,7 +645,7 @@ ls -la ~/.claude/agents/
 ls -la .claude/agents/
 
 # Edit agent
-code .claude/agents/code-reviewer.md
+code .claude/agents/quality:code-reviewer.md
 ```
 
 ### Testing Agents

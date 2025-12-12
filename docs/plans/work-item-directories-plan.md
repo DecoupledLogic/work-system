@@ -198,7 +198,7 @@ Updated document-writer behavior:
    - Define work-item.yaml schema
 
 2. **Initialization logic** (update stage agents)
-   - `/triage` creates directory if not exists
+   - `/workflow:triage` creates directory if not exists
    - Writes initial `work-item.yaml`
    - Creates empty `activity-log.md` with header
 
@@ -231,7 +231,7 @@ Updated document-writer behavior:
    - Accept `workItemDir` in context
    - Output to work-item directory when provided
 
-2. **Command updates** (`/doc-write`)
+2. **Command updates** (`/docs:write`)
    - Auto-detect active work item
    - Route output to work-item directory
 
@@ -241,7 +241,7 @@ Updated document-writer behavior:
 
 **Deliverables:**
 
-1. **Context loader** (update `/resume`)
+1. **Context loader** (update `/workflow:resume`)
    - Read `activity-log.md` for history
    - Summarize previous sessions
    - Identify last stage and artifacts
@@ -268,10 +268,10 @@ Updated document-writer behavior:
 | File | Changes |
 |------|---------|
 | `agents/session-logger.md` | Add `log_to_work_item` action |
-| `agents/triage-agent.md` | Initialize directory on triage |
+| `agents/workflow:triage-agent.md` | Initialize directory on triage |
 | `agents/document-writer-agent.md` | Support work-item directory output |
-| `commands/doc-write.md` | Route to work-item directory |
-| `commands/resume.md` | Read activity log for context |
+| `commands/docs:write.md` | Route to work-item directory |
+| `commands/workflow:resume.md` | Read activity log for context |
 | `docs/agents/document-writer-agent.md` | Update path documentation |
 | `.gitignore` | Add `work-items/*/session-notes.md` |
 | `docs/.gitignore.worksystem` | Add `work-items/*/session-notes.md` |
@@ -282,7 +282,7 @@ Updated document-writer behavior:
    - `activity-log.md` → Tracked (team-facing history)
    - `session-notes.md` → Gitignored (personal scratch notes)
 2. **Document duplication?** → Work-items only (no dual storage)
-3. **Initialization timing?** → At `/triage` (first stage entry)
+3. **Initialization timing?** → At `/workflow:triage` (first stage entry)
 
 ## Gitignore Updates Required
 
@@ -296,10 +296,10 @@ work-items/*/session-notes.md
 ## Success Criteria
 
 - [ ] `work-items/` directory structure defined in schema
-- [ ] `/triage` creates work-item directory automatically
+- [ ] `/workflow:triage` creates work-item directory automatically
 - [ ] Activity log captures stage transitions
 - [ ] Document writer outputs to work-item directory
-- [ ] `/resume` can read activity log for context recovery
+- [ ] `/workflow:resume` can read activity log for context recovery
 - [ ] ADR-0006 documents the decision
 
 ## References

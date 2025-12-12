@@ -829,7 +829,7 @@ deliverables:
     milestone: Inception
     type: document
     capability: writer
-    template: templates/inception/design-review-notes.md
+    template: templates/inception/workflow:design-review-notes.md
 
 -   name: Investor Teaser  
     milestone: Inception  

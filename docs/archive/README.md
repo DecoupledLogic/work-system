@@ -36,7 +36,7 @@ These archived documents contain patterns that may be useful for future enhancem
 ### From agenticops-value-train.md
 - **Auto-Pilot Agent**: Autonomous task execution with issue selection, branching, CI gates
 - **ticket.yml Schema**: Phase-based ticket tracking with checklists and artifacts
-- **Mode System**: Operating contexts (/intake, /discover, /scope, /design, /build, /evaluate, /deliver, /operate, /improve)
+- **Mode System**: Operating contexts (/intake, /discover, /scope, /workflow:design, /build, /evaluate, /workflow:deliver, /operate, /improve)
 - **Guard-Rails**: Path protection, single-writer rules, monotonic diff checks
 
 ### From pipeline.md

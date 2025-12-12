@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2025-12-11T14:30:00Z",
+  "source": "pr-feedback-learning",
+  "recommendations": {
+    "guardrails": [
+      {
+        "id": "ARCH-G001",
+        "category": "Architecture",
+        "priority": "Critical",
+        "title": "Domain layer must not reference Infrastructure",
+        "description": "Keep domain layer pure - no dependencies on Infrastructure layer. Domain entities and interfaces should have no knowledge of persistence, HTTP, or external services.",
+        "rationale": "Maintaining clean architecture boundaries ensures domain logic remains portable, testable, and independent of infrastructure concerns. This enables easy migration to different data stores or frameworks.",
+        "source": {
+          "type": "pr-feedback",
+          "pr": 1045,
+          "reviewer": "Ali Bijanfar",
+          "date": "2025-01-15"
+        },
+        "implementation": {
+          "check": "Scan Domain project for Infrastructure references using pattern: using.*\\.Infrastructure",
+          "frequency": "every-commit",
+          "automation": "code-review command"
+        }
+      },
+      {
+        "id": "ARCH-G002",
+        "category": "Security",
+        "priority": "Critical",
+        "title": "Never log sensitive data",
+        "description": "Do not log API keys, passwords, tokens, secrets, or personally identifiable information (PII). Use redaction or masking for sensitive fields.",
+        "rationale": "Logging sensitive data creates security vulnerabilities through log files, monitoring systems, and log aggregation services. Leaked credentials can lead to unauthorized access.",
+        "source": {
+          "type": "pr-feedback",
+          "pr": 1047,
+          "reviewer": "Security Team",
+          "date": "2025-01-20"
+        },
+        "implementation": {
+          "check": "Search logs for patterns matching API keys, passwords, tokens. Use regex: (apikey|password|token|secret).*=",
+          "frequency": "every-pr",
+          "automation": "code-review command + static analysis"
+        }
+      },
+      {
+        "id": "ARCH-G003",
+        "category": "Data",
+        "priority": "High",
+        "title": "Migration types must match entity definitions",
+        "description": "EF Core migration column types must exactly match entity property types. Mismatches cause runtime errors and data corruption.",
+        "rationale": "Type mismatches between migrations and entities cause schema drift, runtime exceptions, and data loss. Ensuring consistency maintains data integrity.",
+        "source": {
+          "type": "pr-feedback",
+          "pr": 1047,
+          "reviewer": "Ali Bijanfar",
+          "date": "2025-01-18"
+        },
+        "implementation": {
+          "check": "Compare migration column definitions with entity properties. Flag type mismatches (e.g., string → bigint)",
+          "frequency": "every-pr",
+          "automation": "code-review command"
+        }
+      }
+    ],
+    "leverage": [
+      {
+        "id": "ARCH-L001",
+        "category": "Refactoring",
+        "priority": "Medium",
+        "title": "Extract vendor-specific code to Infrastructure",
+        "pattern": "When touching Abstractions with vendor names (Staxbill, Stripe, etc.), extract to Infrastructure",
+        "benefit": "Improves testability, enables vendor switching, keeps domain layer clean and portable",
+        "source": {
+          "type": "pr-feedback",
+          "pr": 1045,
+          "reviewer": "Ali Bijanfar",
+          "date": "2025-01-15"
+        }
+      },
+      {
+        "id": "ARCH-L002",
+        "category": "Performance",
+        "priority": "Medium",
+        "title": "Filter at database level, not in memory",
+        "pattern": "When writing queries that need filtering, apply filters in LINQ/SQL before fetching",
+        "benefit": "Reduces memory usage, improves query performance, prevents N+1 issues",
+        "source": {
+          "type": "pr-feedback",
+          "pr": 1050,
+          "reviewer": "Performance Review",
+          "date": "2025-01-22"
+        }
+      },
+      {
+        "id": "ARCH-L003",
+        "category": "DependencyInjection",
+        "priority": "Medium",
+        "title": "Verify DI lifetime selection when adding services",
+        "pattern": "When adding new services to DI container, choose correct lifetime: Transient (stateless), Scoped (per-request), Singleton (global)",
+        "benefit": "Prevents memory leaks, ensures correct scoping, avoids state-related bugs",
+        "source": {
+          "type": "pr-feedback",
+          "pr": 1045,
+          "reviewer": "Ali Bijanfar",
+          "date": "2025-01-15"
+        }
+      }
+    ],
+    "hygiene": [
+      {
+        "id": "ARCH-H001",
+        "category": "Documentation",
+        "priority": "Low",
+        "title": "Add XML comments to public APIs",
+        "trigger": "When modifying public interface or class",
+        "action": "Add /// summary comments describing purpose, parameters, and return values",
+        "benefit": "Improves discoverability, enhances IntelliSense, helps future developers understand APIs"
+      },
+      {
+        "id": "ARCH-H002",
+        "category": "DataIntegrity",
+        "priority": "Low",
+        "title": "Ensure audit fields on entities",
+        "trigger": "When creating or modifying entity classes",
+        "action": "Add CreatedOn, CreatedBy, UpdatedOn, UpdatedBy fields if not present",
+        "benefit": "Enables tracking of data changes, supports compliance and debugging"
+      },
+      {
+        "id": "ARCH-H003",
+        "category": "Testing",
+        "priority": "Low",
+        "title": "Add test cases when fixing bugs",
+        "trigger": "When fixing a bug",
+        "action": "Add regression test that would have caught the bug",
+        "benefit": "Prevents bug reoccurrence, improves test coverage, documents expected behavior"
+      }
+    ]
+  }
+}

@@ -101,8 +101,8 @@ Elaboration: Task
 
 #### Version D: agenticops-value-train.md (Modes)
 ```
-/intake → /discover → /scope → /design → /build →
-/evaluate → /deliver → /operate → /improve
+/intake → /discover → /scope → /workflow:design → /build →
+/evaluate → /workflow:deliver → /operate → /improve
 ```
 - Mode-based operating contexts
 - CI/CD integration (Auto-Pilot)

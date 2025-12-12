@@ -610,7 +610,7 @@ Commands integrate with session-logger as follows:
 6. Include final status and metrics
 ```
 
-**Example integration in /triage:**
+**Example integration in /workflow:triage:**
 
 ```
 At triage start:

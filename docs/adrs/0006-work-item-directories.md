@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Date
 
@@ -109,7 +109,7 @@ Work item directories **are tracked in git**. This preserves history, enables co
 - **Complete context**: All artifacts for a work item in one place
 - **Cross-session continuity**: Activity log survives Claude session resets
 - **Easy handoffs**: Another developer can read activity log to understand history
-- **Better `/resume`**: Can load activity log to reconstruct context
+- **Better `/workflow:resume`**: Can load activity log to reconstruct context
 - **Cleaner repo**: No more scattered `TW-12345-*.md` files across category folders
 - **Local ADRs**: Work-item-specific decisions stay with the work item
 

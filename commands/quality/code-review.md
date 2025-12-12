@@ -348,6 +348,98 @@ Identify the microservice structure:
 └── TECH_DEBT.md                      # Technical debt tracking
 ```
 
+### Step 1.5: Load Custom Review Patterns
+
+Load project-specific patterns learned from PR feedback and architecture reviews:
+
+**Pattern Sources (in priority order):**
+1. `code-review-patterns.yaml` - Pattern detection rules (project root)
+2. `architecture-recommendations.json` - Architecture guardrails (project root)
+3. Built-in patterns (defined in "Key Review Patterns" section above)
+
+**Note:** These files are **per-project** and should be in the project being reviewed, not in the work-system repository. Each project learns from its own PR feedback and architecture decisions.
+
+**Pattern Loading Process:**
+
+**1. Load code-review-patterns.yaml:**
+   - Check if `code-review-patterns.yaml` exists in current project root
+   - If exists:
+     - Parse YAML file
+     - Load all patterns from `patterns` array
+     - Validate schema version (currently `1.0.0`)
+     - Merge with built-in patterns
+   - If doesn't exist:
+     - Use only built-in patterns
+     - Suggest: "💡 Run `/extract-review-patterns` to build custom pattern library from PR feedback"
+
+**2. Load architecture-recommendations.json:**
+   - Check if `architecture-recommendations.json` exists in current project root
+   - If exists:
+     - Parse JSON file
+     - Load guardrails from `recommendations.guardrails` array
+     - These are Critical/High priority rules that MUST be checked
+     - Include guardrail ID (e.g., ARCH-G001) in findings for traceability
+   - If doesn't exist:
+     - Skip architecture recommendations
+     - Suggest: "💡 Run `/architecture-review` or `/extract-review-patterns` to generate architecture recommendations"
+
+**Pattern Application:**
+
+For each loaded pattern from code-review-patterns.yaml:
+- Check if `pattern.detection.files` glob matches files in scope
+- If matched, apply pattern detection during relevant review step
+- Use `pattern.priority` to determine severity level
+- Include `pattern.source` in findings for traceability
+
+For each guardrail from architecture-recommendations.json:
+- Apply check described in `guardrail.implementation.check`
+- Report violations as Critical or High severity based on `guardrail.priority`
+- Include `guardrail.id` and `guardrail.rationale` in findings
+- Suggest remediation based on guardrail description
+
+**Pattern Structure:**
+
+Code Review Patterns include:
+- `id`: Unique identifier (e.g., `DI-LIFETIME-001`)
+- `category`: Type of issue (Architecture, DependencyInjection, etc.)
+- `priority`: High/Medium/Low
+- `title`: Short description
+- `rule`: The guideline being enforced
+- `antiPattern`: Code example of what not to do
+- `correctPattern`: Code example of correct implementation
+- `detection.files`: Glob patterns for affected files
+- `detection.pattern`: Regex to detect the issue
+- `detection.validation`: Additional validation logic
+- `remediation`: How to fix the issue
+- `source`: PR/reviewer where pattern was learned
+
+Architecture Guardrails include:
+- `id`: Unique identifier (e.g., `ARCH-G001`)
+- `category`: Type of issue (Architecture, Security, etc.)
+- `priority`: Critical/High/Medium
+- `title`: Short description
+- `description`: Detailed explanation
+- `rationale`: Why this rule matters
+- `implementation.check`: What to check
+- `implementation.automation`: How it's enforced
+- `source`: Where this came from (pr-feedback, architecture-review)
+
+**Example Pattern Application:**
+
+When reviewing `ServiceCollectionExtensions.cs`:
+
+1. **Code Review Pattern Check (DI-LIFETIME-001):**
+   - Check if file matches `**/ServiceCollectionExtensions.cs` glob
+   - Run regex `AddScoped<(I\w+(?:Query|Command|Repository)), (\w+)>` against file
+   - For each match, validate using pattern's validation rules
+   - Report findings with pattern ID, location, and remediation steps
+
+2. **Architecture Guardrail Check (ARCH-G001):**
+   - If reviewing Domain layer files
+   - Check for `using.*\.Infrastructure` patterns
+   - If found, report Critical violation: "Domain layer must not reference Infrastructure"
+   - Include guardrail ID (ARCH-G001) and rationale in findings
+
 ### Step 2: Review Abstractions Layer
 
 **Files to examine:**
@@ -763,10 +855,12 @@ The review uses these reference files when available:
 
 - `.claude/architecture.yaml` - Architecture guardrails
 - `.claude/agent-playbook.yaml` - Project-specific rules
+- `code-review-patterns.yaml` - Learned patterns from PR feedback (root directory)
 - `TECH_DEBT.md` - Existing debt tracking
 
 ## See Also
 
 - `/deliver` - Delivery pipeline with integrated code review
+- `/extract-review-patterns` - Extract learnable patterns from PR feedback
 - `/architecture-review` - Full architecture analysis
 - `/work-init` - Initialize work system with architecture config

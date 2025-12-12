@@ -12,8 +12,8 @@ stages:
   - name: select
     description: Select work from queue
     commands:
-      - /select-task
-      - /resume
+      - /workflow:select-task
+      - /workflow:resume
     agents:
       - task-fetcher
       - task-selector
@@ -27,7 +27,7 @@ stages:
   - name: triage
     description: Categorize work item, assign template, route to queue
     commands:
-      - /triage
+      - /workflow:triage
     agents:
       - work-item-mapper
       - triage-agent
@@ -46,7 +46,7 @@ stages:
   - name: plan
     description: Break down work items, set estimates, create children
     commands:
-      - /plan
+      - /workflow:plan
     agents:
       - plan-agent
     transitions:
@@ -64,7 +64,7 @@ stages:
   - name: design
     description: Create solution options, make decisions, produce ADRs
     commands:
-      - /design
+      - /workflow:design
     agents:
       - design-agent
     transitions:
@@ -82,11 +82,29 @@ stages:
   - name: deliver
     description: Implement solution, run tests, evaluate results
     commands:
-      - /deliver
-      - /dev
-      - /qa
-      - /verify
-      - /code-review
+      - /workflow:deliver
+      - /workflow:queue
+      - /workflow:route
+      - /quality:code-review
+      - /quality:architecture-review
+      - /quality:extract-review-patterns
+      - /recommendations:list
+      - /recommendations:view
+      - /recommendations:disable
+      - /recommendations:enable
+      - /recommendations:stats
+      - /playbook:validate
+      - /playbook:check-conflicts
+      - /playbook:stats
+      - /playbook:track-detection
+      - /playbook:export-patterns
+      - /playbook:import-patterns
+      - /delivery:log-start
+      - /delivery:log-complete
+      - /delivery:log-update
+      - /dotnet:test
+      - /dotnet:build
+      - /dotnet:restore
     agents:
       - dev-agent
       - qa-agent
@@ -96,12 +114,16 @@ stages:
       - design  # If issues found, return to design
     context_files:
       - ~/.claude/session/active-work.md
+      - .claude/architecture.yaml
+      - .claude/agent-playbook.yaml
+      - .claude/history/recommendations-history.jsonl
     outputs:
       - code_changes
       - test_results
       - implementation_document
       - pr
       - code_review_report
+      - architecture_recommendations
 
 # Queue definitions (maps to urgency)
 queues:
@@ -165,8 +187,14 @@ agents:
   - name: dev-agent
     path: ~/.claude/agents/dev-agent.md
     model: sonnet
-    purpose: Implement code changes
-    status: planned
+    purpose: Implement code changes following TDD
+    status: active
+
+  - name: story-delivery-agent
+    path: ~/.claude/agents/story-delivery-agent.md
+    model: sonnet
+    purpose: Orchestrate end-to-end story delivery (11-step workflow)
+    status: active
 
   - name: qa-agent
     path: ~/.claude/agents/qa-agent.md

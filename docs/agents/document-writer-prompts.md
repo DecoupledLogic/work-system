@@ -151,15 +151,15 @@ Optional: actionItems, metrics, learnings
 
 ### Slash Command Flow
 
-The `/doc-write` command orchestrates document generation:
+The `/docs:write` command orchestrates document generation:
 
 ```text
-/doc-write <template> [options]
+/docs:write <template> [options]
 
 Examples:
-  /doc-write prd --work-item TW-12345
-  /doc-write spec --work-item TW-12345
-  /doc-write adr --title "Use JWT for authentication"
+  /docs:write prd --work-item TW-12345
+  /docs:write spec --work-item TW-12345
+  /docs:write adr --title "Use JWT for authentication"
 ```
 
 ### Orchestrator Prompt
@@ -294,7 +294,7 @@ Available templates:
 ### Generating PRD from Feature
 
 ```text
-User: /doc-write prd --work-item TW-26134585
+User: /docs:write prd --work-item TW-26134585
 
 Orchestrator:
 1. Fetches TW-26134585 (type: feature)
@@ -310,7 +310,7 @@ Orchestrator:
 ### Generating Spec from Story
 
 ```text
-User: /doc-write spec --work-item TW-26134586
+User: /docs:write spec --work-item TW-26134586
 
 Orchestrator:
 1. Fetches TW-26134586 (type: story)
@@ -324,7 +324,7 @@ Orchestrator:
 ### Generating ADR from Design
 
 ```text
-User: /design TW-26134585 (completes design)
+User: /workflow:design TW-26134585 (completes design)
 
 Design Agent → Orchestrator:
 1. Design agent produces designResult with ADR content
@@ -338,7 +338,7 @@ Design Agent → Orchestrator:
 ### Interactive Mode
 
 ```text
-User: /doc-write prd --interactive
+User: /docs:write prd --interactive
 
 Orchestrator:
 1. Prompts: "Feature name?"

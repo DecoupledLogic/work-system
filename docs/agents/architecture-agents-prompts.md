@@ -517,7 +517,7 @@ The work system has two distinct setup phases:
 | **Install** | Global | Once | Installs agents, commands, templates globally |
 | **Init** | Per-repo | Per project | Sets up a specific repo for architecture-aware work |
 
-### At Init Time (`/work-init`)
+### At Init Time (`/work:init`)
 
 When initializing the work system in a specific repo:
 

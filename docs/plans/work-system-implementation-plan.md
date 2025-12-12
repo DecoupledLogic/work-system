@@ -9,7 +9,7 @@ This document defines the phased implementation plan to evolve our current Claud
 | Component | Location | Status |
 |-----------|----------|--------|
 | Task fetching/selection | `~/.claude/agents/task-fetcher.md`, `task-selector.md` | Working |
-| Work selection commands | `~/.claude/commands/select-task.md`, `resume.md` | Working |
+| Work selection commands | `~/.claude/commands/workflow:select-task.md`, `resume.md` | Working |
 | Domain-specific workflow | `link-prodsupport/.claude/commands/` (triage, investigate, validate, verify, close) | Working |
 | Mode-based dev workflow | `cmds/.claude/commands/` (kick, begin, plan, design, dev, deliver, qa) | Working |
 | Target specification | `~/.claude/work-system.md` | Complete |
@@ -86,7 +86,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Deliverables
 
-1. **`~/.claude/agents/triage-agent.md`**
+1. **`~/.claude/agents/workflow:triage-agent.md`**
 
    Responsibilities (from work-system.md):
    - Categorize work item type (bug, support, feature, etc.)
@@ -100,7 +100,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
    Model: sonnet (requires reasoning about categorization)
 
-2. **`~/.claude/commands/triage.md`** (generalized)
+2. **`~/.claude/commands/workflow:triage.md`** (generalized)
 
    Thin orchestrator that:
    1. Accepts task ID or raw context
@@ -125,15 +125,15 @@ This document defines the phased implementation plan to evolve our current Claud
    }
    ```
 
-4. **Migration: Link `/triage` command**
+4. **Migration: Link `/workflow:triage` command**
 
    - Extract domain-specific logic to `link-prodsupport/.claude/agents/link-triage-agent.md`
-   - Update `/triage` to call global triage-agent first, then link-specific agent
+   - Update `/workflow:triage` to call global triage-agent first, then link-specific agent
    - Preserve all existing functionality
 
 #### Acceptance Criteria
 
-- [ ] `/triage TW-12345` works with any Teamwork task
+- [ ] `/workflow:triage TW-12345` works with any Teamwork task
 - [ ] Triage-agent correctly categorizes work type and urgency
 - [ ] Template is assigned based on detected work type
 - [ ] Link-specific triage still works (SQL scripts, schema validation)
@@ -151,7 +151,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Deliverables
 
-1. **`~/.claude/agents/plan-agent.md`**
+1. **`~/.claude/agents/workflow:plan-agent.md`**
 
    Responsibilities (from work-system.md):
    - Select work item from queue
@@ -165,7 +165,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
    Model: sonnet (requires decomposition reasoning)
 
-2. **`~/.claude/commands/plan.md`** (generalized)
+2. **`~/.claude/commands/workflow:plan.md`** (generalized)
 
    Thin orchestrator that:
    1. Reads triaged work items from queue (via Teamwork)
@@ -181,7 +181,7 @@ This document defines the phased implementation plan to evolve our current Claud
    - EstimatedEffort bounds
    - Required breakdown to tasks
 
-4. **Migration: CMDS `/plan` command**
+4. **Migration: CMDS `/workflow:plan` command**
 
    - Extract reusable logic to global plan-agent
    - Keep CMDS-specific GitHub integration
@@ -189,7 +189,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Acceptance Criteria
 
-- [ ] `/plan` decomposes a feature into stories
+- [ ] `/workflow:plan` decomposes a feature into stories
 - [ ] Stories have Gherkin acceptance criteria
 - [ ] Size bounds enforced (story max 3 days)
 - [ ] Child tasks created in Teamwork
@@ -207,7 +207,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Deliverables
 
-1. **`~/.claude/agents/design-agent.md`**
+1. **`~/.claude/agents/workflow:design-agent.md`**
 
    Responsibilities (from work-system.md):
    - Initialize design workspace (branch, docs)
@@ -221,7 +221,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
    Model: sonnet (requires technical reasoning)
 
-2. **`~/.claude/commands/design.md`** (generalized)
+2. **`~/.claude/commands/workflow:design.md`** (generalized)
 
    Thin orchestrator that:
    1. Reads planned work item
@@ -258,7 +258,7 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Acceptance Criteria
 
-- [ ] `/design` creates design branch
+- [ ] `/workflow:design` creates design branch
 - [ ] Design-agent produces solution options
 - [ ] ADR created with decision rationale
 - [ ] Implementation tasks generated
@@ -313,18 +313,18 @@ This document defines the phased implementation plan to evolve our current Claud
 
    Model: sonnet (evaluation reasoning)
 
-4. **`~/.claude/commands/deliver.md`** (generalized)
+4. **`~/.claude/commands/workflow:deliver.md`** (generalized)
 
    Orchestrates: dev-agent → qa-agent → eval-agent
 
-5. **Migration: CMDS `/dev`, `/deliver`, `/qa`**
+5. **Migration: CMDS `/dev`, `/workflow:deliver`, `/qa`**
 
    - Extract reusable patterns to global agents
    - Keep CMDS-specific workflow (TDD, session context)
 
 #### Acceptance Criteria
 
-- [ ] `/deliver` orchestrates full delivery pipeline
+- [ ] `/workflow:deliver` orchestrates full delivery pipeline
 - [ ] Dev-agent produces working code
 - [ ] QA-agent runs tests and reports results
 - [ ] Eval-agent compares plan vs actual
@@ -402,11 +402,11 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Deliverables
 
-1. **`~/.claude/commands/queue.md`**
+1. **`~/.claude/commands/workflow:queue.md`**
 
    Displays work items by queue:
    ```
-   /queue [immediate|todo|backlog|icebox]
+   /workflow:queue [immediate|todo|backlog|icebox]
    ```
 
    Shows:
@@ -415,11 +415,11 @@ This document defines the phased implementation plan to evolve our current Claud
    - Age in queue
    - Blocked items
 
-2. **`~/.claude/commands/route.md`**
+2. **`~/.claude/commands/workflow:route.md`**
 
    Moves work item between queues:
    ```
-   /route TW-12345 backlog
+   /workflow:route TW-12345 backlog
    ```
 
 3. **Queue mapping to Teamwork**
@@ -432,8 +432,8 @@ This document defines the phased implementation plan to evolve our current Claud
 
 #### Acceptance Criteria
 
-- [ ] `/queue` shows items by urgency lane
-- [ ] `/route` moves items between queues
+- [ ] `/workflow:queue` shows items by urgency lane
+- [ ] `/workflow:route` moves items between queues
 - [ ] Queue state persists in Teamwork
 
 ---
@@ -542,7 +542,7 @@ Phase 5        Phase 7
 
 | Current | Migration | Final State |
 |---------|-----------|-------------|
-| `/triage` (391 lines) | Extract to triage-agent + link-triage-agent | Thin orchestrator calling agents |
+| `/workflow:triage` (391 lines) | Extract to triage-agent + link-triage-agent | Thin orchestrator calling agents |
 | `/investigate` | Keep domain-specific (SQL focus) | Add session logging |
 | `/validate` | Keep domain-specific | Add template validation |
 | `/verify` | Keep domain-specific | Add eval-agent integration |
@@ -553,11 +553,11 @@ Phase 5        Phase 7
 | Current | Migration | Final State |
 |---------|-----------|-------------|
 | `/kick` | Keep as-is (project setup) | Add template initialization |
-| `/begin` | Merge with global `/select-task` | Thin orchestrator |
-| `/plan` | Extract to plan-agent | Thin orchestrator |
-| `/design` | Extract to design-agent | Thin orchestrator |
+| `/begin` | Merge with global `/workflow:select-task` | Thin orchestrator |
+| `/workflow:plan` | Extract to plan-agent | Thin orchestrator |
+| `/workflow:design` | Extract to design-agent | Thin orchestrator |
 | `/dev` | Extract to dev-agent | Thin orchestrator |
-| `/deliver` | Extract to delivery pipeline | Thin orchestrator |
+| `/workflow:deliver` | Extract to delivery pipeline | Thin orchestrator |
 | `/qa` | Extract to qa-agent | Thin orchestrator |
 
 ---
@@ -569,7 +569,7 @@ Phase 5        Phase 7
 | Phase | Success Metric |
 |-------|---------------|
 | 0 | All foundation files exist, work-item-mapper transforms sample task |
-| 1 | `/triage` works for both Link and general tasks |
+| 1 | `/workflow:triage` works for both Link and general tasks |
 | 2 | Feature can be decomposed into sized stories |
 | 3 | Design produces ADR and implementation plan |
 | 4 | Full delivery pipeline executes end-to-end |
@@ -616,7 +616,7 @@ The work system is complete when:
 
 3. **Begin Phase 1** (after Phase 0 acceptance)
    - Start with triage-agent
-   - Migrate Link /triage incrementally
+   - Migrate Link /workflow:triage incrementally
 
 ---
 
@@ -638,7 +638,7 @@ Track what was completed and when. Update this section after each work session.
 | 2024-12-07 | 6 | Completed Phase 6 Queue Management | See Phase 6 deliverables below |
 | 2024-12-07 | 7 | Completed Phase 7 Template Evolution | See Phase 7 deliverables below |
 | 2024-12-08 | 8 | Completed Phase 8 Domain Architecture | See Phase 8 deliverables below |
-| 2024-12-08 | 9 | Workflow-Aggregate Integration | Updated /triage, /plan, /design, /deliver |
+| 2024-12-08 | 9 | Workflow-Aggregate Integration | Updated /workflow:triage, /workflow:plan, /workflow:design, /workflow:deliver |
 | | | | |
 
 ### Phase Status
@@ -651,7 +651,7 @@ Track what was completed and when. Update this section after each work session.
 | 3 - Design | Complete | 2024-12-07 | 2024-12-07 | Agent, command, templates created |
 | 4 - Deliver | Complete | 2024-12-07 | 2024-12-07 | 3 agents, command, migration doc created |
 | 5 - Logging | Complete | 2024-12-07 | 2024-12-07 | Agent, log format, integration guide created |
-| 6 - Queues | Complete | 2024-12-07 | 2024-12-07 | /queue, /route commands, tag mapping documented |
+| 6 - Queues | Complete | 2024-12-07 | 2024-12-07 | /workflow:queue, /workflow:route commands, tag mapping documented |
 | 7 - Templates | Complete | 2024-12-07 | 2024-12-07 | Registry, validator, 9 templates, versioning |
 | 8 - Domain Architecture | Complete | 2024-12-08 | 2024-12-08 | Schemas, aggregates, natural language docs |
 
@@ -670,21 +670,21 @@ Track what was completed and when. Update this section after each work session.
 - [x] `~/.claude/session/.gitignore`
 
 #### Phase 1: Triage
-- [x] `~/.claude/agents/triage-agent.md`
-- [x] `~/.claude/commands/triage.md` (generalized)
+- [x] `~/.claude/agents/workflow:triage-agent.md`
+- [x] `~/.claude/commands/workflow:triage.md` (generalized)
 - [x] `~/.claude/templates/support/generic.json`
 - [x] `link-prodsupport/.claude/agents/link-triage-agent.md`
-- [x] Link `/triage` migration documented (TRIAGE-MIGRATION.md)
+- [x] Link `/workflow:triage` migration documented (TRIAGE-MIGRATION.md)
 
 #### Phase 2: Plan
-- [x] `~/.claude/agents/plan-agent.md`
-- [x] `~/.claude/commands/plan.md` (generalized)
+- [x] `~/.claude/agents/workflow:plan-agent.md`
+- [x] `~/.claude/commands/workflow:plan.md` (generalized)
 - [x] `~/.claude/templates/product/story.json`
-- [x] CMDS `/plan` migration documented (PLAN-MIGRATION.md)
+- [x] CMDS `/workflow:plan` migration documented (PLAN-MIGRATION.md)
 
 #### Phase 3: Design
-- [x] `~/.claude/agents/design-agent.md`
-- [x] `~/.claude/commands/design.md` (generalized)
+- [x] `~/.claude/agents/workflow:design-agent.md`
+- [x] `~/.claude/commands/workflow:design.md` (generalized)
 - [x] `docs/templates/documents/adr-skeleton.md`
 - [x] `~/.claude/templates/delivery/implementation-plan.json`
 
@@ -692,8 +692,8 @@ Track what was completed and when. Update this section after each work session.
 - [x] `~/.claude/agents/dev-agent.md`
 - [x] `~/.claude/agents/qa-agent.md`
 - [x] `~/.claude/agents/eval-agent.md`
-- [x] `~/.claude/commands/deliver.md` (generalized)
-- [x] CMDS `/dev`, `/deliver`, `/qa` migration documented (DELIVER-MIGRATION.md)
+- [x] `~/.claude/commands/workflow:deliver.md` (generalized)
+- [x] CMDS `/dev`, `/workflow:deliver`, `/qa` migration documented (DELIVER-MIGRATION.md)
 
 #### Phase 5: Logging
 - [x] `~/.claude/agents/session-logger.md`
@@ -701,10 +701,10 @@ Track what was completed and when. Update this section after each work session.
 - [x] Integration guide created (`~/.claude/session/logging-guide.md`)
 
 #### Phase 6: Queues
-- [x] `~/.claude/commands/queue.md`
-- [x] `~/.claude/commands/route.md`
+- [x] `~/.claude/commands/workflow:queue.md`
+- [x] `~/.claude/commands/workflow:route.md`
 - [x] `~/.claude/work-managers/README.md` (work manager abstraction)
-- [x] `~/.claude/work-managers/queue-store.md` (local queue storage spec)
+- [x] `~/.claude/work-managers/workflow:queue-store.md` (local queue storage spec)
 - [x] `~/.claude/work-managers/work-manager.schema.yaml` (configuration schema)
 - [x] `~/.claude/session/queues.json` (queue data store)
 
@@ -727,14 +727,14 @@ Track what was completed and when. Update this section after each work session.
 - [x] `schema/work-item.schema.md`
 - [x] `schema/project.schema.md`
 - [x] `schema/agent.schema.md`
-- [x] `schema/queue.schema.md`
+- [x] `schema/workflow:queue.schema.md`
 - [x] `schema/process-template.schema.md`
 - [x] `schema/external-system.schema.md`
 - [x] `commands/domain/README.md`
 - [x] `commands/domain/work-item.md`
 - [x] `commands/domain/project.md`
 - [x] `commands/domain/agent.md`
-- [x] `commands/domain/queue.md`
+- [x] `commands/domain/workflow:queue.md`
 - [x] `docs/programming-in-natural-language.md`
 - [x] `docs/domain-commands-guide.md`
 
@@ -770,7 +770,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 - Created `templates/_schema.json` with JSON schema for validation
 - Created `commands/index.yaml` with stage/agent definitions
 - Created `session/` directory with active-work.md, session-log.md, .gitignore
-- Created `/work-status` command for progress tracking
+- Created `/work:status` command for progress tracking
 
 **Decisions Made:**
 - work-item-mapper uses haiku (simple transformation)
@@ -783,7 +783,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 **Next Session:**
 - Begin Phase 1: Triage Stage
 - Create triage-agent.md
-- Create generalized /triage command
+- Create generalized /workflow:triage command
 
 ### Session: 2024-12-07 (Phase 1)
 
@@ -795,7 +795,7 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Template matching patterns
   - Queue routing decisions
   - Parent alignment logic
-- Created generalized `/triage` command
+- Created generalized `/workflow:triage` command
   - Input parsing (Teamwork ID, raw context, JSON)
   - Work-item-mapper integration
   - Triage-agent orchestration
@@ -820,7 +820,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 
 **Decisions Made:**
 - triage-agent uses sonnet (requires reasoning for categorization)
-- Link migration is gradual - existing /triage continues working
+- Link migration is gradual - existing /workflow:triage continues working
 - link-triage-agent handles SQL generation, delegates categorization to global
 - Template matching follows priority: exact pattern > category > type > generic
 - Queue routing maps directly from urgency (critical→immediate, now→todo, etc.)
@@ -830,7 +830,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 **Next Session:**
 - Begin Phase 2: Plan Stage
 - Create plan-agent.md
-- Create generalized /plan command
+- Create generalized /workflow:plan command
 
 ### Session: 2024-12-07 (Phase 2)
 
@@ -844,7 +844,7 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Elaboration requirements (Gherkin acceptance criteria, estimates)
   - Priority scoring algorithm
   - PlanDocument generation for epics/features
-- Created generalized `/plan` command
+- Created generalized `/workflow:plan` command
   - Input parsing (Teamwork ID, JSON, session context)
   - Triage verification before planning
   - Plan-agent orchestration
@@ -875,7 +875,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 **Next Session:**
 - Begin Phase 3: Design Stage
 - Create design-agent.md
-- Create generalized /design command
+- Create generalized /workflow:design command
 - Create ADR template (now at docs/templates/documents/adr-skeleton.md)
 
 ---
@@ -892,7 +892,7 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Implementation plan generation with task breakdown
   - Test plan generation with coverage strategy
   - Routing logic (design complete → deliver, scope issue → plan)
-- Created generalized `/design` command
+- Created generalized `/workflow:design` command
   - Input parsing (Teamwork ID, JSON, session context)
   - Plan verification before designing
   - Branch creation for design workspace
@@ -926,7 +926,7 @@ Use this section to capture notes, decisions, and blockers during implementation
 **Next Session:**
 - Begin Phase 4: Deliver Stage
 - Create dev-agent.md, qa-agent.md, eval-agent.md
-- Create generalized /deliver command
+- Create generalized /workflow:deliver command
 
 ---
 
@@ -958,7 +958,7 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Implementation document generation
   - Follow-up item identification
   - Learnings capture for improvement
-- Created generalized `/deliver` command
+- Created generalized `/workflow:deliver` command
   - Full pipeline orchestration (dev → qa → eval)
   - Branch and PR management
   - Phase resumption support
@@ -1036,7 +1036,7 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Adapter pattern for Teamwork, GitHub, Linear, Jira, Local
   - Common WorkItem schema across all managers
   - Work item ID format: `TW-*`, `GH-owner/repo#*`, `LIN-*`, `JIRA-*`, `LOCAL-*`
-- Created local queue storage (`~/.claude/work-managers/queue-store.md`)
+- Created local queue storage (`~/.claude/work-managers/workflow:queue-store.md`)
   - JSON-based storage in `~/.claude/session/queues.json`
   - Assignment tracking with timestamps
   - Full history of queue changes
@@ -1046,11 +1046,11 @@ Use this section to capture notes, decisions, and blockers during implementation
   - Support for all manager types
   - Queue sync options (local or native)
   - Label/tag mapping for native sync
-- Updated `/queue` command for local tracking
+- Updated `/workflow:queue` command for local tracking
   - Reads from local queue store
   - Enriches with data from appropriate manager
   - Supports `--manager` filter
-- Updated `/route` command for local tracking
+- Updated `/workflow:route` command for local tracking
   - Updates local queue store
   - Tracks history with reasons
   - Optional comment to external system
@@ -1167,7 +1167,7 @@ All 7 phases (0-7) are now complete. The work system includes:
 - Created `/work-item` aggregate command - Full CRUD, assignment, workflow, collaboration
 - Created `/project` aggregate command - Project management and team membership
 - Created `/agent` aggregate command - Agent queries and status management
-- Created `/queue` aggregate command - Queue visualization and statistics
+- Created `/workflow:queue` aggregate command - Queue visualization and statistics
 - Created `commands/domain/README.md` - Natural language interface documentation
 
 **Documentation (`docs/`):**
@@ -1214,7 +1214,7 @@ The AI acts as translator between human language and system operations.
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Domain Aggregates                           │
-│  /work-item  /project  /agent  /queue                          │
+│  /work-item  /project  /agent  /workflow:queue                          │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1268,7 +1268,7 @@ docs/
 
 **Next Steps:**
 
-- Update workflow commands (/triage, /plan, /design, /deliver) to use domain aggregates
+- Update workflow commands (/workflow:triage, /workflow:plan, /workflow:design, /workflow:deliver) to use domain aggregates
 - Consider implementing natural language resolution layer
 - Define ubiquitous language for the team (issue vs work-item, etc.)
 
@@ -1296,7 +1296,7 @@ docs/
    - `/work-item` - Full work item management
    - `/project` - Project management
    - `/agent` - Agent queries and status
-   - `/queue` - Queue visualization
+   - `/workflow:queue` - Queue visualization
 
 3. **Natural Language Documentation**
    - Philosophy document explaining true natural language

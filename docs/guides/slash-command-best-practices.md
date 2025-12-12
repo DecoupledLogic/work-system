@@ -78,10 +78,10 @@ Not all commands are created equal – some are **agents** and some are **action
 
 -   They have a **single responsibility** and predictable outcomes[[17]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint).
 -   Minimal branching or decision-making internally – they take input, perform a procedure, and produce output.
--   They can be run on their own (e.g. you can call `/design:lint` directly to lint a file) **or** be invoked by agent commands as part of a larger workflow.
+-   They can be run on their own (e.g. you can call `/workflow:design:lint` directly to lint a file) **or** be invoked by agent commands as part of a larger workflow.
 -   They typically use only the tools necessary for the task. For example, an action that just reads and analyzes a file might only need `Read` access, or an action that transforms data might just use `Bash` for a script. Keeping allowed tools limited makes actions safer and more focused[[18]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,clearly%20show%20action%20invocations%20and).
 
-**Agent Commands** are **high-level orchestrators or coordinators**[[19]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint%60%2C%20runs%20final%20test). An agent command strings together multiple actions (and possibly user interactions) to accomplish a complex goal. For example, an agent command `/design:init` might coordinate several steps: generate a theme, run audits, then lint files, then run tests – possibly delegating each step to an action command like `/design:generate-theme`, `/design:lint`, etc.[[20]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint%60%2C%20runs%20final%20test). Characteristics of agents:
+**Agent Commands** are **high-level orchestrators or coordinators**[[19]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint%60%2C%20runs%20final%20test). An agent command strings together multiple actions (and possibly user interactions) to accomplish a complex goal. For example, an agent command `/workflow:design:init` might coordinate several steps: generate a theme, run audits, then lint files, then run tests – possibly delegating each step to an action command like `/workflow:design:generate-theme`, `/workflow:design:lint`, etc.[[20]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint%60%2C%20runs%20final%20test). Characteristics of agents:
 
 -   They handle the **workflow logic**: sequencing tasks, branching based on outcomes, prompting the user for input if needed, and verifying that the overall goal is achieved[[19]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint%60%2C%20runs%20final%20test)[[20]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,theme%60%2C%20%60%2Fdesign%3Alint%60%2C%20runs%20final%20test).
 -   They often have access to broader tools since they may perform varied tasks (read/write files, run multiple shell commands, even edit code). For instance, an agent might allow `MultiEdit` or combine `Read`/`Write`/`Bash` capabilities[[21]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Include%20these%20fields%20in%20frontmatter%3A).
@@ -96,7 +96,7 @@ Marking a command as an `agent` or `action` (via frontmatter) and following the 
 -   **Separation of Concerns**: Agents delegate work; actions carry out the work. This modularity makes commands reusable and easier to maintain[[26]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=is%20orchestration%20or%20a%20helper,isolated%20contexts%20to%20preserve%20focus). An action can be reused in different workflows, and an agent can swap out or add steps without each step being overly complex.
 -   **Context Management**: Since agents break down the problem, each action can run with a clean context focused only on its job. The main agent collects results and maintains the overall state[[22]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=logic%20modular%20%26%20reusable,may%20require%20broader%20tool%20access). This avoids one giant prompt trying to do everything at once, which could confuse the model or hit context limits.
 -   **Tool Security**: By design, you allow broad tools only in agents that truly need them, and keep actions more sandboxed. For example, an action that just formats text might not need internet access or multi-file editing – so don’t give it those. Agents, which supervise, might need a bit more leeway to orchestrate. This containment reduces risk of misuse[[18]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,clearly%20show%20action%20invocations%20and).
--   **Easier Debugging**: Logs and outputs can be clearly segmented. You can see in the logs something like `[design:init][AGENT] → Starting action /design:generate-theme` or `[design:lint][ACTION] → Found 3 issues` which instantly tells you what happened where[[27]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=%60%60%60%20,PASS%20%E2%80%94%20agent%20completed). If something fails, you know which action to fix. The agent’s summary log versus action-specific logs help pinpoint issues.
+-   **Easier Debugging**: Logs and outputs can be clearly segmented. You can see in the logs something like `[design:init][AGENT] → Starting action /workflow:design:generate-theme` or `[design:lint][ACTION] → Found 3 issues` which instantly tells you what happened where[[27]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=%60%60%60%20,PASS%20%E2%80%94%20agent%20completed). If something fails, you know which action to fix. The agent’s summary log versus action-specific logs help pinpoint issues.
 
 **Implementing the Distinction**: Use frontmatter to explicitly label and constrain each type:
 
@@ -159,14 +159,14 @@ Claude will replace `$ARGUMENTS` with *"The submit button doesn’t work on mobi
 argument-hint: path to lint (e.g., src/components or app/page.tsx)
 ```
 
-This hint might appear in the UI or help text when someone tries to use `/design:lint`, reminding them to provide a file path or directory[[34]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Add%20the%20%60argument,to%20describe%20the%20expected%20input). Always provide a helpful hint for complex commands. It improves usability and reduces errors.
+This hint might appear in the UI or help text when someone tries to use `/workflow:design:lint`, reminding them to provide a file path or directory[[34]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Add%20the%20%60argument,to%20describe%20the%20expected%20input). Always provide a helpful hint for complex commands. It improves usability and reduces errors.
 
 **Multi-part arguments:** Since `$ARGUMENTS` is one string, how do you handle cases where you need multiple pieces of input? There are a few patterns:
 
 -   **Space-delimited segments:** The user can type multiple words or paths separated by spaces. Your command’s logic can then treat them as separate items. For example, if someone runs:
 
 ```
-/design:lint src/components app/page.tsx
+/workflow:design:lint src/components app/page.tsx
 ```
 
 Here `$ARGUMENTS` would be `"src/components app/page.tsx"`. You can instruct Claude (or use a shell script) to split on spaces into a list of files. In a shell snippet, `$ARGUMENTS` will come through as words separated by space, so something like:
@@ -183,7 +183,7 @@ would iterate over each provided path[[35]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:
 -   **Comma-delimited list:** The user separates parts of the input with commas. Example:
 
 ```
-/design:deploy staging,hotfix
+/workflow:design:deploy staging,hotfix
 ```
 
 Now `$ARGUMENTS` is the string `"staging,hotfix"`. In your prompt or code, you can say: *"Split* `$ARGUMENTS` *by comma. The first part is the environment, second is the branch."*[[36]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=) Claude will then know to break it apart. Or you can handle it in a shell script by replacing commas with space and then iterating similarly.
@@ -222,7 +222,7 @@ Claude now effectively has named parameters to work with, because your command c
 
 **Using arguments inside prompts:** You can put `$ARGUMENTS` anywhere in the prompt content where you need that user input. It could be in a shell command (`!bash tailwindcss -i $ARGUMENTS -o out.css` – which runs a tool on the given input file[[41]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=%60%60%60bash%20%21bash%20tailwindcss%20,css)), or in prose (e.g. “Please analyze the text: `$ARGUMENTS`”). Claude will substitute the literal text provided when the command runs[[41]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=%60%60%60bash%20%21bash%20tailwindcss%20,css). This makes commands like templates with fill-in-the-blank.
 
-**Advanced patterns: Argument forwarding and processing** – In agent commands, you might accept an argument and then **forward** it to sub-commands. For example, if `/design:init` takes a project path as argument, internally it may call `/design:generate-theme $ARGUMENTS` and then `/design:lint $ARGUMENTS`[[42]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Agent%20commands%20can%20forward%20,to%20actions), so that the sub-actions each get the same project path as their input. This means your actions should be designed to handle the argument appropriately (one might expect a directory path to generate theme for, the other to lint that directory). Ensure consistency in how the argument is interpreted at each step, or do any necessary transformation before passing it along.
+**Advanced patterns: Argument forwarding and processing** – In agent commands, you might accept an argument and then **forward** it to sub-commands. For example, if `/workflow:design:init` takes a project path as argument, internally it may call `/workflow:design:generate-theme $ARGUMENTS` and then `/workflow:design:lint $ARGUMENTS`[[42]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Agent%20commands%20can%20forward%20,to%20actions), so that the sub-actions each get the same project path as their input. This means your actions should be designed to handle the argument appropriately (one might expect a directory path to generate theme for, the other to lint that directory). Ensure consistency in how the argument is interpreted at each step, or do any necessary transformation before passing it along.
 
 **Dynamic inputs with lists or multiple values** – If you expect a list of items, decide on a delimiter and document it in the `argument-hint`. For example, `"files (space-separated)"` or `"modes (comma-separated list)"`. Then handle it accordingly. In some cases, you might even allow different formats – for instance, the command could detect if there’s an `=` in the input to decide if it should use key-value parsing or treat it as a single string. But that can add complexity – often it’s better to keep each command’s expected format simple and clear.
 
@@ -378,11 +378,11 @@ With the building blocks established (commands, agents/actions, arguments, shell
 
 **Pattern:** An agent command that breaks a complex workflow into a sequence of action commands, executing each in order and handling the flow logic.
 
-**Use case:** *Design System Initialization* – e.g. a `/design:init` agent: - **Step 1:** Call `/design:generate-theme $ARGUMENTS` to generate design tokens (colors, typography) from a source (perhaps a brand spec or default). - **Step 2:** Then call `/design:lint $ARGUMENTS` to run a style lint on the project and catch any inconsistencies. - **Step 3:** If lint finds issues, maybe prompt the user or auto-fix them (could call another action like `/design:apply-fixes`). - **Step 4:** Finally, run a verification test suite (perhaps via a shell command or an action `/design:test`) to ensure everything passes.
+**Use case:** *Design System Initialization* – e.g. a `/workflow:design:init` agent: - **Step 1:** Call `/workflow:design:generate-theme $ARGUMENTS` to generate design tokens (colors, typography) from a source (perhaps a brand spec or default). - **Step 2:** Then call `/workflow:design:lint $ARGUMENTS` to run a style lint on the project and catch any inconsistencies. - **Step 3:** If lint finds issues, maybe prompt the user or auto-fix them (could call another action like `/workflow:design:apply-fixes`). - **Step 4:** Finally, run a verification test suite (perhaps via a shell command or an action `/workflow:design:test`) to ensure everything passes.
 
-The agent `/design:init` orchestrates these. It might pass the same argument (project path) to each subcommand[[42]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Agent%20commands%20can%20forward%20,to%20actions). It also decides what to do based on outcomes (e.g., if lint returns issues, fail or attempt fixes, etc.). This pattern is essentially a **pipeline** – one thing after another. Each action focuses on its task, and the agent is the glue.
+The agent `/workflow:design:init` orchestrates these. It might pass the same argument (project path) to each subcommand[[42]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=Agent%20commands%20can%20forward%20,to%20actions). It also decides what to do based on outcomes (e.g., if lint returns issues, fail or attempt fixes, etc.). This pattern is essentially a **pipeline** – one thing after another. Each action focuses on its task, and the agent is the glue.
 
-**Benefit:** Clear separation – if the theme generation logic changes, you only update `/design:generate-theme`. If you want to add a new step (say accessibility audit), you slip in a new action call. The agent ensures all needed steps run to achieve the high-level goal.
+**Benefit:** Clear separation – if the theme generation logic changes, you only update `/workflow:design:generate-theme`. If you want to add a new step (say accessibility audit), you slip in a new action call. The agent ensures all needed steps run to achieve the high-level goal.
 
 ### 2. **Master-Agent and Sub-Agent Hierarchy**
 
@@ -810,7 +810,7 @@ In `.claude/settings.json`, hooks might look like:
 
 (This is a hypothetical structure; actual syntax may vary.)
 
-A concrete example: You could add a hook so that whenever you open a design file, Claude automatically runs `/design:lint` on it and perhaps comments on any issues. Or a hook on project open to run `/project:lint-all` to give you an overview of code quality.
+A concrete example: You could add a hook so that whenever you open a design file, Claude automatically runs `/workflow:design:lint` on it and perhaps comments on any issues. Or a hook on project open to run `/project:lint-all` to give you an overview of code quality.
 
 **Be Cautious with Hooks:** Hooks run without explicit user invocation, so **safety is paramount**. They should be idempotent and quick. Do not include destructive operations in hooks (like deleting things) since they will execute unprompted[[73]](file://file-4cLdrYxvYDGBGZRS3CYF8f#:~:text=,or%20anything%20destructive%20without%20validation). Also, ensure they won’t spam you (e.g., if a hook runs on every file save and prints a full report each time, that might be too much). Possibly provide a way to disable certain hooks if needed (maybe via a config flag).
 

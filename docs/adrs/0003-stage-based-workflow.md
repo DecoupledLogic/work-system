@@ -104,7 +104,7 @@ Slash commands are thin orchestrators that:
 6. Display results
 
 ```markdown
-# /triage command flow
+# /workflow:triage command flow
 
 1. Parse task ID from input
 2. Fetch task from work manager

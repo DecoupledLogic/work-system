@@ -110,7 +110,7 @@ All documentation files are located in `~/.claude/docs/`
 - **templates/README.md**: Template system overview
 - **templates/versioning.md**: Template versioning guide
 - **work-managers/README.md**: Work manager abstraction layer
-- **work-managers/queue-store.md**: Local queue storage specification
+- **work-managers/workflow:queue-store.md**: Local queue storage specification
 
 ### Architecture Decisions
 - **docs/adrs/0001-work-manager-abstraction.md**: Why backend-agnostic design
@@ -171,16 +171,16 @@ All documentation files are located in `~/.claude/docs/`
 **Typical daily flow**:
 ```bash
 # Morning: Check queue
-/queue todo
+/workflow:queue todo
 
 # Select work
-/select-task
+/workflow:select-task
 
 # Process through stages
-/triage <id>
-/plan <id>
-/design <id>
-/deliver <id>
+/workflow:triage <id>
+/workflow:plan <id>
+/workflow:design <id>
+/workflow:deliver <id>
 
 # Quick reference for syntax
 # Open quick-reference.md
@@ -241,9 +241,9 @@ Documentation:
 
 Agents:
 ✅ agents/work-item-mapper.md
-✅ agents/triage-agent.md
-✅ agents/plan-agent.md
-✅ agents/design-agent.md
+✅ agents/workflow:triage-agent.md
+✅ agents/workflow:plan-agent.md
+✅ agents/workflow:design-agent.md
 ✅ agents/dev-agent.md
 ✅ agents/qa-agent.md
 ✅ agents/eval-agent.md
@@ -273,7 +273,7 @@ Session:
 
 Work Managers:
 ✅ work-managers/README.md
-✅ work-managers/queue-store.md
+✅ work-managers/workflow:queue-store.md
 
 Documentation:
 ✅ docs/adrs/README.md

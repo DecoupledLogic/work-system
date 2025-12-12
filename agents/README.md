@@ -11,12 +11,15 @@ Agents are the "workers" of the work system. They receive structured input, perf
 ```
 agents/
 ├── README.md                 # This file
+├── architecture-review-agent.md  # Codebase architecture analysis
 ├── design-agent.md           # Solution exploration and architecture decisions
 ├── dev-agent.md              # TDD implementation agent
+├── document-writer-agent.md  # Markdown document generation from templates
 ├── eval-agent.md             # Delivery evaluation against acceptance criteria
 ├── plan-agent.md             # Work decomposition and sizing
 ├── qa-agent.md               # Test generation and quality validation
 ├── session-logger.md         # Activity logging and metrics capture
+├── story-delivery-agent.md   # End-to-end story delivery orchestration
 ├── task-fetcher.md           # Teamwork API orchestration
 ├── task-selector.md          # Task display and selection
 ├── template-validator.md     # Template compliance validation
@@ -38,6 +41,7 @@ Core agents that implement work system stages:
 | `dev-agent` | Deliver | Implement code following TDD practices |
 | `qa-agent` | Deliver | Generate tests, validate quality |
 | `eval-agent` | Eval | Compare plan vs actual, capture learnings |
+| `story-delivery-agent` | Deliver | Orchestrate end-to-end story delivery (11-step workflow) |
 
 ### Utility Agents
 
@@ -45,6 +49,8 @@ Supporting agents for common operations:
 
 | Agent | Purpose |
 |-------|---------|
+| `architecture-review-agent` | Analyze codebase architecture and generate guardrails |
+| `document-writer-agent` | Generate lint-safe markdown documents from templates |
 | `task-fetcher` | Fetch and enrich tasks from Teamwork API |
 | `task-selector` | Display and select from task lists |
 | `work-item-mapper` | Transform external data to WorkItem schema |
@@ -127,4 +133,4 @@ Agents connect to:
 
 ---
 
-*Last Updated: 2024-12-07*
+*Last Updated: 2025-12-12*

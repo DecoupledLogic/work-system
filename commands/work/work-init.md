@@ -8,7 +8,8 @@ Initialize the work system for the current repository.
 2. **Detects your stack** - Scans for .NET, TypeScript/React/Vue, SQL projects
 3. **Runs architecture review** - Analyzes codebase structure and patterns
 4. **Generates configuration** - Creates architecture spec and agent playbook
-5. **Sets up integrations** - Optionally links to Teamwork, Azure DevOps, etc.
+5. **Initializes pattern store** - Sets up code review pattern learning
+6. **Sets up integrations** - Optionally links to Teamwork, Azure DevOps, etc.
 
 ## Generated Files
 
@@ -19,6 +20,8 @@ After running, you'll have:
 ├── architecture.yaml              # Machine-readable architecture spec
 ├── agent-playbook.yaml            # Rules for coding agents
 └── architecture-recommendations.json  # Categorized improvements
+
+code-review-patterns.yaml          # Pattern store for PR feedback learning
 ```
 
 ## Instructions
@@ -76,6 +79,20 @@ Write to `.claude/`:
 - `agent-playbook.yaml` - Coding rules and patterns
 - `architecture-recommendations.json` - Categorized improvement suggestions
 
+### Step 3.5: Initialize Pattern Store
+
+If `code-review-patterns.yaml` doesn't exist in the project root:
+
+1. Copy the template from `~/.claude/docs/templates/code-review-patterns.example.yaml`
+2. Save to project root as `code-review-patterns.yaml`
+3. Inform user: "✅ Created code-review-patterns.yaml - will learn from PR feedback"
+
+If `code-review-patterns.yaml` already exists:
+- Skip creation
+- Inform user: "ℹ️  code-review-patterns.yaml already exists - keeping existing patterns"
+
+**Purpose:** This file stores patterns learned from PR feedback. As team members review code and provide feedback, you can extract those patterns with `/extract-review-patterns` and they'll be automatically checked in future code reviews.
+
 ### Step 4: Report Summary
 
 Report to user:
@@ -98,4 +115,6 @@ If `.claude/architecture.yaml` already exists, ask the user whether to:
 ## See Also
 
 - `/architecture-review` - Re-run architecture review on demand
+- `/extract-review-patterns` - Extract learnable patterns from PR feedback
+- `/code-review` - Run code review with learned patterns
 - Documentation: `docs/architecture-review-agent.md`

@@ -7,32 +7,32 @@ Fast lookup for common operations and commands.
 ### Work Selection
 
 ```bash
-/select-task              # Pick next work item from queues
-/resume                   # Continue active work item
-/work-status              # View system implementation status
+/workflow:select-task              # Pick next work item from queues
+/workflow:resume                   # Continue active work item
+/work:status              # View system implementation status
 ```
 
 ### Workflow Stages
 
 ```bash
-/triage <id>              # Categorize and route work
-/plan <id>                # Decompose and size work
-/design <id>              # Explore solutions, create ADR
-/deliver <id>             # Implement, test, evaluate
+/workflow:triage <id>              # Categorize and route work
+/workflow:plan <id>                # Decompose and size work
+/workflow:design <id>              # Explore solutions, create ADR
+/workflow:deliver <id>             # Implement, test, evaluate
 ```
 
 ### Queue Management
 
 ```bash
-/queue                    # View all queues
-/queue immediate          # View critical queue
-/queue todo               # View current work queue
-/queue backlog            # View next cycle queue
-/queue icebox             # View future queue
+/workflow:queue                    # View all queues
+/workflow:queue immediate          # View critical queue
+/workflow:queue todo               # View current work queue
+/workflow:queue backlog            # View next cycle queue
+/workflow:queue icebox             # View future queue
 
-/route <id> <queue>       # Move work between queues
-/route TW-123 immediate   # Promote to critical
-/route TW-456 backlog     # Defer to next cycle
+/workflow:route <id> <queue>       # Move work between queues
+/workflow:route TW-123 immediate   # Promote to critical
+/workflow:route TW-456 backlog     # Defer to next cycle
 ```
 
 ## Work Item IDs
@@ -139,31 +139,31 @@ delivery/implementation-plan         # Task breakdown with estimates
 
 ### New Support Request
 ```bash
-/triage TW-12345          # Categorize → routes to queue
-/deliver TW-12345         # Execute support workflow
+/workflow:triage TW-12345          # Categorize → routes to queue
+/workflow:deliver TW-12345         # Execute support workflow
 ```
 
 ### New Feature Request
 ```bash
-/triage TW-99001          # Categorize → creates epic/feature
-/plan TW-99001            # Decompose → creates stories
-/design TW-99002          # Design first story → creates ADR
-/deliver TW-99002         # Build, test, evaluate
+/workflow:triage TW-99001          # Categorize → creates epic/feature
+/workflow:plan TW-99001            # Decompose → creates stories
+/workflow:design TW-99002          # Design first story → creates ADR
+/workflow:deliver TW-99002         # Build, test, evaluate
 ```
 
 ### Critical Bug
 ```bash
-/triage TW-CRIT-1         # Categorize → immediate queue
-/design TW-CRIT-1         # Quick solution exploration
-/deliver TW-CRIT-1        # Fix, test, ship
+/workflow:triage TW-CRIT-1         # Categorize → immediate queue
+/workflow:design TW-CRIT-1         # Quick solution exploration
+/workflow:deliver TW-CRIT-1        # Fix, test, ship
 ```
 
 ### Cycle Planning
 ```bash
-/queue todo               # Review current work
-/queue backlog            # Review next items
-/route TW-123 todo        # Promote to current cycle
-/select-task              # Start working
+/workflow:queue todo               # Review current work
+/workflow:queue backlog            # Review next items
+/workflow:route TW-123 todo        # Promote to current cycle
+/workflow:select-task              # Start working
 ```
 
 ## File Locations
@@ -342,7 +342,7 @@ cat ~/.claude/templates/registry.json | grep <template-name>
 ### Queue empty
 ```bash
 cat ~/.claude/session/queues.json
-# If missing, run /triage on a task first
+# If missing, run /workflow:triage on a task first
 ```
 
 ### Agent not loading
@@ -369,10 +369,10 @@ Ctrl+K                    # Search files
 ### Batch Operations
 ```bash
 # Triage multiple items
-/triage TW-1, TW-2, TW-3
+/workflow:triage TW-1, TW-2, TW-3
 
 # Plan multiple items
-/plan TW-10, TW-11, TW-12
+/workflow:plan TW-10, TW-11, TW-12
 ```
 
 ### Template Versioning

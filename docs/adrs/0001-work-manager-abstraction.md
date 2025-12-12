@@ -18,7 +18,7 @@ The work system needs to track work items (tasks, issues, stories) across differ
 - **Jira**: Used by enterprise clients
 - **Local-only**: Some projects have no external tracking
 
-Initially, the queue management commands (`/queue`, `/route`) were designed specifically for Teamwork, using Teamwork tags to track queue assignments. This approach had several problems:
+Initially, the queue management commands (`/workflow:queue`, `/workflow:route`) were designed specifically for Teamwork, using Teamwork tags to track queue assignments. This approach had several problems:
 
 1. **Not portable**: Commands wouldn't work with GitHub, Linear, or other systems
 2. **Permission issues**: Teamwork tag creation/modification requires specific permissions
@@ -154,5 +154,5 @@ Build a separate service to track queues across all systems.
 ## References
 
 - `~/.claude/work-managers/README.md` - Implementation documentation
-- `~/.claude/work-managers/queue-store.md` - Queue storage specification
+- `~/.claude/work-managers/workflow:queue-store.md` - Queue storage specification
 - `~/.claude/work-managers/work-manager.schema.yaml` - Configuration schema

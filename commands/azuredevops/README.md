@@ -294,6 +294,42 @@ Get details of a single pull request.
 
 ---
 
+### `/ado-get-pr-threads`
+
+List all comment threads on a pull request with their status and replies.
+
+```bash
+/ado-get-pr-threads "MyProject" "MyRepo" 123
+/ado-get-pr-threads "MyProject" "MyRepo" 123 --status active
+/ado-get-pr-threads "MyProject" "MyRepo" 123 --format summary
+```
+
+**Parameters:**
+
+- `project` (required) - Project name
+- `repository` (required) - Repository name
+- `pullRequestId` (required) - PR ID
+- `--status` (optional) - Filter by status (active, fixed, closed, wontFix, byDesign, pending)
+- `--format` (optional) - Output format (detailed|summary) - default: detailed
+
+**Output includes:**
+
+- Thread ID, status, and timestamps
+- File context (path and line numbers)
+- All comments in each thread (with reply hierarchy)
+- Summary counts (total, active, pending, fixed, closed, etc.)
+
+**Use cases:**
+
+- View unresolved comments before pushing updates
+- Monitor PR review progress
+- Check what needs to be addressed
+- Integration with `/deliver` workflow
+
+**Returns:** JSON with threads array, PR details, and summary counts.
+
+---
+
 ### `/ado-create-pr`
 
 Create a new pull request.
@@ -356,6 +392,87 @@ Add a comment to a pull request.
 
 **Returns:** JSON with created comment thread.
 
+**Note:** This creates a new thread. To reply to an existing thread, use `/ado-reply-pr-thread`.
+
+---
+
+### `/ado-reply-pr-thread`
+
+Reply to an existing comment thread on a pull request.
+
+```bash
+/ado-reply-pr-thread 123 4269 "Fixed - changed to Transient as suggested"
+/ado-reply-pr-thread 123 4270 "Thanks for the feedback! Updated." --project "MyProject" --repo "MyRepo"
+```
+
+**Parameters:**
+
+- `pr-id` (required) - Pull request ID
+- `thread-id` (required) - Thread ID to reply to
+- `reply-text` (required) - Text of your reply
+- `--project` (optional) - Override project from work-manager.yaml
+- `--repo` (optional) - Override repository (auto-detected from git remote)
+
+**Use cases:**
+
+- Respond to code review feedback
+- Address specific concerns in threads
+- Explain changes made to address comments
+- Ask for clarification on feedback
+
+**Typical workflow:**
+1. Get threads with `/ado-get-pr-threads` to find thread IDs
+2. Make code changes to address feedback
+3. Reply to thread explaining what was done
+4. Optionally resolve with `/ado-resolve-pr-thread`
+
+See [ado-reply-pr-thread.md](ado-reply-pr-thread.md) for detailed usage.
+
+---
+
+### `/ado-resolve-pr-thread`
+
+Update the status of a comment thread (resolve, close, mark as won't fix, etc.).
+
+```bash
+/ado-resolve-pr-thread 123 4269 --status fixed
+/ado-resolve-pr-thread 123 4270 --status wontFix
+/ado-resolve-pr-thread 123 4271 --status closed --project "MyProject"
+```
+
+**Parameters:**
+
+- `pr-id` (required) - Pull request ID
+- `thread-id` (required) - Thread ID to update
+- `--status` (required) - New thread status
+- `--project` (optional) - Override project from work-manager.yaml
+- `--repo` (optional) - Override repository (auto-detected from git remote)
+
+**Status options:**
+
+| Status | When to Use |
+|--------|-------------|
+| `active` | Default state, discussion ongoing |
+| `fixed` | Issue addressed with code changes |
+| `wontFix` | Acknowledged but won't implement |
+| `closed` | Discussion complete without changes |
+| `byDesign` | Intentional behavior, not a bug |
+| `pending` | Waiting for response/clarification |
+
+**Best practices:**
+- Reply before resolving to explain what was done
+- Use `fixed` only when changes are tested and pushed
+- Use `wontFix` or `byDesign` with clear explanation
+- Let reviewers verify critical fixes
+
+**Typical workflow:**
+1. Make code changes to address thread
+2. Reply with `/ado-reply-pr-thread` explaining fix
+3. Resolve with `/ado-resolve-pr-thread --status fixed`
+4. Push changes
+
+See [ado-resolve-pr-thread.md](ado-resolve-pr-thread.md) for detailed usage.
+
 ---
 
 ### `/ado-merge-pr`
@@ -397,6 +514,42 @@ Approve a pull request (set vote to Approved).
 - `--with-suggestions` (optional) - Approve with suggestions (vote = 5 instead of 10)
 
 **Returns:** JSON with updated reviewer status.
+
+---
+
+### Learning from PR Feedback
+
+After PR is merged, you can extract learnable patterns from reviewer feedback:
+
+```bash
+# Extract patterns from merged PR
+/extract-review-patterns --source ado --pr 1045 --project MyProject --repo MyRepo
+
+# Patterns are saved to code-review-patterns.yaml in project root
+# Next time you run /code-review, these patterns will be checked automatically
+```
+
+**Pattern Learning Flow:**
+1. PR gets feedback → Threads created with reviewer comments
+2. You address feedback → Reply to threads
+3. Resolve threads → Mark as fixed
+4. PR merged → Extract patterns from all threads
+5. Patterns stored in `code-review-patterns.yaml`
+6. Future code reviews → Patterns automatically checked
+
+This creates a self-improving code review system that learns from your team's actual PR feedback.
+
+**Example Pattern Extraction:**
+
+If a reviewer comments:
+> "Use Transient here, not Scoped. This service is stateless."
+
+The pattern extractor will create:
+- Rule: "Use Transient for stateless services"
+- Detection: Regex to find `AddScoped<I*Query|Command|Repository>`
+- Remediation: "Change AddScoped to AddTransient"
+
+See [extract-review-patterns.md](../extract-review-patterns.md) for details.
 
 ---
 

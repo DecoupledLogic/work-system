@@ -345,7 +345,7 @@ After rendering, validate:
 For consulting engagements with product strategy:
 
 ```text
-/doc-write product-strategy → vision, north star, OKRs, initiatives, risks
+/docs:write product-strategy → vision, north star, OKRs, initiatives, risks
 ```
 
 ### Pre-Plan (Research)
@@ -353,7 +353,7 @@ For consulting engagements with product strategy:
 When research is needed before planning:
 
 ```text
-spike work item → /doc-write spike-report → answers questions, reduces uncertainty
+spike work item → /docs:write spike-report → answers questions, reduces uncertainty
 ```
 
 ### With Plan Stage
@@ -361,9 +361,9 @@ spike work item → /doc-write spike-report → answers questions, reduces uncer
 Document generation varies by work item type:
 
 ```text
-/plan epic → /doc-write delivery-plan → epics, features, stories, acceptance criteria
-/plan feature → /doc-write prd → vision, actors, jobs, acceptance criteria
-/plan bug → /doc-write bug-report → symptoms, root cause, fix approach
+/workflow:plan epic → /docs:write delivery-plan → epics, features, stories, acceptance criteria
+/workflow:plan feature → /docs:write prd → vision, actors, jobs, acceptance criteria
+/workflow:plan bug → /docs:write bug-report → symptoms, root cause, fix approach
 ```
 
 ### With Design Stage
@@ -371,12 +371,12 @@ Document generation varies by work item type:
 When designing, generate multiple documents:
 
 ```text
-/design feature → generates:
+/workflow:design feature → generates:
   - architecture-blueprint (if system/service architecture)
   - adr (if major architectural decision)
   - test-plan (test strategy)
 
-/design story → generates:
+/workflow:design story → generates:
   - spec (story details, technical approach)
   - impl-plan (task breakdown)
 ```
@@ -386,7 +386,7 @@ When designing, generate multiple documents:
 When completing work, generate:
 
 ```text
-/deliver TW-12345 complete → generates:
+/workflow:deliver TW-12345 complete → generates:
   - release-notes (version, features, fixes)
   - retro (if learnings exist → creates follow-up work items)
 ```

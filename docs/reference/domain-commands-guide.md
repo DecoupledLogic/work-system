@@ -82,9 +82,9 @@ Domain commands provide a **natural language interface** to work management oper
 ### Queues
 
 ```bash
-/queue list
-/queue show <queue-name>
-/queue stats
+/workflow:queue list
+/workflow:queue show <queue-name>
+/workflow:queue stats
 ```
 
 ---
@@ -165,7 +165,7 @@ Domain commands provide a **natural language interface** to work management oper
 /agent my-work
 
 # See all work in a queue
-/queue show urgent
+/workflow:queue show urgent
 
 # Check a team member's capacity
 /agent workload @jane

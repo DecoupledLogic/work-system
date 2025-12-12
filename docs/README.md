@@ -7,6 +7,7 @@ Comprehensive documentation for the Claude Code Work System, including guides, s
 ```text
 docs/
 ├── README.md                    # This file
+├── getting-started.md           # End-to-end story delivery tutorial
 ├── adrs/                        # Architecture Decision Records
 │   ├── 0001-work-manager-abstraction.md
 │   ├── 0002-local-first-session-state.md
@@ -40,6 +41,12 @@ docs/
 
 ## Documentation Categories
 
+### Getting Started
+
+| Document | Purpose |
+|----------|---------|
+| [getting-started.md](getting-started.md) | **End-to-end story delivery tutorial** |
+
 ### Core Specification
 
 | Document | Purpose |
@@ -52,7 +59,7 @@ docs/
 
 | Document | Purpose |
 |----------|---------|
-| [architecture-review-agent.md](agents/architecture-review-agent.md) | 3-pass codebase analysis methodology |
+| [architecture-review-agent.md](agents/quality:architecture-review-agent.md) | 3-pass codebase analysis methodology |
 | [architecture-agents-prompts.md](agents/architecture-agents-prompts.md) | System prompts for architecture agents |
 | [document-writer-agent.md](agents/document-writer-agent.md) | Template-driven document generation |
 | [document-writer-prompts.md](agents/document-writer-prompts.md) | System prompts for document writer |
@@ -90,7 +97,13 @@ docs/
 
 ## Reading Order
 
-### For New Users
+### For New Operators (Start Here)
+
+1. [getting-started.md](getting-started.md) - **End-to-end story delivery tutorial**
+2. [reference/quick-reference.md](reference/quick-reference.md) - Command cheat sheet
+3. [core/work-system-guide.md](core/work-system-guide.md) - Full reference
+
+### For New Users (Conceptual)
 
 1. [core/work-system-readme.md](core/work-system-readme.md) - Overview
 2. [reference/quick-reference.md](reference/quick-reference.md) - Commands
@@ -106,7 +119,7 @@ docs/
 
 1. [concepts/programming-in-natural-language.md](concepts/programming-in-natural-language.md) - Design philosophy
 2. [adrs/](adrs/) - Decision records
-3. [agents/architecture-review-agent.md](agents/architecture-review-agent.md) - Architecture methodology
+3. [agents/quality:architecture-review-agent.md](agents/quality:architecture-review-agent.md) - Architecture methodology
 
 ## Related Directories
 
@@ -117,4 +130,4 @@ docs/
 
 ---
 
-*Last Updated: 2024-12-08*
+*Last Updated: 2025-12-12*

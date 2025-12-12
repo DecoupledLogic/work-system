@@ -1174,7 +1174,7 @@ Discovery Review is a **formal checkpoint** before experiments or implementation
 
 #### Blank Template
 
-`discovery/design-review/design-review-notes.md`
+`discovery/workflow:design-review/workflow:design-review-notes.md`
 
 ```markdown
 # Design Review Notes: <Project>
@@ -1202,7 +1202,7 @@ Tags: artifact:design-review
 
 #### Example (SonoSensei)
 
-`discovery/design-review/design-review-notes-sonosensei.md`
+`discovery/workflow:design-review/workflow:design-review-notes-sonosensei.md`
 
 ```markdown
 # Design Review Notes: SonoSensei
@@ -1555,7 +1555,7 @@ Tags: artifact:decision, initiative:sonosensei
 - [ ] Device v1.9 latency profiling (Donny, due 2025-09-18).
 
 ## References
-- [Design Review Notes: SonoSensei](../design-review/design-review-notes-sonosensei.md)
+- [Design Review Notes: SonoSensei](../workflow:design-review/workflow:design-review-notes-sonosensei.md)
 - [Experiment Design: SonoSensei](../experiment/experiment-design-sonosensei.md)
 - [Baseline Report: SonoSensei](../baseline/baseline-report-sonosensei.md)
 ```

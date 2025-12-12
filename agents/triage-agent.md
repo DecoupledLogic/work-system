@@ -244,7 +244,7 @@ Determine where the work item goes next:
 - If work needs more information → stay in `triage`
 
 **Skip-to-Deliver Criteria:**
-The work can skip plan/design and go directly to deliver if:
+The work can skip plan/workflow:design and go directly to deliver if:
 - Type is `task`
 - Has clear acceptance criteria
 - Solution is known/obvious

@@ -65,17 +65,17 @@ render:
 
 ## Usage
 
-Templates are used via the `/doc-write` slash command:
+Templates are used via the `/docs:write` slash command:
 
 ```bash
 # Generate PRD from work item
-/doc-write prd --work-item TW-12345
+/docs:write prd --work-item TW-12345
 
 # Interactive mode
-/doc-write spec --interactive
+/docs:write spec --interactive
 
 # Custom output
-/doc-write adr --title "Use JWT" --output docs/adrs/0005-jwt.md
+/docs:write adr --title "Use JWT" --output docs/adrs/0005-jwt.md
 ```
 
 ## Adding New Templates
@@ -84,7 +84,7 @@ Templates are used via the `/doc-write` slash command:
 2. Define `name`, `version`, `description`
 3. List `requiredContext` and `optionalContext` fields
 4. Define `render` blocks for document structure
-5. Update `commands/doc-write.md` to include the new template
+5. Update `commands/docs:write.md` to include the new template
 
 ## Template Guidelines
 
@@ -98,4 +98,4 @@ Templates are used via the `/doc-write` slash command:
 
 - [Document Writer Agent](../../agents/document-writer-agent.md) - Agent methodology
 - [Markdown Standards](../../reference/markdown-standards.md) - Linting rules
-- [doc-write Command](../../../commands/doc-write.md) - Slash command usage
+- [doc-write Command](../../../commands/docs:write.md) - Slash command usage

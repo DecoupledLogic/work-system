@@ -1,0 +1,360 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://work-system/schemas/agent-playbook.schema.json",
+  "title": "Agent Playbook Schema",
+  "description": "Schema for agent-playbook.yaml with PR feedback tracking",
+  "type": "object",
+  "required": ["version", "intent"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "description": "Schema version number"
+    },
+    "intent": {
+      "type": "string",
+      "description": "Purpose and scope of this playbook"
+    },
+    "taskTypes": {
+      "type": "array",
+      "description": "Supported task types",
+      "items": {
+        "type": "string",
+        "enum": ["feature", "bugfix", "refactor", "experiment", "chore"]
+      }
+    },
+    "generalGuidelines": {
+      "type": "array",
+      "description": "General guidelines for all agents",
+      "items": {"type": "string"}
+    },
+    "backend": {
+      "$ref": "#/definitions/layerConfig"
+    },
+    "frontend": {
+      "$ref": "#/definitions/layerConfig"
+    },
+    "data": {
+      "$ref": "#/definitions/layerConfig"
+    },
+    "crossCutting": {
+      "type": "object",
+      "description": "Cross-cutting concerns",
+      "properties": {
+        "auth": {
+          "type": "object",
+          "properties": {
+            "rules": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "rules": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "errorHandling": {
+          "type": "object",
+          "properties": {
+            "rules": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "improvementGuidelines": {
+      "type": "object",
+      "properties": {
+        "leverage": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/leverageRule"}
+        },
+        "experiments": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/experimentRule"}
+        },
+        "refusalRules": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "perTask": {
+          "type": "object",
+          "properties": {
+            "steps": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "requiredOutputs": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "layerConfig": {
+      "type": "object",
+      "properties": {
+        "projectMap": {
+          "type": "object",
+          "description": "Project name mappings"
+        },
+        "roots": {
+          "type": "object",
+          "description": "Root directory mappings"
+        },
+        "guardrails": {
+          "type": "array",
+          "description": "Critical rules that MUST be followed",
+          "items": {"$ref": "#/definitions/guardrailRule"}
+        },
+        "patterns": {
+          "type": "array",
+          "description": "Recommended implementation patterns",
+          "items": {"$ref": "#/definitions/patternRule"}
+        },
+        "hygiene": {
+          "type": "array",
+          "description": "Code quality improvements to apply opportunistically",
+          "items": {"$ref": "#/definitions/hygieneRule"}
+        }
+      }
+    },
+    "guardrailRule": {
+      "type": "object",
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2,3}-G\\d{2}$",
+          "description": "Unique guardrail ID (e.g., BE-G01, FE-G01)"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this guardrail prevents or enforces"
+        },
+        "check": {
+          "type": "string",
+          "description": "How to verify compliance"
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": ["always", "recommended", "optional"],
+          "default": "always",
+          "description": "How strictly to enforce this rule"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["architecture-review", "pr-feedback", "manual"],
+          "description": "Where this guardrail came from"
+        },
+        "prSource": {
+          "$ref": "#/definitions/prSource",
+          "description": "PR feedback source details (if source is pr-feedback)"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in this rule"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ruleMetadata",
+          "description": "Usage tracking metadata"
+        }
+      }
+    },
+    "patternRule": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2,3}-P\\d{2}$",
+          "description": "Unique pattern ID (e.g., BE-P01, FE-P01)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Pattern name"
+        },
+        "when": {
+          "type": "string",
+          "description": "When to apply this pattern"
+        },
+        "steps": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Implementation steps"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["architecture-review", "pr-feedback", "manual"],
+          "description": "Where this pattern came from"
+        },
+        "prSource": {
+          "$ref": "#/definitions/prSource",
+          "description": "PR feedback source details (if source is pr-feedback)"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in this pattern"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ruleMetadata",
+          "description": "Usage tracking metadata"
+        }
+      }
+    },
+    "hygieneRule": {
+      "type": "object",
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2,3}-H\\d{2}$",
+          "description": "Unique hygiene rule ID (e.g., BE-H01, FE-H01)"
+        },
+        "description": {
+          "type": "string",
+          "description": "What improvement to make"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "When to apply this hygiene rule"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["architecture-review", "pr-feedback", "manual"],
+          "description": "Where this hygiene rule came from"
+        },
+        "prSource": {
+          "$ref": "#/definitions/prSource",
+          "description": "PR feedback source details (if source is pr-feedback)"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in this rule"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ruleMetadata",
+          "description": "Usage tracking metadata"
+        }
+      }
+    },
+    "leverageRule": {
+      "type": "object",
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^IMP-L\\d{2}$",
+          "description": "Unique leverage ID (e.g., IMP-L01)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Improvement to leverage"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["architecture-review", "pr-feedback", "manual"]
+        },
+        "prSource": {
+          "$ref": "#/definitions/prSource"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "metadata": {
+          "$ref": "#/definitions/ruleMetadata"
+        }
+      }
+    },
+    "experimentRule": {
+      "type": "object",
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^IMP-E\\d{2}$",
+          "description": "Unique experiment ID (e.g., IMP-E01)"
+        },
+        "description": {
+          "type": "string"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "prSource": {
+      "type": "object",
+      "required": ["pr", "reviewer", "date"],
+      "properties": {
+        "pr": {
+          "type": "integer",
+          "description": "Pull request number"
+        },
+        "reviewer": {
+          "type": "string",
+          "description": "Name of reviewer who provided feedback"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of PR feedback (YYYY-MM-DD)"
+        },
+        "thread": {
+          "type": "integer",
+          "description": "PR comment thread ID (optional)"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Original PR comment text (optional)"
+        }
+      }
+    },
+    "ruleMetadata": {
+      "type": "object",
+      "properties": {
+        "timesTriggered": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "How many times this rule was triggered"
+        },
+        "falsePositives": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Times marked as false positive"
+        },
+        "lastTriggered": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Last time this rule was triggered (ISO 8601)"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this rule was created"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this rule was last updated"
+        },
+        "effectiveness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Effectiveness score (0-1)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://work-system/schemas/code-review-patterns.schema.json",
+  "title": "Code Review Patterns",
+  "description": "Schema for code review pattern storage and tracking",
+  "type": "object",
+  "required": ["schemaVersion", "patterns"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the schema"
+    },
+    "patterns": {
+      "type": "array",
+      "description": "List of learned code review patterns",
+      "items": {
+        "$ref": "#/definitions/pattern"
+      }
+    }
+  },
+  "definitions": {
+    "pattern": {
+      "type": "object",
+      "required": ["id", "category", "priority", "title", "source", "rule", "detection", "metadata"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]+-[A-Z]+-\\d{3}$",
+          "description": "Unique pattern identifier (e.g., DI-LIFETIME-001)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Pattern category (e.g., DependencyInjection, Architecture, Security)"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["Critical", "High", "Medium", "Low"],
+          "description": "Detection priority level"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short, descriptive title for the pattern"
+        },
+        "source": {
+          "$ref": "#/definitions/source"
+        },
+        "rule": {
+          "type": "string",
+          "description": "Textual description of the rule or guideline"
+        },
+        "antiPattern": {
+          "type": "string",
+          "description": "Code example showing what NOT to do"
+        },
+        "correctPattern": {
+          "type": "string",
+          "description": "Code example showing the correct approach"
+        },
+        "detection": {
+          "$ref": "#/definitions/detection"
+        },
+        "remediation": {
+          "type": "string",
+          "description": "Steps to fix violations of this pattern"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/example"
+          }
+        },
+        "relatedPatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of related patterns"
+        },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["system", "pr", "reviewer", "date"],
+      "properties": {
+        "system": {
+          "type": "string",
+          "enum": ["github", "azuredevops"],
+          "description": "Source control system"
+        },
+        "pr": {
+          "type": "integer",
+          "description": "Pull request number"
+        },
+        "thread": {
+          "type": "integer",
+          "description": "Comment thread ID (optional)"
+        },
+        "reviewer": {
+          "type": "string",
+          "description": "Name of the reviewer who provided feedback"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date feedback was given (YYYY-MM-DD)"
+        }
+      }
+    },
+    "detection": {
+      "type": "object",
+      "required": ["files", "pattern"],
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Glob patterns for files to check"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regex pattern to detect violations"
+        },
+        "validation": {
+          "type": "string",
+          "description": "Additional validation logic description"
+        }
+      }
+    },
+    "example": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "File path where issue was found"
+        },
+        "line": {
+          "type": "integer",
+          "description": "Line number of the issue"
+        },
+        "issue": {
+          "type": "string",
+          "description": "Description of the issue"
+        },
+        "fix": {
+          "type": "string",
+          "description": "How to fix the issue"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Usage tracking and effectiveness metrics",
+      "properties": {
+        "timesDetected": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of times this pattern was detected"
+        },
+        "lastDetected": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Last time this pattern was detected"
+        },
+        "falsePositives": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of times this pattern was a false positive"
+        },
+        "falsePositiveRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0,
+          "description": "Calculated false positive rate (falsePositives / timesDetected)"
+        },
+        "avgFixTime": {
+          "type": ["string", "null"],
+          "description": "Average time to fix violations (e.g., '5 minutes')"
+        },
+        "totalTimeSaved": {
+          "type": ["string", "null"],
+          "description": "Total estimated time saved by catching issues early"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this pattern was created"
+        },
+        "updated": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "When this pattern was last updated"
+        }
+      }
+    }
+  }
+}

@@ -270,7 +270,7 @@ Possible reasons:
 
 Great job if you're all caught up!
 
-To see tasks in progress, use: /resume
+To see tasks in progress, use: /workflow:resume
 ```
 
 **Resume mode:**
@@ -279,7 +279,7 @@ To see tasks in progress, use: /resume
 
 No in-progress tasks found in project "[Project Name]" assigned to: [user email]
 
-To start new work, use: /select-task
+To start new work, use: /workflow:select-task
 ```
 
 ## Implementation Notes
